@@ -135,7 +135,7 @@ export default function Hero() {
                 />
 
                 <Image
-                  src="/avatar.jpg"
+                  src="/avatar.jpeg"
                   alt="Alexandre V. Avatar"
                   fill
                   sizes="(max-width: 768px) 192px, 224px"
