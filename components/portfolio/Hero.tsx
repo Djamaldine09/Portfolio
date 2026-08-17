@@ -135,7 +135,7 @@ export default function Hero() {
                 />
 
                 <Image
-                  src="/avatar.jpeg"
+                  src="/avatar.png"
                   alt="Alexandre V. Avatar"
                   fill
                   sizes="(max-width: 768px) 192px, 224px"
@@ -151,7 +151,7 @@ export default function Hero() {
               className="mt-6 flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-900/80 border border-slate-800 text-xs font-mono text-cyan-400/90 shadow-sm"
             >
               <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
-              <span>PROFIL ACTIF : ALEXANDRE V. — ID-3094</span>
+              <span>PROFIL ACTIF : DJAMALDINE M. — ID-3094</span>
             </motion.div>
           </motion.div>
 
@@ -185,7 +185,7 @@ export default function Hero() {
               variants={itemVariants}
               className="text-base sm:text-lg text-slate-400 max-w-xl leading-relaxed mb-8"
             >
-              Bonjour, je suis <span className="text-white font-medium">Alexandre</span>. Développeur Full Stack spécialisé dans la création d'expériences web interactives, scalables et soignées.
+              Bonjour, je suis <span className="text-white font-medium">Djamaldine</span>. Développeur Full Stack spécialisé dans la création d'expériences web interactives, scalables et soignées.
             </motion.p>
 
             {/* Stack Technique (Badges interactifs) */}
