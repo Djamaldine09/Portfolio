@@ -7,6 +7,7 @@ import Projects from '@/components/portfolio/Projects';
 import ScrollTextLines from '@/components/portfolio/ScrollTextLines';
 import Skills from '@/components/portfolio/Skills';
 import Contact from '@/components/portfolio/Contact';
+import Footer from '@/components/portfolio/Footer';
 import Navigation from '@/components/portfolio/Navigation';
 
 export default function Portfolio() {
@@ -29,6 +30,7 @@ export default function Portfolio() {
       <ScrollTextLines />
       <Skills />
       <Contact />
+      <Footer />
     </main>
   );
 }

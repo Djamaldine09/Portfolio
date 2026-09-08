@@ -218,17 +218,6 @@ export default function Contact() {
           </div>
         </div>
 
-        <div
-          className={`mt-16 text-center transform transition-all duration-1000 delay-500 ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}
-        >
-          <div className="border-t pt-8">
-            <p className="text-gray-600">
-              © 2024 Portfolio. Tous droits réservés.
-            </p>
-          </div>
-        </div>
       </div>
     </section>
   );
