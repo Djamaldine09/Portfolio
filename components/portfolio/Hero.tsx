@@ -72,7 +72,7 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-[200vh] overflow-x-hidden bg-[#070b14]"
+      className="relative min-h-[200vh] bg-[#070b14]"
     >
       <div className="sticky top-0 flex min-h-screen items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
         <motion.div
