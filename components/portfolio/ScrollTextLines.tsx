@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform, wrap, type MotionValue } from 'framer-motion';
 
@@ -79,7 +79,7 @@ const LOGO_LINES: LogoItem[][] = [
   LOGO_ITEMS.slice(9, 11),
 ];
 
-const LINE_SPEEDS = [2, 3, 4, 5];
+const LINE_SPEEDS = [0.008, 0.012, 0.016, 0.02];
 
 const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
   direction: (i % 2 === 0 ? 1 : -1) as 1 | -1,
@@ -88,15 +88,10 @@ const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
 }));
 
 export default function ScrollTextLines() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  });
+  const { scrollY } = useScroll();
 
   return (
     <section
-      ref={sectionRef}
       className="relative py-20 md:py-28 overflow-hidden bg-[#0a0f0d]"
       aria-label="Points forts"
     >
@@ -107,7 +102,7 @@ export default function ScrollTextLines() {
             direction={line.direction}
             speed={line.speed}
             items={line.items}
-            scrollYProgress={scrollYProgress}
+            scrollY={scrollY}
           />
         ))}
       </div>
@@ -119,17 +114,14 @@ function ScrollLine({
   direction,
   speed,
   items,
-  scrollYProgress,
+  scrollY,
 }: {
   direction: 1 | -1;
   speed: number;
   items: LogoItem[];
-  scrollYProgress: MotionValue<number>;
+  scrollY: MotionValue<number>;
 }) {
-  // Move the ticker by a large percentage of its own width as the user
-  // scrolls, and wrap it back into a -100%..0% range so it always loops
-  // seamlessly — the repeated content behind never runs out.
-  const rawPercent = useTransform(scrollYProgress, [0, 1], [0, direction * speed]);
+  const rawPercent = useTransform(scrollY, (value) => value * direction * speed);
   const x = useTransform(rawPercent, (value) => `${wrap(-100, 0, -value)}%`);
 
   return (
