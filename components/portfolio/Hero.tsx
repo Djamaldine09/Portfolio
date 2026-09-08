@@ -72,9 +72,9 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-[200vh] bg-[#070b14]"
+      className="relative min-h-[200vh] w-full max-w-[100vw] overflow-hidden bg-[#070b14]"
     >
-      <div className="sticky top-0 flex min-h-screen items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
+      <div className="sticky top-0 flex min-h-screen w-full items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
         <motion.div
           aria-hidden="true"
           style={{
@@ -96,7 +96,7 @@ export default function Hero() {
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="absolute left-1/4 top-1/2 -z-10 h-[550px] w-[550px] -translate-y-1/2 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-600/20 blur-[130px]"
+          className="absolute left-1/4 top-1/2 -z-10 h-[300px] w-[300px] max-w-[70vw] -translate-y-1/2 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-600/20 blur-[130px] sm:h-[550px] sm:w-[550px]"
         />
 
         <div className="relative z-10 mx-auto w-full max-w-7xl">
