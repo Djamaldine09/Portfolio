@@ -79,7 +79,7 @@ const LOGO_LINES: LogoItem[][] = [
   LOGO_ITEMS.slice(9, 11),
 ];
 
-const LINE_SPEEDS = [0.008, 0.012, 0.016, 0.02];
+const LINE_SPEEDS = [0.002, 0.003, 0.004, 0.005];
 
 const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
   direction: (i % 2 === 0 ? 1 : -1) as 1 | -1,
