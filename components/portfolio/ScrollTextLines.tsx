@@ -1,63 +1,8 @@
 'use client';
 
 import { useRef, type ReactNode } from 'react';
+import Image from 'next/image';
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
-
-/**
- * ==============   Tech logos (inline SVG, no extra deps)   ================
- */
-function ReactLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <circle cx="12" cy="12" r="2.2" fill="currentColor" />
-      <g stroke="currentColor" strokeWidth="1.4">
-        <ellipse cx="12" cy="12" rx="10" ry="4.2" />
-        <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(60 12 12)" />
-        <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(120 12 12)" />
-      </g>
-    </svg>
-  );
-}
-
-function NextLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <circle cx="12" cy="12" r="10.5" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M9 8v8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M9 8l7 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path d="M15 10v6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function TypeScriptLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <rect x="2.5" y="2.5" width="19" height="19" rx="3" stroke="currentColor" strokeWidth="1.4" />
-      <path d="M8 9h5M10.5 9v7" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-      <path
-        d="M15 15.2c.3.6.9 1 1.7 1 .9 0 1.5-.4 1.5-1.1 0-1.7-3.1-.9-3.1-3 0-1 1-1.6 2-1.6.7 0 1.3.3 1.6.8"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function NodeLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7L12 2.5Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-      <path d="M12 8v8M9 10l6 4M15 10l-6 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 /**
  * ==============   Ticker   ================
@@ -132,11 +77,23 @@ const LINES: LineConfig[] = [
   { direction: -1, speed: 120, content: { kind: 'text', word: 'STUDIO' } },
 ];
 
-const LOGO_ITEMS: { icon: (className?: string) => ReactNode; label: string }[] = [
-  { icon: (c) => <ReactLogo className={c} />, label: 'React' },
-  { icon: (c) => <NextLogo className={c} />, label: 'Next.js' },
-  { icon: (c) => <TypeScriptLogo className={c} />, label: 'TypeScript' },
-  { icon: (c) => <NodeLogo className={c} />, label: 'Node.js' },
+interface LogoItem {
+  src: string;
+  label: string;
+}
+
+const LOGO_ITEMS: LogoItem[] = [
+  { src: '/tech/React.png', label: 'React' },
+  { src: '/tech/logo-typescript.webp', label: 'TypeScript' },
+  { src: '/tech/flutter-logo.png', label: 'Flutter' },
+  { src: '/tech/next_js_logo.png', label: 'Next.js' },
+  { src: '/tech/logo-node-js.png', label: 'Node.js' },
+  { src: '/tech/logo-expressjs.png', label: 'Express' },
+  { src: '/tech/python.png', label: 'Python' },
+  { src: '/tech/laravel.png', label: 'Laravel' },
+  { src: '/tech/angular.png', label: 'Angular' },
+  { src: '/tech/dotnet.png', label: '.NET' },
+  { src: '/tech/java.png', label: 'Java' },
 ];
 
 export default function ScrollTextLines() {
@@ -188,17 +145,22 @@ function ScrollLine({
         render={(variant, key) => (
           <LogoSpan key={key} variant={variant}>
             {LOGO_ITEMS.map((item, i) => (
-              <span key={i} className="flex items-center gap-3">
-                {item.icon('w-12 h-12 md:w-16 md:h-16')}
-                <span
-                  className={
-                    WORD_CLASS +
-                    ' px-0 text-4xl md:text-6xl ' +
-                    (variant === 'fill'
-                      ? 'text-white'
-                      : 'text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,0.35)]')
-                  }
-                >
+              <span
+                key={i}
+                className={
+                  'flex items-center gap-3 ' + (variant === 'fill' ? 'opacity-100' : 'opacity-30')
+                }
+              >
+                <span className="relative w-12 h-12 md:w-16 md:h-16 shrink-0">
+                  <Image
+                    src={item.src}
+                    alt={item.label}
+                    fill
+                    sizes="64px"
+                    className="object-contain"
+                  />
+                </span>
+                <span className={WORD_CLASS + ' px-0 text-4xl md:text-6xl text-white'}>
                   {item.label}
                 </span>
                 {i < LOGO_ITEMS.length - 1 && <span className="text-white/20 px-4">/</span>}
