@@ -1,15 +1,11 @@
 'use client';
 
-import { type ReactNode, useRef } from 'react';
+import { type ReactNode } from 'react';
 import Image from 'next/image';
 import {
   motion,
-  useAnimationFrame,
-  useMotionValue,
   useScroll,
   useTransform,
-  useVelocity,
-  useSpring,
   wrap,
   type MotionValue,
 } from 'framer-motion';
@@ -89,7 +85,7 @@ const LOGO_LINES: LogoItem[][] = [
   LOGO_ITEMS.slice(9, 11),
 ];
 
-const LINE_SPEEDS = [0.002, 0.003, 0.004, 0.005];
+const LINE_SPEEDS = [0.006, 0.008, 0.01, 0.012];
 
 const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
   direction: (i % 2 === 0 ? 1 : -1) as 1 | -1,
@@ -99,13 +95,6 @@ const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
 
 export default function ScrollTextLines() {
   const { scrollY } = useScroll();
-  const scrollVelocity = useVelocity(scrollY);
-  // Smooth out the raw velocity so direction-change / fast-flick scrolling
-  // doesn't make the lines jitter or snap.
-  const smoothVelocity = useSpring(scrollVelocity, {
-    damping: 50,
-    stiffness: 400,
-  });
 
   return (
     <section
@@ -119,7 +108,7 @@ export default function ScrollTextLines() {
             direction={line.direction}
             speed={line.speed}
             items={line.items}
-            scrollVelocity={smoothVelocity}
+            scrollY={scrollY}
           />
         ))}
       </div>
@@ -131,25 +120,15 @@ function ScrollLine({
   direction,
   speed,
   items,
-  scrollVelocity,
+  scrollY,
 }: {
   direction: 1 | -1;
   speed: number;
   items: LogoItem[];
-  scrollVelocity: MotionValue<number>;
+  scrollY: MotionValue<number>;
 }) {
-  const baseX = useMotionValue(0);
-  const x = useTransform(baseX, (value) => `${wrap(-100, 0, value)}%`);
-
-  // Constant base drift (so the line always moves even when the page is
-  // still), plus an added kick proportional to scroll speed/direction.
-  const baseSpeed = 0.02 * direction;
-
-  useAnimationFrame((_, delta) => {
-    const velocityFactor = scrollVelocity.get() * speed * 0.001;
-    const moveBy = (baseSpeed + velocityFactor * direction) * (delta / 16.6);
-    baseX.set(baseX.get() + moveBy);
-  });
+  const rawPercent = useTransform(scrollY, (value) => value * direction * speed);
+  const x = useTransform(rawPercent, (value) => `${wrap(-100, 0, -value)}%`);
 
   return (
     <Ticker
