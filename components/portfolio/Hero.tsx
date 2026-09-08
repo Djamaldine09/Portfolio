@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
   ArrowUpRight, 
   Check, 
@@ -41,8 +41,16 @@ const itemVariants = {
 const techStack = ['HTML', 'TypeScript', 'Next.js', 'React', 'Tailwind', 'Node.js'];
 
 export default function Hero() {
+  const heroRef = useRef<HTMLElement>(null);
   const [copied, setCopied] = useState(false);
   const email = "alexandre.v@example.com";
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+  const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.28]);
+  const backgroundBlur = useTransform(scrollYProgress, [0, 1], ['blur(0px)', 'blur(14px)']);
+  const backgroundOpacity = useTransform(scrollYProgress, [0, 1], [0.5, 0]);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(email);
@@ -59,10 +67,26 @@ export default function Hero() {
 
   return (
     <section
+      ref={heroRef}
       id="hero"
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#070b14] text-slate-100 px-4 sm:px-6 lg:px-12 py-20"
     >
-      {/* 1. Arrière-plan High-Tech : Grille et halos néon */}
+      <motion.div
+        aria-hidden="true"
+        style={{
+          scale: backgroundScale,
+          filter: backgroundBlur,
+          opacity: backgroundOpacity,
+          backgroundImage: "url('/avatar.png')",
+        }}
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-0 bg-[linear-gradient(115deg,rgba(7,11,20,0.94),rgba(7,11,20,0.68),rgba(7,11,20,0.9))]"
+      />
+
+      {/* Arrière-plan High-Tech : Grille et halos néon */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b1f_1px,transparent_1px),linear-gradient(to_bottom,#1e293b1f_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
       
       {/* Halo cyan / bleu en arrière-plan */}
