@@ -120,6 +120,12 @@ function MonParcours() {
 export default function About() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+  const headingY = useTransform(scrollYProgress, [0, 0.45], [40, -25]);
+  const cardsY = useTransform(scrollYProgress, [0.05, 0.55], [50, -10]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -168,7 +174,8 @@ export default function About() {
       className="py-20 px-4 sm:px-6 lg:px-8 bg-white"
     >
       <div className="max-w-7xl mx-auto">
-        <div
+        <motion.div
+          style={{ y: headingY }}
           className={`text-center mb-16 transform transition-all duration-1000 ${
             isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
           }`}
@@ -180,12 +187,12 @@ export default function About() {
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Développeur passionné avec plusieurs années d'expérience dans la création
-            d'applications web modernes et performantes.
+            Développeur passionné avec plusieurs années d&apos;expérience dans la création
+            d&apos;applications web modernes et performantes.
           </p>
-        </div>
+        </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <motion.div style={{ y: cardsY }} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {features.map((feature, index) => (
             <Card
               key={index}
@@ -207,7 +214,7 @@ export default function About() {
               </CardContent>
             </Card>
           ))}
-        </div>
+        </motion.div>
 
       </div>
 
@@ -221,7 +228,7 @@ export default function About() {
         >
           <div className="max-w-3xl mx-auto">
             <p className="text-gray-700 leading-relaxed">
-              Je suis constamment à l'affût des dernières technologies et
+              Je suis constamment à l&apos;affût des dernières technologies et
               tendances du développement web. Mon objectif est de créer des
               expériences utilisateur exceptionnelles tout en maintenant un code
               de haute qualité.
