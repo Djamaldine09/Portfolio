@@ -2,7 +2,7 @@
 
 import { useRef, type ReactNode } from 'react';
 import Image from 'next/image';
-import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
+import { motion, useScroll, useTransform, wrap, type MotionValue } from 'framer-motion';
 
 /**
  * ==============   Ticker   ================
@@ -13,7 +13,7 @@ import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion
 function Ticker({
   render,
   x,
-  repeatCount = 6,
+  repeatCount = 14,
 }: {
   render: (variant: 'fill' | 'outline', key: number) => ReactNode;
   x: MotionValue<string>;
@@ -63,7 +63,7 @@ const LOGO_ITEMS: LogoItem[] = [
   { src: '/tech/flutter-logo.png', label: 'Flutter' },
   { src: '/tech/next_js_logo.png', label: 'Next.js' },
   { src: '/tech/logo-node-js.png', label: 'Node.js' },
-  { src: '/tech/logo-expressjs.png', label: 'Express' },
+  { src: '/tech/javascript-js.png', label: 'Express' },
   { src: '/tech/python.png', label: 'Python' },
   { src: '/tech/laravel.png', label: 'Laravel' },
   { src: '/tech/angular.png', label: 'Angular' },
@@ -81,7 +81,7 @@ const LOGO_LINES: LogoItem[][] = [
 
 const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
   direction: (i % 2 === 0 ? 1 : -1) as 1 | -1,
-  speed: 110 + i * 20,
+  speed: 220 + i * 60,
   items: group,
 }));
 
@@ -124,8 +124,11 @@ function ScrollLine({
   items: LogoItem[];
   scrollYProgress: MotionValue<number>;
 }) {
-  const rawX = useTransform(scrollYProgress, [0, 1], [0, direction * speed * -1]);
-  const x = useTransform(rawX, (value) => `calc(${value}px - 20%)`);
+  // Move the ticker by a large percentage of its own width as the user
+  // scrolls, and wrap it back into a -100%..0% range so it always loops
+  // seamlessly — the repeated content behind never runs out.
+  const rawPercent = useTransform(scrollYProgress, [0, 1], [0, direction * speed]);
+  const x = useTransform(rawPercent, (value) => `${wrap(-100, 0, -value)}%`);
 
   return (
     <Ticker
