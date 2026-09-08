@@ -109,11 +109,11 @@ export default function Projects() {
       </div>
 
       {/* Scroll-driven horizontal gallery */}
-      <div ref={containerRef} className="relative" style={{ height: `${projects.length * 70}vh` }}>
+      <div ref={containerRef} className="relative overflow-x-hidden" style={{ height: `${projects.length * 70}vh` }}>
         <div className="sticky top-0 h-screen flex items-center overflow-hidden">
           <motion.div
             ref={trackRef}
-            className="flex pl-4 sm:pl-[calc((100vw-1280px)/2+16px)] pr-4 sm:pr-[calc((100vw-1280px)/2+16px)]"
+            className="flex pl-4 sm:pl-[max(1rem,calc((100vw-1280px)/2+16px))] pr-4 sm:pr-[max(1rem,calc((100vw-1280px)/2+16px))]"
             style={{ x, gap: `${GAP}px` }}
           >
             {projects.map((project, index) => (
