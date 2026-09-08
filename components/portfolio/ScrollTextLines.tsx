@@ -33,22 +33,6 @@ function Ticker({
 const WORD_CLASS =
   "font-[900] uppercase tracking-tight text-6xl md:text-8xl leading-none px-6 shrink-0 [font-stretch:condensed]";
 
-function WordSpan({ children, variant }: { children: string; variant: 'fill' | 'outline' }) {
-  return (
-    <span
-      className={
-        WORD_CLASS +
-        ' ' +
-        (variant === 'fill'
-          ? 'text-white'
-          : 'text-transparent [-webkit-text-stroke:1.5px_rgba(255,255,255,0.35)]')
-      }
-    >
-      {children}
-    </span>
-  );
-}
-
 function LogoSpan({ children, variant }: { children: ReactNode; variant: 'fill' | 'outline' }) {
   return (
     <span
@@ -62,24 +46,15 @@ function LogoSpan({ children, variant }: { children: ReactNode; variant: 'fill' 
   );
 }
 
-interface LineConfig {
-  direction: 1 | -1;
-  speed: number;
-  content:
-    | { kind: 'text'; word: string }
-    | { kind: 'logos' };
-}
-
-const LINES: LineConfig[] = [
-  { direction: 1, speed: 140, content: { kind: 'text', word: 'CREATIVE' } },
-  { direction: -1, speed: 110, content: { kind: 'text', word: 'DESIGN' } },
-  { direction: 1, speed: 170, content: { kind: 'logos' } },
-  { direction: -1, speed: 120, content: { kind: 'text', word: 'STUDIO' } },
-];
-
 interface LogoItem {
   src: string;
   label: string;
+}
+
+interface LineConfig {
+  direction: 1 | -1;
+  speed: number;
+  items: LogoItem[];
 }
 
 const LOGO_ITEMS: LogoItem[] = [
@@ -95,6 +70,20 @@ const LOGO_ITEMS: LogoItem[] = [
   { src: '/tech/dotnet.png', label: '.NET' },
   { src: '/tech/java.png', label: 'Java' },
 ];
+
+// Split the logos into 4 groups so each scrolling line shows a different subset.
+const LOGO_LINES: LogoItem[][] = [
+  LOGO_ITEMS.slice(0, 3),
+  LOGO_ITEMS.slice(3, 6),
+  LOGO_ITEMS.slice(6, 9),
+  LOGO_ITEMS.slice(9, 11),
+];
+
+const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
+  direction: (i % 2 === 0 ? 1 : -1) as 1 | -1,
+  speed: 110 + i * 20,
+  items: group,
+}));
 
 export default function ScrollTextLines() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -115,7 +104,7 @@ export default function ScrollTextLines() {
             key={index}
             direction={line.direction}
             speed={line.speed}
-            content={line.content}
+            items={line.items}
             scrollYProgress={scrollYProgress}
           />
         ))}
@@ -127,52 +116,46 @@ export default function ScrollTextLines() {
 function ScrollLine({
   direction,
   speed,
-  content,
+  items,
   scrollYProgress,
 }: {
   direction: 1 | -1;
   speed: number;
-  content: LineConfig['content'];
+  items: LogoItem[];
   scrollYProgress: MotionValue<number>;
 }) {
   const rawX = useTransform(scrollYProgress, [0, 1], [0, direction * speed * -1]);
   const x = useTransform(rawX, (value) => `calc(${value}px - 20%)`);
 
-  if (content.kind === 'logos') {
-    return (
-      <Ticker
-        x={x}
-        render={(variant, key) => (
-          <LogoSpan key={key} variant={variant}>
-            {LOGO_ITEMS.map((item, i) => (
-              <span
-                key={i}
-                className={
-                  'flex items-center gap-3 ' + (variant === 'fill' ? 'opacity-100' : 'opacity-30')
-                }
-              >
-                <span className="relative w-12 h-12 md:w-16 md:h-16 shrink-0">
-                  <Image
-                    src={item.src}
-                    alt={item.label}
-                    fill
-                    sizes="64px"
-                    className="object-contain"
-                  />
-                </span>
-                <span className={WORD_CLASS + ' px-0 text-4xl md:text-6xl text-white'}>
-                  {item.label}
-                </span>
-                {i < LOGO_ITEMS.length - 1 && <span className="text-white/20 px-4">/</span>}
-              </span>
-            ))}
-          </LogoSpan>
-        )}
-      />
-    );
-  }
-
   return (
-    <Ticker x={x} render={(variant, key) => <WordSpan key={key} variant={variant}>{content.word}</WordSpan>} />
+    <Ticker
+      x={x}
+      render={(variant, key) => (
+        <LogoSpan key={key} variant={variant}>
+          {items.map((item, i) => (
+            <span
+              key={i}
+              className={
+                'flex items-center gap-3 ' + (variant === 'fill' ? 'opacity-100' : 'opacity-30')
+              }
+            >
+              <span className="relative w-12 h-12 md:w-16 md:h-16 shrink-0">
+                <Image
+                  src={item.src}
+                  alt={item.label}
+                  fill
+                  sizes="64px"
+                  className="object-contain"
+                />
+              </span>
+              <span className={WORD_CLASS + ' px-0 text-4xl md:text-6xl text-white'}>
+                {item.label}
+              </span>
+              {i < items.length - 1 && <span className="text-white/20 px-4">/</span>}
+            </span>
+          ))}
+        </LogoSpan>
+      )}
+    />
   );
 }
