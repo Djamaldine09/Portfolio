@@ -72,33 +72,34 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#070b14] text-slate-100 px-4 sm:px-6 lg:px-12 py-20"
+      className="relative min-h-[200vh] bg-[#070b14]"
     >
-      <motion.div
-        aria-hidden="true"
-        style={{
-          scale: backgroundScale,
-          filter: backgroundBlur,
-          opacity: backgroundOpacity,
-          backgroundImage: "url('/avatar.png')",
-        }}
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-      />
-      {/* Halo cyan / bleu en arrière-plan */}
-      <motion.div
-        animate={{
-          scale: [1, 1.15, 1],
-          opacity: [0.15, 0.25, 0.15],
-        }}
-        transition={{
-          duration: 7,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[550px] h-[550px] bg-gradient-to-tr from-cyan-500/30 to-blue-600/20 blur-[130px] rounded-full pointer-events-none -z-10"
-      />
+      <div className="sticky top-0 flex min-h-screen items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
+        <motion.div
+          aria-hidden="true"
+          style={{
+            scale: backgroundScale,
+            filter: backgroundBlur,
+            opacity: backgroundOpacity,
+            backgroundImage: "url('/avatar.png')",
+          }}
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        />
+        {/* Halo cyan / bleu en arrière-plan */}
+        <motion.div
+          animate={{
+            scale: [1, 1.15, 1],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 7,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          className="absolute left-1/4 top-1/2 -z-10 h-[550px] w-[550px] -translate-y-1/2 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-600/20 blur-[130px]"
+        />
 
-      <div className="max-w-7xl mx-auto w-full relative z-10">
+        <div className="relative z-10 mx-auto w-full max-w-7xl">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -269,25 +270,26 @@ export default function Hero() {
 
           </motion.div>
         </motion.div>
-      </div>
-
-      {/* 8. Indicateur Scroll Souris Animé */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 0.6 }}
-        onClick={() => scrollToSection('about')}
-        aria-label="Scroll vers le bas"
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500 hover:text-cyan-400 transition-colors cursor-pointer"
-      >
-        <div className="w-5 h-9 border-2 border-slate-700 rounded-full flex justify-center p-1">
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-1 h-2 bg-cyan-400 rounded-full"
-          />
         </div>
-      </motion.button>
+
+        {/* 8. Indicateur Scroll Souris Animé */}
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.6 }}
+          onClick={() => scrollToSection('about')}
+          aria-label="Scroll vers le bas"
+          className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-slate-500 transition-colors hover:text-cyan-400"
+        >
+          <div className="flex h-9 w-5 justify-center rounded-full border-2 border-slate-700 p-1">
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+              className="h-2 w-1 rounded-full bg-cyan-400"
+            />
+          </div>
+        </motion.button>
+      </div>
     </section>
   );
 }
