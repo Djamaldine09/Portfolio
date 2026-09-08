@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'framer-motion';
 import { 
   ArrowUpRight, 
   Check, 
@@ -50,7 +50,8 @@ export default function Hero() {
   const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.28]);
   const backgroundBlur = useTransform(scrollYProgress, [0, 1], ['blur(0px)', 'blur(14px)']);
   const backgroundOpacity = useTransform(scrollYProgress, [0, 1], [0.9, 0.2]);
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, 110]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -110]);
+  const smoothContentY = useSpring(contentY, { stiffness: 90, damping: 24, mass: 0.6 });
   const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const contentScale = useTransform(scrollYProgress, [0, 1], [1, 0.94]);
 
@@ -126,7 +127,7 @@ export default function Hero() {
           {/* COLONNE DROITE : Textes, Badges & Actions */}
           {/* ======================================================== */}
           <motion.div
-            style={{ y: contentY, opacity: contentOpacity, scale: contentScale }}
+            style={{ y: smoothContentY, opacity: contentOpacity, scale: contentScale }}
             className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left"
           >
             
