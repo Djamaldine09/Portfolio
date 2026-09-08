@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -68,12 +68,30 @@ const projects = [
 
 export default function Projects() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [trackWidth, setTrackWidth] = useState(0);
+  const [viewportWidth, setViewportWidth] = useState(0);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ['start start', 'end end'],
   });
 
-  const totalDistance = (projects.length - 1) * (ITEM_WIDTH + GAP);
+  useEffect(() => {
+    const measure = () => {
+      if (trackRef.current) {
+        setTrackWidth(trackRef.current.scrollWidth);
+      }
+      setViewportWidth(window.innerWidth);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  // How far the track needs to travel so its last item ends flush
+  // with the right edge of the viewport (accounting for left padding).
+  const totalDistance = Math.max(trackWidth - viewportWidth, 0);
   const x = useTransform(scrollYProgress, [0, 1], [0, -totalDistance]);
 
   return (
@@ -91,10 +109,11 @@ export default function Projects() {
       </div>
 
       {/* Scroll-driven horizontal gallery */}
-      <div ref={containerRef} className="relative" style={{ height: `${projects.length * 60}vh` }}>
+      <div ref={containerRef} className="relative" style={{ height: `${projects.length * 70}vh` }}>
         <div className="sticky top-0 h-screen flex items-center overflow-hidden">
           <motion.div
-            className="flex pl-4 sm:pl-[calc((100vw-1280px)/2+16px)]"
+            ref={trackRef}
+            className="flex pl-4 sm:pl-[calc((100vw-1280px)/2+16px)] pr-4 sm:pr-[calc((100vw-1280px)/2+16px)]"
             style={{ x, gap: `${GAP}px` }}
           >
             {projects.map((project, index) => (
