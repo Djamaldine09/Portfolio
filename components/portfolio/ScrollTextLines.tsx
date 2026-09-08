@@ -81,7 +81,7 @@ const LOGO_LINES: LogoItem[][] = [
 
 const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
   direction: (i % 2 === 0 ? 1 : -1) as 1 | -1,
-  speed: 35 + i * 10,
+  speed: 12 + i * 4,
   items: group,
 }));
 
