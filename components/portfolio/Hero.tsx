@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { 
   ArrowUpRight, 
@@ -50,7 +49,7 @@ export default function Hero() {
   });
   const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.28]);
   const backgroundBlur = useTransform(scrollYProgress, [0, 1], ['blur(0px)', 'blur(14px)']);
-  const backgroundOpacity = useTransform(scrollYProgress, [0, 1], [0.5, 0]);
+  const backgroundOpacity = useTransform(scrollYProgress, [0, 1], [0.9, 0.2]);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(email);
@@ -81,14 +80,6 @@ export default function Hero() {
         }}
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
       />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 z-0 bg-[linear-gradient(115deg,rgba(7,11,20,0.94),rgba(7,11,20,0.68),rgba(7,11,20,0.9))]"
-      />
-
-      {/* Arrière-plan High-Tech : Grille et halos néon */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#1e293b1f_1px,transparent_1px),linear-gradient(to_bottom,#1e293b1f_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
-      
       {/* Halo cyan / bleu en arrière-plan */}
       <motion.div
         animate={{
@@ -112,63 +103,12 @@ export default function Hero() {
         >
 
           {/* ======================================================== */}
-          {/* COLONNE GAUCHE : Avatar Technologique & Anneaux Framer */}
+          {/* COLONNE GAUCHE : Badge de profil */}
           {/* ======================================================== */}
           <motion.div 
             variants={itemVariants}
             className="lg:col-span-5 flex flex-col items-center justify-center"
           >
-            <div className="relative w-72 h-72 sm:w-88 sm:h-88 flex items-center justify-center">
-              
-              {/* Cadre délimiteur HUD */}
-              <div className="absolute inset-0 border border-cyan-500/20 rounded-2xl pointer-events-none">
-                <div className="absolute -top-1 -left-1 w-3 h-3 border-t-2 border-l-2 border-cyan-400" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 border-t-2 border-r-2 border-cyan-400" />
-                <div className="absolute -bottom-1 -left-1 w-3 h-3 border-b-2 border-l-2 border-cyan-400" />
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 border-b-2 border-r-2 border-cyan-400" />
-              </div>
-
-              {/* Anneau 1 : Rotation horaire en pointillés */}
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-4 rounded-full border border-dashed border-cyan-500/30"
-              />
-
-              {/* Anneau 2 : Rotation anti-horaire double trait */}
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-                className="absolute inset-8 rounded-full border-2 border-transparent border-t-cyan-400/70 border-b-blue-500/60"
-              />
-
-              {/* Halo d'énergie autour du portrait */}
-              <div className="absolute inset-12 rounded-full bg-cyan-500/15 blur-xl animate-pulse" />
-
-              {/* Conteneur Portrait Avatar */}
-              <motion.div 
-                whileHover={{ scale: 1.03 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 18 }}
-                className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full overflow-hidden border-2 border-cyan-400/40 bg-slate-900 shadow-[0_0_35px_rgba(6,182,212,0.25)]"
-              >
-                {/* Ligne de scan animée verticalement */}
-                <motion.div
-                  animate={{ y: [-240, 240] }}
-                  transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-                  className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent z-20 shadow-[0_0_12px_#22d3ee]"
-                />
-
-                <Image
-                  src="/avatar.png"
-                  alt="Alexandre V. Avatar"
-                  fill
-                  sizes="(max-width: 768px) 192px, 224px"
-                  className="object-cover relative z-10 opacity-90"
-                  priority
-                />
-              </motion.div>
-            </div>
-
             {/* Badge signalétique sous l'avatar */}
             <motion.div 
               variants={itemVariants}
