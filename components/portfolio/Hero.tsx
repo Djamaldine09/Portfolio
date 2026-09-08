@@ -50,6 +50,9 @@ export default function Hero() {
   const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.28]);
   const backgroundBlur = useTransform(scrollYProgress, [0, 1], ['blur(0px)', 'blur(14px)']);
   const backgroundOpacity = useTransform(scrollYProgress, [0, 1], [0.9, 0.2]);
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 110]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const contentScale = useTransform(scrollYProgress, [0, 1], [1, 0.94]);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(email);
@@ -122,7 +125,10 @@ export default function Hero() {
           {/* ======================================================== */}
           {/* COLONNE DROITE : Textes, Badges & Actions */}
           {/* ======================================================== */}
-          <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left">
+          <motion.div
+            style={{ y: contentY, opacity: contentOpacity, scale: contentScale }}
+            className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left"
+          >
             
             {/* Status Badge */}
             <motion.div variants={itemVariants}>
@@ -260,7 +266,7 @@ export default function Hero() {
               </motion.button>
             </motion.div>
 
-          </div>
+          </motion.div>
         </motion.div>
       </div>
 
