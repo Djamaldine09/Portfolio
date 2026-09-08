@@ -2,7 +2,7 @@
 
 import { useRef, type ReactNode } from 'react';
 import Image from 'next/image';
-import { motion, useScroll, useTransform, wrap, type MotionValue } from 'framer-motion';
+import { motion, useScroll, useSpring, useTransform, wrap, type MotionValue } from 'framer-motion';
 
 /**
  * ==============   Ticker   ================
@@ -81,7 +81,7 @@ const LOGO_LINES: LogoItem[][] = [
 
 const LINES: LineConfig[] = LOGO_LINES.map((group, i) => ({
   direction: (i % 2 === 0 ? 1 : -1) as 1 | -1,
-  speed: 12 + i * 4,
+  speed: 4 + i,
   items: group,
 }));
 
@@ -128,7 +128,8 @@ function ScrollLine({
   // scrolls, and wrap it back into a -100%..0% range so it always loops
   // seamlessly — the repeated content behind never runs out.
   const rawPercent = useTransform(scrollYProgress, [0, 1], [0, direction * speed]);
-  const x = useTransform(rawPercent, (value) => `${wrap(-100, 0, -value)}%`);
+  const smoothPercent = useSpring(rawPercent, { stiffness: 35, damping: 20, mass: 1.2 });
+  const x = useTransform(smoothPercent, (value) => `${wrap(-100, 0, -value)}%`);
 
   return (
     <Ticker
