@@ -1,7 +1,15 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { AnimatePresence, motion, useInView, animate, type Variants } from 'framer-motion';
+import {
+  AnimatePresence,
+  motion,
+  useInView,
+  useScroll,
+  useTransform,
+  animate,
+  type Variants,
+} from 'framer-motion';
 import { Github, Linkedin, Mail, Send, Twitter, CheckCircle2 } from 'lucide-react';
 
 /**
@@ -216,9 +224,20 @@ const SOCIALS = [
 export default function Footer() {
   const footerRef = useRef<HTMLElement>(null);
   const isInView = useInView(footerRef, { once: true, amount: 0.2 });
+  const { scrollYProgress } = useScroll({
+    target: footerRef,
+    offset: ['start end', 'end end'],
+  });
+  const revealOpacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const revealScale = useTransform(scrollYProgress, [0, 1], [0.92, 1]);
+  const revealBlur = useTransform(scrollYProgress, [0, 1], ['blur(10px)', 'blur(0px)']);
 
   return (
-    <footer ref={footerRef} className="relative overflow-hidden bg-[#0a0f0d] px-4 pt-20 pb-10 sm:px-6 lg:px-8">
+    <motion.footer
+      ref={footerRef}
+      style={{ opacity: revealOpacity, scale: revealScale, filter: revealBlur }}
+      className="sticky bottom-0 z-0 overflow-hidden bg-[#0a0f0d] px-4 pt-20 pb-10 sm:px-6 lg:px-8"
+    >
       <div className="mx-auto max-w-7xl">
         <div className="grid gap-12 border-b border-white/10 pb-14 md:grid-cols-[1.4fr_1fr_1fr]">
           <motion.div
@@ -256,6 +275,6 @@ export default function Footer() {
           </div>
         </div>
       </div>
-    </footer>
+    </motion.footer>
   );
 }
