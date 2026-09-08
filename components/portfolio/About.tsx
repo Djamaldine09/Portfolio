@@ -1,8 +1,121 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, Fragment } from 'react';
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from 'framer-motion';
 import { Code2, Rocket, Users, Award } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+
+const PARCOURS_STATEMENT =
+  "Passionné par le développement web depuis plusieurs années, j'ai acquis une solide expérience dans la création d'applications web modernes et performantes, combinant expertise technique et créativité pour livrer des solutions qui dépassent les attentes.";
+
+const START_OPACITY = 0.15;
+const SPREAD = 0.8;
+const WORD_DURATION = 0.2;
+
+interface WordProgressRange {
+  start: number;
+  end: number;
+}
+
+function getWordProgressRange(index: number, count: number): WordProgressRange {
+  const start = count <= 1 ? 0 : (index / (count - 1)) * SPREAD;
+  return {
+    start,
+    end: Math.min(1, start + WORD_DURATION),
+  };
+}
+
+function getWordOpacity(
+  progress: number,
+  { start, end }: WordProgressRange,
+  startOpacity = START_OPACITY
+): number {
+  if (progress <= start) return startOpacity;
+  if (progress >= end) return 1;
+  const wordProgress = (progress - start) / (end - start);
+  return startOpacity + (1 - startOpacity) * wordProgress;
+}
+
+function ParcoursWord({
+  children,
+  progress,
+  index,
+  count,
+  reducedMotion,
+}: {
+  children: string;
+  progress: MotionValue<number>;
+  index: number;
+  count: number;
+  reducedMotion: boolean;
+}) {
+  const range = getWordProgressRange(index, count);
+  const opacity = useTransform(progress, (latest) => getWordOpacity(latest, range));
+
+  return (
+    <motion.span style={reducedMotion ? undefined : { opacity }}>
+      {children}
+    </motion.span>
+  );
+}
+
+function MonParcours() {
+  const parcoursRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: parcoursRef,
+    offset: ['start start', 'end end'],
+  });
+  const words = PARCOURS_STATEMENT.split(' ');
+
+  return (
+    <div ref={parcoursRef} className="relative min-h-[180vh]">
+      <div className="sticky top-0 min-h-screen flex items-center py-16">
+        <div className="max-w-4xl mx-auto grid grid-cols-[2px_minmax(0,1fr)] gap-8 md:gap-10 items-start px-4">
+          <div
+            className="relative w-[2px] h-24 md:h-28 overflow-hidden rounded-full bg-blue-100"
+            aria-hidden="true"
+          >
+            <motion.span
+              className="absolute inset-0 block bg-gradient-to-b from-blue-600 to-cyan-600 origin-top rounded-full"
+              style={{ scaleY: reducedMotion ? 1 : scrollYProgress }}
+            />
+          </div>
+
+          <div>
+            <p className="mb-6 font-mono text-xs uppercase tracking-widest text-blue-600/70">
+              Mon parcours
+            </p>
+            <h3
+              className="max-w-[26ch] text-2xl md:text-4xl font-bold leading-snug text-gray-900"
+              aria-label={PARCOURS_STATEMENT}
+            >
+              {words.map((word, index) => (
+                <Fragment key={`${word}-${index}`}>
+                  <ParcoursWord
+                    progress={scrollYProgress}
+                    index={index}
+                    count={words.length}
+                    reducedMotion={Boolean(reducedMotion)}
+                  >
+                    {word}
+                  </ParcoursWord>
+                  {index < words.length - 1 ? ' ' : null}
+                </Fragment>
+              ))}
+            </h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function About() {
   const [isVisible, setIsVisible] = useState(false);
@@ -96,19 +209,17 @@ export default function About() {
           ))}
         </div>
 
+      </div>
+
+      <MonParcours />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 md:p-12 transform transition-all duration-1000 delay-300 ${
             isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
           }`}
         >
           <div className="max-w-3xl mx-auto">
-            <h3 className="text-2xl font-bold mb-6 text-center">Mon parcours</h3>
-            <p className="text-gray-700 leading-relaxed mb-4">
-              Passionné par le développement web depuis plusieurs années, j'ai acquis
-              une solide expérience dans la création d'applications web modernes et
-              performantes. Mon approche combine expertise technique et créativité
-              pour livrer des solutions qui dépassent les attentes.
-            </p>
             <p className="text-gray-700 leading-relaxed">
               Je suis constamment à l'affût des dernières technologies et
               tendances du développement web. Mon objectif est de créer des
