@@ -98,7 +98,7 @@ export default function ScrollTextLines() {
 
   return (
     <section
-      className="relative py-20 md:py-28 overflow-hidden bg-[#0a0f0d]"
+      className="relative w-full max-w-[100vw] py-20 md:py-28 overflow-hidden bg-[#0a0f0d]"
       aria-label="Points forts"
     >
       <div className="flex flex-col gap-2 md:gap-3">
