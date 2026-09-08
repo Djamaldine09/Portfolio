@@ -72,7 +72,7 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-[200vh] bg-[#070b14]"
+      className="relative min-h-[200vh] overflow-x-clip bg-[#070b14]"
     >
       <div className="sticky top-0 flex min-h-screen items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
         <motion.div
@@ -208,7 +208,10 @@ export default function Hero() {
             </motion.div>
 
             {/* Liens Sociaux & Copie Email */}
-            <motion.div variants={itemVariants} className="flex items-center gap-3">
+            <motion.div
+              variants={itemVariants}
+              className="flex max-w-full flex-wrap items-center justify-center gap-3 lg:justify-start"
+            >
               <motion.a
                 whileHover={{ scale: 1.08, y: -2 }}
                 whileTap={{ scale: 0.95 }}
@@ -238,7 +241,7 @@ export default function Hero() {
                 whileHover={{ scale: 1.03, y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={handleCopyEmail}
-                className="flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-800 bg-slate-900/60 text-xs font-mono text-slate-400 hover:text-slate-200 hover:border-slate-700 transition-colors cursor-pointer"
+                className="flex max-w-full min-w-0 items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-xs font-mono text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200"
               >
                 <AnimatePresence mode="wait" initial={false}>
                   {copied ? (
@@ -258,10 +261,10 @@ export default function Hero() {
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
-                      className="flex items-center gap-1.5"
+                      className="flex min-w-0 max-w-full items-center gap-1.5"
                     >
                       <Copy className="w-4 h-4 text-slate-500" />
-                      <span>{email}</span>
+                      <span className="truncate">{email}</span>
                     </motion.div>
                   )}
                 </AnimatePresence>
