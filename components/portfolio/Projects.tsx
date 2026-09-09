@@ -95,7 +95,7 @@ export default function Projects() {
   const x = useTransform(scrollYProgress, [0, 1], [0, -totalDistance]);
 
   return (
-    <section id="projects" className="bg-gradient-to-br from-slate-50 to-white">
+    <section id="projects" className="overflow-hidden bg-gradient-to-br from-slate-50 to-white">
       <div className="pt-20 pb-10 px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-4xl font-bold mb-4">
           Mes{' '}
@@ -109,8 +109,8 @@ export default function Projects() {
       </div>
 
       {/* Scroll-driven horizontal gallery */}
-      <div ref={containerRef} className="relative overflow-x-clip" style={{ height: `${projects.length * 70}vh` }}>
-        <div className="sticky top-0 flex h-screen items-center overflow-x-clip">
+      <div ref={containerRef} className="relative overflow-hidden" style={{ height: `${projects.length * 70}vh` }}>
+        <div className="sticky top-0 flex h-screen items-center overflow-hidden">
           <motion.div
             ref={trackRef}
             className="flex pl-4 sm:pl-[calc((100vw-1280px)/2+16px)] pr-4 sm:pr-[calc((100vw-1280px)/2+16px)]"
