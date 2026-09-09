@@ -1,7 +1,8 @@
-import './globals.css';
+import '@/app/globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from '@/components/ui/toaster';
+import MotionCornerMenu from '@/components/portfolio/MotionCornerMenu';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -35,6 +36,7 @@ export default function RootLayout({
       <body className={inter.className}>
         {children}
         <Toaster />
+        <MotionCornerMenu />
       </body>
     </html>
   );
