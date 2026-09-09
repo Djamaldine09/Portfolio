@@ -23,7 +23,7 @@ export default function Portfolio() {
 
   return (
     <main className="min-h-screen overflow-x-clip bg-[#0a0f0d]">
-      <div className="relative z-10 bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <div className="relative z-10 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <Navigation />
         <Hero />
         <About />

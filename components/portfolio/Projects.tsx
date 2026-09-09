@@ -95,7 +95,7 @@ export default function Projects() {
   const x = useTransform(scrollYProgress, [0, 1], [0, -totalDistance]);
 
   return (
-    <section id="projects" className="bg-gradient-to-br from-slate-50 to-white">
+    <section id="projects" className="bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
       <div className="pt-20 pb-10 px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="text-4xl font-bold mb-4">
           Mes{' '}
@@ -103,7 +103,7 @@ export default function Projects() {
             Projets
           </span>
         </h2>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
           Découvrez une sélection de mes réalisations récentes
         </p>
       </div>
@@ -119,7 +119,7 @@ export default function Projects() {
             {projects.map((project, index) => (
               <div
                 key={index}
-                className="group shrink-0 rounded-2xl overflow-hidden border-2 border-transparent hover:border-blue-200 bg-white shadow-lg hover:shadow-2xl transition-all duration-500"
+                className="group shrink-0 rounded-2xl overflow-hidden border-2 border-transparent hover:border-blue-200 dark:hover:border-cyan-500/50 bg-white dark:bg-slate-800 shadow-lg hover:shadow-2xl transition-all duration-500"
                 style={{ width: `${ITEM_WIDTH}px` }}
               >
                 <div className="relative h-48 overflow-hidden">
@@ -140,7 +140,7 @@ export default function Projects() {
                   <h3 className="text-lg font-semibold mb-1 group-hover:text-blue-600 transition-colors">
                     {project.title}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                  <p className="text-sm text-gray-600 dark:text-slate-300 mb-4 line-clamp-2">
                     {project.description}
                   </p>
 

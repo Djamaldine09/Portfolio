@@ -171,7 +171,7 @@ export default function About() {
     <section
       id="about"
       ref={sectionRef}
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-white"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900"
     >
       <div className="max-w-7xl mx-auto">
         <motion.div
@@ -186,7 +186,7 @@ export default function About() {
               moi
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
             Développeur passionné avec plusieurs années d&apos;expérience dans la création
             d&apos;applications web modernes et performantes.
           </p>
@@ -210,7 +210,7 @@ export default function About() {
                 <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-600 transition-colors">
                   {feature.title}
                 </h3>
-                <p className="text-gray-600 text-sm">{feature.description}</p>
+                <p className="text-gray-600 dark:text-slate-300 text-sm">{feature.description}</p>
               </CardContent>
             </Card>
           ))}
@@ -227,7 +227,7 @@ export default function About() {
           }`}
         >
           <div className="max-w-3xl mx-auto">
-            <p className="text-gray-700 leading-relaxed">
+            <p className="text-gray-700 dark:text-slate-300 leading-relaxed">
               Je suis constamment à l&apos;affût des dernières technologies et
               tendances du développement web. Mon objectif est de créer des
               expériences utilisateur exceptionnelles tout en maintenant un code

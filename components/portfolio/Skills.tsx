@@ -58,7 +58,7 @@ export default function Skills() {
     <section
       id="skills"
       ref={sectionRef}
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-white"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900"
     >
       <div className="max-w-7xl mx-auto">
         <div
@@ -72,7 +72,7 @@ export default function Skills() {
               Compétences
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
             Technologies et outils que je maîtrise
           </p>
         </div>
@@ -100,10 +100,10 @@ export default function Skills() {
                     className="transform transition-all duration-300 hover:translate-x-2"
                   >
                     <div className="flex justify-between mb-2">
-                      <span className="font-medium text-gray-700">{skill.name}</span>
-                      <span className="text-sm text-gray-500">{skill.level}%</span>
+                      <span className="font-medium text-gray-700 dark:text-slate-200">{skill.name}</span>
+                      <span className="text-sm text-gray-500 dark:text-slate-400">{skill.level}%</span>
                     </div>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full transition-all duration-1000 ease-out"
                         style={{
@@ -132,12 +132,12 @@ export default function Skills() {
           ].map((stat, index) => (
             <div
               key={index}
-              className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105"
+              className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-700 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105"
             >
               <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
                 {stat.value}
               </div>
-              <div className="text-sm text-gray-600">{stat.label}</div>
+              <div className="text-sm text-gray-600 dark:text-slate-300">{stat.label}</div>
             </div>
           ))}
         </div>

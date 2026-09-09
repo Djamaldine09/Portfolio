@@ -71,7 +71,7 @@ export default function Contact() {
     <section
       id="contact"
       ref={sectionRef}
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 to-white"
+      className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-950"
     >
       <div className="max-w-7xl mx-auto">
         <div
@@ -85,7 +85,7 @@ export default function Contact() {
               Contacter
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
             Discutons de votre prochain projet
           </p>
         </div>
@@ -111,8 +111,8 @@ export default function Contact() {
                       <info.icon className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500 mb-1">{info.label}</p>
-                      <p className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                      <p className="text-sm text-gray-500 dark:text-slate-400 mb-1">{info.label}</p>
+                      <p className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
                         {info.value}
                       </p>
                     </div>
@@ -141,7 +141,7 @@ export default function Contact() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label htmlFor="name" className="text-sm font-medium text-gray-700">
+                      <label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-slate-200">
                         Nom complet
                       </label>
                       <Input
@@ -153,7 +153,7 @@ export default function Contact() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                      <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-slate-200">
                         Email
                       </label>
                       <Input
@@ -168,7 +168,7 @@ export default function Contact() {
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="subject" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="subject" className="text-sm font-medium text-gray-700 dark:text-slate-200">
                       Sujet
                     </label>
                     <Input
@@ -181,7 +181,7 @@ export default function Contact() {
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="message" className="text-sm font-medium text-gray-700">
+                    <label htmlFor="message" className="text-sm font-medium text-gray-700 dark:text-slate-200">
                       Message
                     </label>
                     <Textarea
