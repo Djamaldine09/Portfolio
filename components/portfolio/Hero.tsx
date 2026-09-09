@@ -92,12 +92,12 @@ export default function Hero() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#070b14]/20 to-[#070b14]" />
         </div>
 
-        <div className="relative z-10 mx-auto w-full max-w-7xl">
+        <div className="relative z-10 mx-auto min-w-0 w-full max-w-7xl">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center"
+          className="grid min-w-0 grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8"
         >
 
           {/* ======================================================== */}
@@ -138,21 +138,21 @@ export default function Hero() {
           {/* ======================================================== */}
           <motion.div
             style={{ y: smoothContentY, opacity: contentOpacity, scale: contentScale }}
-            className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left"
+            className="min-w-0 lg:col-span-7 flex flex-col items-center text-center lg:items-start lg:text-left"
           >
             
             {/* Status Badge */}
             <motion.div variants={itemVariants}>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 text-emerald-400 text-xs font-medium backdrop-blur-md mb-6">
+              <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-3 py-1 text-xs font-medium text-emerald-400 backdrop-blur-md mb-6">
                 <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-                <span>Disponible pour de nouveaux projets</span>
+                <span className="break-words">Disponible pour de nouveaux projets</span>
               </div>
             </motion.div>
 
             {/* Titre Principal */}
             <motion.h1 
               variants={itemVariants}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.15] text-slate-100 max-w-2xl mb-6"
+              className="max-w-full break-words text-4xl font-bold leading-[1.15] tracking-tight text-slate-100 mb-6 sm:text-5xl lg:max-w-2xl lg:text-6xl"
             >
               Concevoir des applications{' '}
               <span className="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
@@ -164,7 +164,7 @@ export default function Hero() {
             {/* Sous-titre */}
             <motion.p 
               variants={itemVariants}
-              className="text-base sm:text-lg text-slate-400 max-w-xl leading-relaxed mb-8"
+              className="max-w-full break-words text-base leading-relaxed text-slate-400 mb-8 sm:text-lg sm:max-w-xl"
             >
               Bonjour, je suis <span className="text-white font-medium">Djamaldine</span>. Développeur Full Stack spécialisé dans la création d'expériences web interactives, scalables et soignées.
             </motion.p>
