@@ -72,9 +72,9 @@ export default function Hero() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-[200vh] bg-[#070b14]"
+      className="relative min-h-[200vh] w-full max-w-[100vw] overflow-x-hidden bg-[#070b14]"
     >
-      <div className="sticky top-0 flex min-h-screen items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
+      <div className="sticky top-0 flex min-h-screen w-full max-w-[100vw] items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
         <motion.div
           aria-hidden="true"
           style={{
@@ -96,7 +96,7 @@ export default function Hero() {
             repeat: Infinity,
             ease: 'easeInOut',
           }}
-          className="absolute left-1/4 top-1/2 -z-10 h-[550px] w-[550px] -translate-y-1/2 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-600/20 blur-[130px]"
+          className="absolute left-1/4 top-1/2 -z-10 h-[220px] w-[220px] max-w-[60vw] -translate-y-1/2 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-600/20 blur-[100px] sm:h-[550px] sm:w-[550px] sm:blur-[130px]"
         />
 
         <div className="relative z-10 mx-auto w-full max-w-7xl">
@@ -117,10 +117,10 @@ export default function Hero() {
             {/* Badge signalétique sous l'avatar */}
             <motion.div 
               variants={itemVariants}
-              className="mt-6 flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-900/80 border border-slate-800 text-xs font-mono text-cyan-400/90 shadow-sm"
+              className="mt-6 flex max-w-full items-center gap-2 rounded-md border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs font-mono text-cyan-400/90 shadow-sm"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
-              <span>PROFIL ACTIF : DJAMALDINE M. — ID-3094</span>
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400 animate-ping" />
+              <span className="truncate">PROFIL ACTIF : DJAMALDINE M. — ID-3094</span>
             </motion.div>
           </motion.div>
 
