@@ -109,8 +109,8 @@ export default function Projects() {
       </div>
 
       {/* Scroll-driven horizontal gallery */}
-      <div ref={containerRef} className="relative" style={{ height: `${projects.length * 70}vh` }}>
-        <div className="sticky top-0 h-screen flex items-center overflow-hidden">
+      <div ref={containerRef} className="relative overflow-x-clip" style={{ height: `${projects.length * 70}vh` }}>
+        <div className="sticky top-0 flex h-screen items-center overflow-x-clip">
           <motion.div
             ref={trackRef}
             className="flex pl-4 sm:pl-[calc((100vw-1280px)/2+16px)] pr-4 sm:pr-[calc((100vw-1280px)/2+16px)]"
