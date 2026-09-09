@@ -47,9 +47,6 @@ export default function Hero() {
     target: heroRef,
     offset: ['start start', 'end start'],
   });
-  const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.28]);
-  const backgroundBlur = useTransform(scrollYProgress, [0, 1], ['blur(0px)', 'blur(14px)']);
-  const backgroundOpacity = useTransform(scrollYProgress, [0, 1], [0.9, 0.2]);
   const contentY = useTransform(scrollYProgress, [0, 1], [0, -110]);
   const smoothContentY = useSpring(contentY, { stiffness: 90, damping: 24, mass: 0.6 });
   const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
@@ -75,29 +72,25 @@ export default function Hero() {
       className="relative min-h-[200vh] w-full max-w-[100vw] overflow-x-hidden bg-[#070b14]"
     >
       <div className="sticky top-0 flex min-h-screen w-full max-w-[100vw] items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
-        <motion.div
-          aria-hidden="true"
-          style={{
-            scale: backgroundScale,
-            filter: backgroundBlur,
-            opacity: backgroundOpacity,
-            backgroundImage: "url('/avatar.png')",
-          }}
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        />
-        {/* Halo cyan / bleu en arrière-plan */}
-        <motion.div
-          animate={{
-            scale: [1, 1.15, 1],
-            opacity: [0.15, 0.25, 0.15],
-          }}
-          transition={{
-            duration: 7,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="absolute left-1/4 top-1/2 -z-10 h-[220px] w-[220px] max-w-[60vw] -translate-y-1/2 rounded-full bg-gradient-to-tr from-cyan-500/30 to-blue-600/20 blur-[100px] sm:h-[550px] sm:w-[550px] sm:blur-[130px]"
-        />
+
+        {/* Fond glassmorphisme avec gradient animé */}
+        <div aria-hidden="true" className="absolute inset-0 z-0 overflow-hidden">
+          <motion.div
+            animate={{
+              background: [
+                'radial-gradient(circle at 20% 30%, rgba(6,182,212,0.25), transparent 55%), radial-gradient(circle at 80% 70%, rgba(59,130,246,0.22), transparent 55%), radial-gradient(circle at 50% 100%, rgba(139,92,246,0.18), transparent 60%)',
+                'radial-gradient(circle at 30% 70%, rgba(6,182,212,0.25), transparent 55%), radial-gradient(circle at 70% 20%, rgba(59,130,246,0.22), transparent 55%), radial-gradient(circle at 50% 0%, rgba(139,92,246,0.18), transparent 60%)',
+                'radial-gradient(circle at 20% 30%, rgba(6,182,212,0.25), transparent 55%), radial-gradient(circle at 80% 70%, rgba(59,130,246,0.22), transparent 55%), radial-gradient(circle at 50% 100%, rgba(139,92,246,0.18), transparent 60%)',
+              ],
+            }}
+            transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute inset-0"
+          />
+          {/* Voile de verre pour l'effet glassmorphisme */}
+          <div className="absolute inset-0 bg-[#070b14]/40 backdrop-blur-3xl" />
+          {/* Grain léger pour la profondeur */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#070b14]/20 to-[#070b14]" />
+        </div>
 
         <div className="relative z-10 mx-auto w-full max-w-7xl">
         <motion.div
@@ -114,7 +107,23 @@ export default function Hero() {
             variants={itemVariants}
             className="lg:col-span-5 flex flex-col items-center justify-center"
           >
-            {/* Badge signalétique sous l'avatar */}
+            {/* Carte glassmorphisme */}
+            <motion.div
+              variants={itemVariants}
+              className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl"
+            >
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 text-3xl font-bold text-cyan-300 backdrop-blur-xl">
+                  DM
+                </div>
+                <div>
+                  <p className="text-lg font-semibold text-white">Djamaldine M.</p>
+                  <p className="text-sm text-slate-400">Développeur Full Stack</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Badge signalétique */}
             <motion.div 
               variants={itemVariants}
               className="mt-6 flex max-w-full items-center gap-2 rounded-md border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs font-mono text-cyan-400/90 shadow-sm"
@@ -275,7 +284,7 @@ export default function Hero() {
         </motion.div>
         </div>
 
-        {/* 8. Indicateur Scroll Souris Animé */}
+        {/* Indicateur Scroll Souris Animé */}
         <motion.button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
