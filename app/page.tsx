@@ -22,7 +22,7 @@ export default function Portfolio() {
   }
 
   return (
-    <main className="min-h-screen bg-[#0a0f0d]">
+    <main className="min-h-screen overflow-x-clip bg-[#0a0f0d]">
       <div className="relative z-10 bg-gradient-to-br from-slate-50 via-white to-slate-100">
         <Navigation />
         <Hero />
