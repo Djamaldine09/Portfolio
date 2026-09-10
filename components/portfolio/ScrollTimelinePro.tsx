@@ -46,14 +46,30 @@ function TimelinePanel({ item, index, progress, reducedMotion }: { item: Timelin
 
   const yearX = useTransform(progress, (value) => {
     if (index === 0) return reducedMotion ? 0 : -range(value, 0, 1 / (count - 1)) * 18;
-    if (value < transitionEnd) return reducedMotion ? 0 : (1 - range(value, transitionStart, transitionEnd)) * 16;
+    if (index === count - 1) {
+      const local = range(value, transitionStart, transitionEnd);
+      return reducedMotion ? 0 : (1 - local) * 16;
+    }
+    if (value < transitionEnd) {
+      const local = range(value, transitionStart, transitionEnd);
+      return reducedMotion ? 0 : (1 - local) * 16;
+    }
     return reducedMotion ? 0 : -range(value, nextStart, nextEnd) * 18;
   });
+
   const yearRotate = useTransform(progress, (value) => {
     if (index === 0) return reducedMotion ? 0 : -range(value, 0, 1 / (count - 1)) * 34;
-    if (value < transitionEnd) return reducedMotion ? 0 : (1 - range(value, transitionStart, transitionEnd)) * 10;
+    if (index === count - 1) {
+      const local = range(value, transitionStart, transitionEnd);
+      return reducedMotion ? 0 : (1 - local) * 10;
+    }
+    if (value < transitionEnd) {
+      const local = range(value, transitionStart, transitionEnd);
+      return reducedMotion ? 0 : (1 - local) * 10;
+    }
     return reducedMotion ? 0 : -range(value, nextStart, nextEnd) * 34;
   });
+
   const yearScale = useTransform(progress, (value) => {
     if (reducedMotion) return 1;
     if (index === 0) return 1 - range(value, 0, 1 / (count - 1)) * 0.02;
@@ -111,7 +127,13 @@ export default function ScrollTimelinePro() {
       <div className="sticky top-0 flex h-screen items-center justify-center bg-black px-5 py-5 sm:px-8 sm:py-8 lg:px-10 lg:py-8">
         <div className="relative h-[calc(100svh-2.5rem)] max-h-[1200px] min-h-[560px] w-full max-w-[1400px] overflow-hidden rounded-[1.35rem] bg-black sm:h-[calc(100svh-4rem)] sm:rounded-[1.5rem]">
           {timeline.map((item, index) => (
-            <TimelinePanel key={`${item.label}-${index}`} item={item} index={index} progress={scrollYProgress} reducedMotion={Boolean(reducedMotion)} />
+            <TimelinePanel
+              key={`${item.label}-${index}`}
+              item={item}
+              index={index}
+              progress={scrollYProgress}
+              reducedMotion={Boolean(reducedMotion)}
+            />
           ))}
           <div className="pointer-events-none absolute bottom-5 left-5 z-50 text-[9px] font-medium uppercase tracking-[0.25em] text-white/45 sm:bottom-7 sm:left-7">
             Scroll to explore
