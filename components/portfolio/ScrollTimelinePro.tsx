@@ -45,29 +45,29 @@ function TimelinePanel({ item, index, progress, reducedMotion }: { item: Timelin
   const clipPath = useTransform(clipLeft, (left) => `inset(0 0 0 ${left}%)`);
 
   const yearX = useTransform(progress, (value) => {
-    if (index === 0) return reducedMotion ? 0 : -range(value, 0, 1 / (count - 1)) * 18;
+    if (index === 0) return reducedMotion ? 0 : -range(value, 0, 1 / (count - 1)) * 10;
     if (index === count - 1) {
       const local = range(value, transitionStart, transitionEnd);
-      return reducedMotion ? 0 : (1 - local) * 16;
+      return reducedMotion ? 0 : (1 - local) * 10;
     }
     if (value < transitionEnd) {
       const local = range(value, transitionStart, transitionEnd);
-      return reducedMotion ? 0 : (1 - local) * 16;
+      return reducedMotion ? 0 : (1 - local) * 10;
     }
-    return reducedMotion ? 0 : -range(value, nextStart, nextEnd) * 18;
+    return reducedMotion ? 0 : -range(value, nextStart, nextEnd) * 10;
   });
 
   const yearRotate = useTransform(progress, (value) => {
-    if (index === 0) return reducedMotion ? 0 : -range(value, 0, 1 / (count - 1)) * 34;
+    if (index === 0) return reducedMotion ? 0 : -range(value, 0, 1 / (count - 1)) * 30;
     if (index === count - 1) {
       const local = range(value, transitionStart, transitionEnd);
-      return reducedMotion ? 0 : (1 - local) * 10;
+      return reducedMotion ? 0 : (1 - local) * 8;
     }
     if (value < transitionEnd) {
       const local = range(value, transitionStart, transitionEnd);
-      return reducedMotion ? 0 : (1 - local) * 10;
+      return reducedMotion ? 0 : (1 - local) * 8;
     }
-    return reducedMotion ? 0 : -range(value, nextStart, nextEnd) * 34;
+    return reducedMotion ? 0 : -range(value, nextStart, nextEnd) * 30;
   });
 
   const yearScale = useTransform(progress, (value) => {
@@ -92,23 +92,14 @@ function TimelinePanel({ item, index, progress, reducedMotion }: { item: Timelin
 
         <div className="absolute left-0 top-0 w-full px-7 pt-10 sm:px-12 sm:pt-14 lg:px-20 lg:pt-16">
           <div className="max-w-[720px]">
-            <p className="text-[clamp(.95rem,1.55vw,1.2rem)] font-normal leading-tight opacity-70">
-              {item.label}
-            </p>
-            <p className="mt-4 max-w-[780px] text-[clamp(1.25rem,3vw,2.15rem)] font-normal leading-[1.03] tracking-[-0.035em]">
-              {item.description}
-            </p>
+            <p className="text-[clamp(.95rem,1.55vw,1.2rem)] font-normal leading-tight opacity-70">{item.label}</p>
+            <p className="mt-4 max-w-[780px] text-[clamp(1.25rem,3vw,2.15rem)] font-normal leading-[1.03] tracking-[-0.035em]">{item.description}</p>
           </div>
         </div>
 
         <motion.div
-          className="pointer-events-none absolute -bottom-[0.08em] left-[3%] whitespace-nowrap font-black leading-[0.72] tracking-[-0.09em] text-[clamp(12rem,42vw,34rem)]"
-          style={{
-            x: yearTransformX,
-            rotate: yearRotate,
-            scale: yearScale,
-            transformOrigin: '50% 50%',
-          }}
+          className="pointer-events-none absolute bottom-[-0.04em] left-1/2 w-max -translate-x-1/2 whitespace-nowrap font-black leading-[0.72] tracking-[-0.09em] text-[clamp(8rem,30vw,34rem)]"
+          style={{ x: yearTransformX, rotate: yearRotate, scale: yearScale, transformOrigin: '50% 50%' }}
         >
           {item.year}
         </motion.div>
@@ -127,17 +118,9 @@ export default function ScrollTimelinePro() {
       <div className="sticky top-0 flex h-screen items-center justify-center bg-black px-5 py-5 sm:px-8 sm:py-8 lg:px-10 lg:py-8">
         <div className="relative h-[calc(100svh-2.5rem)] max-h-[1200px] min-h-[560px] w-full max-w-[1400px] overflow-hidden rounded-[1.35rem] bg-black sm:h-[calc(100svh-4rem)] sm:rounded-[1.5rem]">
           {timeline.map((item, index) => (
-            <TimelinePanel
-              key={`${item.label}-${index}`}
-              item={item}
-              index={index}
-              progress={scrollYProgress}
-              reducedMotion={Boolean(reducedMotion)}
-            />
+            <TimelinePanel key={`${item.label}-${index}`} item={item} index={index} progress={scrollYProgress} reducedMotion={Boolean(reducedMotion)} />
           ))}
-          <div className="pointer-events-none absolute bottom-5 left-5 z-50 text-[9px] font-medium uppercase tracking-[0.25em] text-white/45 sm:bottom-7 sm:left-7">
-            Scroll to explore
-          </div>
+          <div className="pointer-events-none absolute bottom-5 left-5 z-50 text-[9px] font-medium uppercase tracking-[0.25em] text-black/60 sm:bottom-7 sm:left-7">Scroll to explore</div>
         </div>
       </div>
     </section>
