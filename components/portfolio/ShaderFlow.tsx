@@ -15,70 +15,56 @@ precision highp float;
 uniform vec2 u_resolution;
 uniform vec2 u_mouse;
 uniform float u_time;
-uniform float u_intensity;
-uniform float u_direction;
-uniform float u_speed;
-
-float hash21(vec2 p) {
-  p = fract(p * vec2(123.34, 456.21));
-  p += dot(p, p + 45.32);
-  return fract(p.x * p.y);
-}
-
-float noise(vec2 p) {
-  vec2 i = floor(p);
-  vec2 f = fract(p);
-  f = f * f * (3.0 - 2.0 * f);
-
-  float a = hash21(i);
-  float b = hash21(i + vec2(1.0, 0.0));
-  float c = hash21(i + vec2(0.0, 1.0));
-  float d = hash21(i + vec2(1.0, 1.0));
-
-  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-}
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution.xy;
   vec2 p = uv - 0.5;
-  p.x *= u_resolution.x / u_resolution.y;
+  float aspect = u_resolution.x / u_resolution.y;
+  p.x *= aspect;
 
-  float t = u_time * u_speed;
-  float mouseInfluence = (u_mouse.x - 0.5) * 0.18;
+  float t = u_time * 0.34;
+  vec2 mouse = u_mouse - 0.5;
+  mouse.x *= aspect;
 
-  // Large, soft curved light ribbon.
-  float curveX = p.x * 0.78 + mouseInfluence;
-  float curve = 0.18 + 0.22 * curveX * curveX;
-  curve += sin(curveX * 3.2 + t * 0.35 + u_direction) * 0.018;
-  curve += (noise(vec2(curveX * 2.2, t * 0.08)) - 0.5) * 0.012;
+  // Slow autonomous motion keeps the composition alive without input.
+  float drift = sin(t * 0.72) * 0.075 + sin(t * 0.31 + 1.7) * 0.035;
+  float bend = sin(p.x * 2.25 + t * 0.55) * 0.035;
+  bend += sin(p.x * 5.0 - t * 0.32) * 0.012;
+  bend += drift;
 
-  float distanceToRibbon = abs(p.y - curve);
-  float ribbon = exp(-pow(distanceToRibbon / (0.018 + u_intensity * 0.008), 2.0));
-  float glow = exp(-pow(distanceToRibbon / (0.085 + u_intensity * 0.025), 2.0));
+  // Subtle response to pointer / touch, while remaining fully automatic.
+  bend += mouse.x * 0.09;
 
-  // Subtle interactive ripple around the pointer.
-  vec2 mouse = (u_mouse - 0.5);
-  mouse.x *= u_resolution.x / u_resolution.y;
-  float mouseDistance = length(p - mouse);
-  float ripple = sin(mouseDistance * 38.0 - t * 3.0) * exp(-mouseDistance * 5.5);
-  ripple *= 0.025 * u_intensity;
+  float curve = 0.12 + 0.22 * p.x * p.x + bend;
+  float d = abs(p.y - curve);
 
-  float wave = ribbon + glow * 0.48 + ripple;
+  float core = exp(-pow(d / 0.014, 2.0));
+  float bloom = exp(-pow(d / 0.065, 2.0));
+  float outerGlow = exp(-pow(d / 0.16, 2.0));
 
-  // Cinematic blue / warm light edges.
-  float edge = smoothstep(0.0, 0.8, abs(p.x));
-  vec3 cool = vec3(0.35, 0.72, 1.0);
-  vec3 warm = vec3(1.0, 0.62, 0.28);
+  // Gentle travelling pulse across the ribbon.
+  float pulse = 0.82 + 0.18 * sin(p.x * 4.0 - t * 2.2);
+  core *= pulse;
+
+  vec3 blue = vec3(0.22, 0.58, 1.0);
+  vec3 cyan = vec3(0.62, 0.88, 1.0);
+  vec3 warm = vec3(1.0, 0.58, 0.22);
   vec3 white = vec3(1.0);
-  vec3 lightColor = mix(cool, warm, smoothstep(0.25, 0.95, uv.x));
-  lightColor = mix(lightColor, white, pow(ribbon, 1.8));
 
-  vec3 background = vec3(0.006, 0.008, 0.01);
+  float warmMix = smoothstep(-0.1, 0.95, uv.x + sin(t * 0.2) * 0.12);
+  vec3 light = mix(blue, warm, warmMix);
+  light = mix(light, cyan, 0.25 + 0.15 * sin(t * 0.5));
+  light = mix(light, white, pow(core, 1.5));
+
+  vec3 background = vec3(0.004, 0.006, 0.008);
   background += vec3(0.012, 0.016, 0.022) * (1.0 - uv.y);
 
-  vec3 color = background + lightColor * wave * 1.55;
-  color += white * pow(ribbon, 5.0) * 1.8;
-  color *= 1.0 + edge * 0.06;
+  float vignette = 1.0 - smoothstep(0.28, 0.9, length(p * vec2(0.7, 0.8)));
+  vec3 color = background;
+  color += light * outerGlow * 0.18;
+  color += light * bloom * 0.95;
+  color += white * core * 2.0;
+  color *= 0.78 + vignette * 0.22;
 
   gl_FragColor = vec4(color, 1.0);
 }
@@ -103,7 +89,6 @@ function createShader(gl: WebGLRenderingContext, type: number, source: string) {
 function createProgram(gl: WebGLRenderingContext) {
   const vertex = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
   const fragment = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
-
   if (!vertex || !fragment) return null;
 
   const program = gl.createProgram();
@@ -136,13 +121,14 @@ export default function ShaderFlow() {
       antialias: false,
       powerPreference: 'high-performance',
     });
-
     if (!gl) return;
 
     const program = createProgram(gl);
     if (!program) return;
 
     const buffer = gl.createBuffer();
+    if (!buffer) return;
+
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(
       gl.ARRAY_BUFFER,
@@ -154,9 +140,6 @@ export default function ShaderFlow() {
     const resolution = gl.getUniformLocation(program, 'u_resolution');
     const mouse = gl.getUniformLocation(program, 'u_mouse');
     const time = gl.getUniformLocation(program, 'u_time');
-    const intensity = gl.getUniformLocation(program, 'u_intensity');
-    const direction = gl.getUniformLocation(program, 'u_direction');
-    const speed = gl.getUniformLocation(program, 'u_speed');
 
     gl.useProgram(program);
     gl.enableVertexAttribArray(position);
@@ -167,7 +150,7 @@ export default function ShaderFlow() {
     let targetX = 0.5;
     let targetY = 0.5;
     let animationFrame = 0;
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -207,11 +190,8 @@ export default function ShaderFlow() {
       gl.uniform2f(resolution, canvas.width, canvas.height);
       gl.uniform2f(mouse, pointerX, pointerY);
       gl.uniform1f(time, (now - startTime) / 1000);
-      gl.uniform1f(intensity, 1.0);
-      gl.uniform1f(direction, pointerX * 2.5);
-      gl.uniform1f(speed, 0.55);
-
       gl.drawArrays(gl.TRIANGLES, 0, 6);
+
       animationFrame = requestAnimationFrame(render);
     };
 
@@ -244,31 +224,49 @@ export default function ShaderFlow() {
         className="absolute inset-0 h-full w-full"
       />
 
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(0,0,0,.28)_70%,rgba(0,0,0,.65)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,transparent_18%,rgba(0,0,0,.2)_58%,rgba(0,0,0,.72)_100%)]" />
 
       <div className="relative z-10 flex min-h-[760px] flex-col justify-between px-6 py-10 sm:min-h-[850px] sm:px-12 sm:py-14 lg:min-h-screen lg:px-20 lg:py-16">
-        <div className="max-w-[760px]">
-          <p className="mb-5 text-xs font-medium uppercase tracking-[0.28em] text-white/45">
-            Interactive WebGL / 05
+        <div>
+          <p className="mb-5 text-xs font-medium uppercase tracking-[0.3em] text-white/45">
+            Selected work / 05
           </p>
-          <h2 className="text-[clamp(3.2rem,9vw,8rem)] font-semibold leading-[0.86] tracking-[-0.065em]">
-            Shader Flow
+          <h2 className="max-w-[900px] text-[clamp(3.4rem,9vw,8.5rem)] font-semibold leading-[0.82] tracking-[-0.07em]">
+            Motion that<br />
+            feels alive.
           </h2>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[1fr_0.85fr] lg:items-end">
-          <p className="max-w-[680px] text-[clamp(1.15rem,2.3vw,1.75rem)] leading-[1.12] tracking-[-0.035em] text-white/78">
-            Shader Flow brings WebGL-powered visuals to Framer, making it easy to design motion-rich backgrounds and interactive effects without code. Customize shader intensity, direction, and animation speed to craft stunning light distortions, ripples, or smooth transitions.
-          </p>
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_.7fr] lg:items-end">
+          <div>
+            <p className="mb-4 text-sm font-medium uppercase tracking-[0.22em] text-white/45">
+              Shader Flow — WebGL Experience
+            </p>
+            <p className="max-w-[720px] text-[clamp(1.15rem,2.4vw,1.8rem)] leading-[1.08] tracking-[-0.04em] text-white/82">
+              A real-time WebGL visual system designed to bring cinematic motion, depth and atmosphere to modern digital experiences.
+            </p>
+          </div>
 
-          <p className="max-w-[560px] text-sm leading-6 text-white/48 lg:justify-self-end">
-            Built for hero sections, creative showcases, and immersive layouts, Shader Flow helps designers add visual depth and movement that respond naturally to user interaction. Perfect for elevating any Framer project with modern, cinematic energy.
-          </p>
+          <div className="lg:justify-self-end">
+            <p className="max-w-[470px] text-sm leading-6 text-white/48">
+              Built with WebGL and GLSL, the experience continuously evolves on its own while responding naturally to cursor and touch input. Designed for hero sections, creative portfolios and immersive interfaces.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {['WebGL', 'GLSL', 'Motion', 'Interactive'].map((tag) => (
+                <span
+                  key={tag}
+                  className="rounded-full border border-white/12 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-white/50"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="flex items-center justify-between border-t border-white/10 pt-5 text-[10px] uppercase tracking-[0.24em] text-white/35">
-          <span>Move your cursor / touch the screen</span>
-          <span>WebGL</span>
+          <span>Autonomous motion / interactive input</span>
+          <span>WebGL · 60fps</span>
         </div>
       </div>
     </section>
