@@ -210,7 +210,7 @@ function Cover({ onOpen }: { onOpen: () => void }) {
         <div>
           <div className="mb-6 h-px w-14 bg-white/25" />
           <h3 className="whitespace-pre-line text-[clamp(2.4rem,6.4vw,5.6rem)] font-semibold leading-[.82] tracking-[-.065em]">
-            DIGITAL{`\n`}EXPERIENCES
+            DIGITAL{'\n'}EXPERIENCES
           </h3>
           <p className="mt-5 max-w-md text-[10px] leading-5 text-white/50 sm:text-xs sm:leading-6">
             A collection of interfaces, products and visual experiments.
@@ -237,7 +237,6 @@ function TurningPage({
   onComplete: () => void;
 }) {
   const next = direction === 'next';
-  const radius = next ? 'rounded-r-[22px] sm:rounded-r-[30px]' : 'rounded-l-[22px] sm:rounded-l-[30px]';
 
   return (
     <motion.div
@@ -252,15 +251,45 @@ function TurningPage({
       onAnimationComplete={onComplete}
       className={`absolute inset-y-[6%] z-[90] w-1/2 overflow-visible bg-transparent [transform-style:preserve-3d] ${next ? 'left-1/2 origin-left' : 'left-0 origin-right'}`}
     >
-      <div className={`absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] ${radius}`}>
+      <motion.div
+        initial={{
+          borderTopRightRadius: next ? 'var(--flipbook-radius)' : 0,
+          borderBottomRightRadius: next ? 'var(--flipbook-radius)' : 0,
+          borderTopLeftRadius: next ? 0 : 'var(--flipbook-radius)',
+          borderBottomLeftRadius: next ? 0 : 'var(--flipbook-radius)',
+        }}
+        animate={{
+          borderTopRightRadius: next ? ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'] : 0,
+          borderBottomRightRadius: next ? ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'] : 0,
+          borderTopLeftRadius: next ? 0 : ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'],
+          borderBottomLeftRadius: next ? 0 : ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'],
+        }}
+        transition={{ duration: TURN_MS / 1000, ease: EASE }}
+        className="absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [--flipbook-radius:22px] sm:[--flipbook-radius:30px]"
+      >
         <PageContent page={front} />
         <CurlShade side={next ? 'right' : 'left'} />
-      </div>
+      </motion.div>
 
-      <div className={`absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [transform:rotateY(180deg)] ${radius}`}>
+      <motion.div
+        initial={{
+          borderTopRightRadius: next ? 'var(--flipbook-radius)' : 0,
+          borderBottomRightRadius: next ? 'var(--flipbook-radius)' : 0,
+          borderTopLeftRadius: next ? 0 : 'var(--flipbook-radius)',
+          borderBottomLeftRadius: next ? 0 : 'var(--flipbook-radius)',
+        }}
+        animate={{
+          borderTopRightRadius: next ? ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'] : 0,
+          borderBottomRightRadius: next ? ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'] : 0,
+          borderTopLeftRadius: next ? 0 : ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'],
+          borderBottomLeftRadius: next ? 0 : ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'],
+        }}
+        transition={{ duration: TURN_MS / 1000, ease: EASE }}
+        className="absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [transform:rotateY(180deg)] [--flipbook-radius:22px] sm:[--flipbook-radius:30px]"
+      >
         <PageContent page={Math.max(1, Math.min(back, pages.length - 1))} />
         <CurlShade side={next ? 'left' : 'right'} />
-      </div>
+      </motion.div>
 
       <motion.div
         aria-hidden="true"
@@ -301,13 +330,13 @@ function PageContent({ page, cover = false }: { page: number; cover?: boolean })
           <h3 className={`whitespace-pre-line text-[clamp(1.45rem,4.15vw,4rem)] font-semibold leading-[.84] tracking-[-.065em] ${cover ? 'text-[clamp(2.1rem,5.9vw,5.4rem)]' : ''}`}>
             {item.title}
           </h3>
-          <p className={`mt-4 max-w-[330px] text-[9px] leading-4 sm:mt-5 sm:text-xs sm:leading-5 ${light ? 'text-black/50' : 'text-white/50'}`}>
+          <p className={`mt-4 max-w-[32rem] text-[9px] leading-4 sm:mt-6 sm:text-xs sm:leading-5 ${light ? 'text-black/55' : 'text-white/50'}`}>
             {item.subtitle}
           </p>
         </div>
 
-        <div className={`flex items-end justify-between text-[7px] uppercase tracking-[.18em] sm:text-[9px] ${light ? 'text-black/30' : 'text-white/30'}`}>
-          <span>{cover ? 'Portfolio / 2026' : 'Djamaldine / 2026'}</span>
+        <div className={`flex items-end justify-between text-[7px] uppercase tracking-[.2em] sm:text-[9px] ${light ? 'text-black/35' : 'text-white/35'}`}>
+          <span>Digital experiences</span>
           <span>{String(page).padStart(2, '0')}</span>
         </div>
       </div>
@@ -317,20 +346,23 @@ function PageContent({ page, cover = false }: { page: number; cover?: boolean })
 
 function PageEdge({ side }: { side: 'left' | 'right' }) {
   return (
-    <div className={`pointer-events-none absolute inset-y-0 w-5 ${side === 'left' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} from-black/10 to-transparent`} />
+    <div
+      aria-hidden="true"
+      className={`pointer-events-none absolute inset-y-0 w-10 ${side === 'left' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} from-black/12 via-black/5 to-transparent`}
+    />
   );
 }
 
 function NavButton({
+  children,
   disabled,
   onClick,
   label,
-  children,
 }: {
+  children: React.ReactNode;
   disabled: boolean;
   onClick: () => void;
   label: string;
-  children: React.ReactNode;
 }) {
   return (
     <button
@@ -338,7 +370,7 @@ function NavButton({
       onClick={onClick}
       disabled={disabled}
       aria-label={label}
-      className="grid h-11 w-11 place-items-center rounded-full bg-white text-lg shadow-xl transition duration-200 hover:scale-105 active:scale-95 disabled:pointer-events-none disabled:opacity-25 sm:h-12 sm:w-12"
+      className="grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white/95 text-lg shadow-xl backdrop-blur transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-25 sm:h-12 sm:w-12"
     >
       {children}
     </button>
