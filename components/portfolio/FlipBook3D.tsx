@@ -97,8 +97,12 @@ export default function FlipBook3D() {
   };
 
   const openingCover = !open && turning;
-  const displayLeftPage = turning && direction === 'previous' ? leftPage - 1 : leftPage;
-  const displayRightPage = turning && direction === 'next' ? rightPage + 1 : rightPage;
+
+  // During a turn, reveal the destination spread immediately underneath the sheet.
+  // Next: the back of the turning page becomes the new left page.
+  // Previous: the back of the turning page becomes the new right page.
+  const displayLeftPage = turning && direction === 'next' ? rightPage + 1 : leftPage;
+  const displayRightPage = turning && direction === 'previous' ? leftPage - 1 : rightPage;
 
   return (
     <section id="flipbook" className="relative overflow-hidden bg-[#e8e5e2] px-5 py-24 text-[#111] sm:px-10 sm:py-32 lg:px-16 lg:py-40">
@@ -276,90 +280,75 @@ function TurningPage({
           borderBottomRightRadius: next ? 0 : radius,
         }}
       >
-        <PageContent page={Math.max(1, Math.min(back, pages.length - 1))} />
+        <PageContent page={back} />
         <CurlShade side={next ? 'left' : 'right'} />
       </div>
-
-      <motion.div
-        aria-hidden="true"
-        initial={{ opacity: .05, scaleX: .35 }}
-        animate={{ opacity: [.05, .42, .18, .05], scaleX: [.35, 1, .82, .45] }}
-        transition={{ duration: TURN_MS / 1000, ease: 'easeInOut' }}
-        className={`pointer-events-none absolute inset-y-0 w-20 bg-gradient-to-r from-black/35 via-white/10 to-transparent mix-blend-multiply ${next ? 'right-0' : 'left-0'}`}
-      />
     </motion.div>
+  );
+}
+
+function PageContent({ page, cover = false }: { page: number; cover?: boolean }) {
+  const item = pages[page] ?? pages[0];
+
+  return (
+    <div className={`relative flex h-full flex-col justify-between bg-gradient-to-br ${item.tone} p-6 sm:p-9 lg:p-11 ${item.light ? 'text-black' : 'text-white'}`}>
+      <div className={`flex items-center justify-between text-[8px] uppercase tracking-[.24em] sm:text-[9px] ${item.light ? 'text-black/45' : 'text-white/45'}`}>
+        <span>{item.eyebrow}</span>
+        <span>{cover ? 'FLIPBOOK / 3D' : String(page).padStart(2, '0')}</span>
+      </div>
+
+      <div>
+        <div className={`mb-5 h-px w-12 ${item.light ? 'bg-black/20' : 'bg-white/20'}`} />
+        <h3 className="whitespace-pre-line text-[clamp(2rem,5.4vw,5rem)] font-semibold leading-[.84] tracking-[-.065em]">
+          {item.title}
+        </h3>
+        <p className={`mt-5 max-w-md text-[9px] leading-5 sm:text-xs sm:leading-6 ${item.light ? 'text-black/50' : 'text-white/50'}`}>
+          {item.subtitle}
+        </p>
+      </div>
+
+      <div className={`flex items-end justify-between text-[8px] uppercase tracking-[.18em] sm:text-[9px] ${item.light ? 'text-black/35' : 'text-white/35'}`}>
+        <span>{cover ? 'Open book' : 'Portfolio study'}</span>
+        <span>0{Math.min(page, 7)} / 07</span>
+      </div>
+    </div>
   );
 }
 
 function CurlShade({ side }: { side: 'left' | 'right' }) {
   return (
-    <>
-      <div className={`pointer-events-none absolute inset-y-0 w-24 ${side === 'right' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} from-black/30 via-black/5 to-transparent`} />
-      <div className={`pointer-events-none absolute top-0 h-full w-px ${side === 'right' ? 'right-0' : 'left-0'} bg-white/30`} />
-    </>
-  );
-}
-
-function PageContent({ page, cover = false }: { page: number; cover?: boolean }) {
-  const item = pages[Math.max(0, Math.min(page, pages.length - 1))];
-  const light = Boolean(item.light);
-
-  return (
-    <div className={`relative h-full overflow-hidden bg-gradient-to-br ${item.tone} p-5 ${light ? 'text-black' : 'text-white'} sm:p-8 ${cover ? 'sm:p-11' : ''}`}>
-      <div className={`pointer-events-none absolute inset-0 ${light ? 'opacity-15' : 'opacity-20'} bg-[radial-gradient(circle_at_18%_20%,white_0,transparent_28%),radial-gradient(circle_at_82%_78%,white_0,transparent_30%)]`} />
-      <div className="relative flex h-full flex-col justify-between">
-        <div>
-          <p className={`text-[7px] font-medium uppercase tracking-[.28em] sm:text-[9px] ${light ? 'text-black/40' : 'text-white/40'}`}>
-            {item.eyebrow}
-          </p>
-          <div className={`mt-3 h-px w-10 sm:mt-5 sm:w-12 ${light ? 'bg-black/15' : 'bg-white/20'}`} />
-        </div>
-
-        <div>
-          <h3 className={`whitespace-pre-line text-[clamp(1.45rem,4.15vw,4rem)] font-semibold leading-[.84] tracking-[-.065em] ${cover ? 'text-[clamp(2.1rem,5.9vw,5.4rem)]' : ''}`}>
-            {item.title}
-          </h3>
-          <p className={`mt-4 max-w-[32rem] text-[9px] leading-4 sm:mt-6 sm:text-xs sm:leading-5 ${light ? 'text-black/55' : 'text-white/50'}`}>
-            {item.subtitle}
-          </p>
-        </div>
-
-        <div className={`flex items-end justify-between text-[7px] uppercase tracking-[.2em] sm:text-[9px] ${light ? 'text-black/35' : 'text-white/35'}`}>
-          <span>Digital experiences</span>
-          <span>{String(page).padStart(2, '0')}</span>
-        </div>
-      </div>
-    </div>
+    <div
+      className={`pointer-events-none absolute inset-y-0 w-1/3 ${side === 'right' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} from-black/35 via-black/10 to-transparent mix-blend-multiply`}
+    />
   );
 }
 
 function PageEdge({ side }: { side: 'left' | 'right' }) {
   return (
     <div
-      aria-hidden="true"
-      className={`pointer-events-none absolute inset-y-0 w-10 ${side === 'left' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} from-black/12 via-black/5 to-transparent`}
+      className={`pointer-events-none absolute inset-y-0 ${side === 'left' ? 'right-0' : 'left-0'} w-5 bg-gradient-to-${side === 'left' ? 'l' : 'r'} from-black/[.08] to-transparent`}
     />
   );
 }
 
 function NavButton({
-  children,
   disabled,
   onClick,
   label,
+  children,
 }: {
-  children: React.ReactNode;
-  disabled: boolean;
+  disabled?: boolean;
   onClick: () => void;
   label: string;
+  children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
-      onClick={onClick}
-      disabled={disabled}
       aria-label={label}
-      className="grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white/95 text-lg shadow-xl backdrop-blur transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-25 sm:h-12 sm:w-12"
+      disabled={disabled}
+      onClick={onClick}
+      className="grid h-11 w-11 place-items-center rounded-full border border-black/10 bg-white/95 text-lg shadow-xl backdrop-blur transition hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-25 sm:h-12 sm:w-12"
     >
       {children}
     </button>
