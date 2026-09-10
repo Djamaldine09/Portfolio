@@ -237,6 +237,7 @@ function TurningPage({
   onComplete: () => void;
 }) {
   const next = direction === 'next';
+  const radius = 'var(--flipbook-radius)';
 
   return (
     <motion.div
@@ -249,47 +250,33 @@ function TurningPage({
         scale: { duration: TURN_MS / 1000, ease: 'easeInOut' },
       }}
       onAnimationComplete={onComplete}
-      className={`absolute inset-y-[6%] z-[90] w-1/2 overflow-visible bg-transparent [transform-style:preserve-3d] ${next ? 'left-1/2 origin-left' : 'left-0 origin-right'}`}
+      className={`absolute inset-y-[6%] z-[90] w-1/2 overflow-visible bg-transparent [transform-style:preserve-3d] [--flipbook-radius:22px] sm:[--flipbook-radius:30px] ${next ? 'left-1/2 origin-left' : 'left-0 origin-right'}`}
     >
-      <motion.div
-        initial={{
-          borderTopRightRadius: next ? 'var(--flipbook-radius)' : 0,
-          borderBottomRightRadius: next ? 'var(--flipbook-radius)' : 0,
-          borderTopLeftRadius: next ? 0 : 'var(--flipbook-radius)',
-          borderBottomLeftRadius: next ? 0 : 'var(--flipbook-radius)',
+      <div
+        className="absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [transform-style:preserve-3d]"
+        style={{
+          borderTopLeftRadius: next ? 0 : radius,
+          borderBottomLeftRadius: next ? 0 : radius,
+          borderTopRightRadius: next ? radius : 0,
+          borderBottomRightRadius: next ? radius : 0,
         }}
-        animate={{
-          borderTopRightRadius: next ? ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'] : 0,
-          borderBottomRightRadius: next ? ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'] : 0,
-          borderTopLeftRadius: next ? 0 : ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'],
-          borderBottomLeftRadius: next ? 0 : ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'],
-        }}
-        transition={{ duration: TURN_MS / 1000, ease: EASE }}
-        className="absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [--flipbook-radius:22px] sm:[--flipbook-radius:30px]"
       >
         <PageContent page={front} />
         <CurlShade side={next ? 'right' : 'left'} />
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{
-          borderTopRightRadius: next ? 'var(--flipbook-radius)' : 0,
-          borderBottomRightRadius: next ? 'var(--flipbook-radius)' : 0,
-          borderTopLeftRadius: next ? 0 : 'var(--flipbook-radius)',
-          borderBottomLeftRadius: next ? 0 : 'var(--flipbook-radius)',
+      <div
+        className="absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [transform:rotateY(180deg)] [transform-style:preserve-3d]"
+        style={{
+          borderTopLeftRadius: next ? radius : 0,
+          borderBottomLeftRadius: next ? radius : 0,
+          borderTopRightRadius: next ? 0 : radius,
+          borderBottomRightRadius: next ? 0 : radius,
         }}
-        animate={{
-          borderTopRightRadius: next ? ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'] : 0,
-          borderBottomRightRadius: next ? ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'] : 0,
-          borderTopLeftRadius: next ? 0 : ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'],
-          borderBottomLeftRadius: next ? 0 : ['var(--flipbook-radius)', 'var(--flipbook-radius)', '0px'],
-        }}
-        transition={{ duration: TURN_MS / 1000, ease: EASE }}
-        className="absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [transform:rotateY(180deg)] [--flipbook-radius:22px] sm:[--flipbook-radius:30px]"
       >
         <PageContent page={Math.max(1, Math.min(back, pages.length - 1))} />
         <CurlShade side={next ? 'left' : 'right'} />
-      </motion.div>
+      </div>
 
       <motion.div
         aria-hidden="true"
