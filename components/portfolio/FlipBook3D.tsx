@@ -84,8 +84,8 @@ export default function FlipBook3D() {
             <div className="absolute inset-[4%] rounded-[24px] bg-[#d8d2ca] shadow-[0_45px_100px_rgba(0,0,0,.25)] sm:rounded-[30px]" />
 
             {open && <div className="absolute inset-y-[4%] inset-x-0 z-10 [transform-style:preserve-3d]">
-              <div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden rounded-l-[22px] bg-white shadow-[-10px_25px_45px_rgba(0,0,0,.13)] sm:rounded-l-[28px]"><PageContent page={leftPage} /><PageEdge side="left" /></div>
-              <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden rounded-r-[22px] bg-white shadow-[10px_25px_45px_rgba(0,0,0,.13)] sm:rounded-r-[28px]"><PageContent page={rightPage} /><PageEdge side="right" /></div>
+              {(!turning || direction !== 'next') && <div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden rounded-l-[22px] bg-white shadow-[-10px_25px_45px_rgba(0,0,0,.13)] sm:rounded-l-[28px]"><PageContent page={leftPage} /><PageEdge side="left" /></div>}
+              {(!turning || direction !== 'previous') && <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden rounded-r-[22px] bg-white shadow-[10px_25px_45px_rgba(0,0,0,.13)] sm:rounded-r-[28px]"><PageContent page={rightPage} /><PageEdge side="right" /></div>}
             </div>}
 
             {coverVisible && <motion.div
@@ -124,6 +124,8 @@ export default function FlipBook3D() {
 
 function TurningSheet({ front, back, direction, onComplete }: { front: number; back: number; direction: Direction; onComplete: () => void }) {
   const next = direction === 'next';
+  const corner = next ? 'rounded-r-[22px] sm:rounded-r-[28px]' : 'rounded-l-[22px] sm:rounded-l-[28px]';
+
   return <motion.div
     initial={{ rotateY: 0, rotateX: 0, scale: 1 }}
     animate={{ rotateY: next ? -180 : 180, rotateX: [0, -0.8, 0.5, 0], scale: [1, 1.008, 1.012, 1] }}
@@ -131,14 +133,14 @@ function TurningSheet({ front, back, direction, onComplete }: { front: number; b
     onAnimationComplete={onComplete}
     className={`absolute inset-y-[4%] z-[90] w-1/2 overflow-visible bg-transparent [transform-style:preserve-3d] ${next ? 'left-1/2 origin-left' : 'left-0 origin-right'}`}
   >
-    <div className="absolute inset-0 overflow-hidden bg-white shadow-[0_28px_70px_rgba(0,0,0,.30)] [backface-visibility:hidden]">
+    <div className={`absolute inset-0 overflow-hidden bg-white shadow-[0_28px_70px_rgba(0,0,0,.30)] [backface-visibility:hidden] ${corner}`}>
       <PageContent page={front} />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-black/30 via-black/8 to-transparent" />
+      <div className={`pointer-events-none absolute inset-y-0 w-28 bg-gradient-to-${next ? 'l' : 'r'} from-black/30 via-black/8 to-transparent ${next ? 'right-0' : 'left-0'}`} />
     </div>
 
-    <div className="absolute inset-0 overflow-hidden bg-white shadow-[0_28px_70px_rgba(0,0,0,.30)] [transform:rotateY(180deg)] [backface-visibility:hidden]">
+    <div className={`absolute inset-0 overflow-hidden bg-white shadow-[0_28px_70px_rgba(0,0,0,.30)] [transform:rotateY(180deg)] [backface-visibility:hidden] ${corner}`}>
       <PageContent page={back} />
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-black/30 via-black/8 to-transparent" />
+      <div className={`pointer-events-none absolute inset-y-0 w-28 bg-gradient-to-${next ? 'r' : 'l'} from-black/30 via-black/8 to-transparent ${next ? 'left-0' : 'right-0'}`} />
     </div>
 
     <motion.div
