@@ -45,16 +45,16 @@ function TimelinePanel({ item, index, progress, reducedMotion }: { item: Timelin
   const clipPath = useTransform(clipLeft, (left) => `inset(0 0 0 ${left}%)`);
 
   const yearX = useTransform(progress, (value) => {
-    if (index === 0) return reducedMotion ? 0 : -range(value, 0, 1 / (count - 1)) * 10;
+    if (index === 0) return reducedMotion ? 0 : -range(value, 0, 1 / (count - 1)) * 5;
     if (index === count - 1) {
       const local = range(value, transitionStart, transitionEnd);
-      return reducedMotion ? 0 : (1 - local) * 10;
+      return reducedMotion ? 0 : (1 - local) * 5;
     }
     if (value < transitionEnd) {
       const local = range(value, transitionStart, transitionEnd);
-      return reducedMotion ? 0 : (1 - local) * 10;
+      return reducedMotion ? 0 : (1 - local) * 5;
     }
-    return reducedMotion ? 0 : -range(value, nextStart, nextEnd) * 10;
+    return reducedMotion ? 0 : -range(value, nextStart, nextEnd) * 5;
   });
 
   const yearRotate = useTransform(progress, (value) => {
@@ -97,8 +97,9 @@ function TimelinePanel({ item, index, progress, reducedMotion }: { item: Timelin
           </div>
         </div>
 
+        {/* The year stays fully inside the panel on small screens while keeping the oversized editorial look. */}
         <motion.div
-          className="pointer-events-none absolute bottom-[-0.04em] left-1/2 w-max -translate-x-1/2 whitespace-nowrap font-black leading-[0.72] tracking-[-0.09em] text-[clamp(8rem,30vw,34rem)]"
+          className="pointer-events-none absolute bottom-[-0.025em] left-1/2 w-full overflow-visible px-2 text-center whitespace-nowrap font-black leading-[0.72] tracking-[-0.08em] text-[clamp(6rem,24vw,34rem)] sm:text-[clamp(8rem,27vw,34rem)]"
           style={{ x: yearTransformX, rotate: yearRotate, scale: yearScale, transformOrigin: '50% 50%' }}
         >
           {item.year}
