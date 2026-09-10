@@ -73,8 +73,6 @@ export default function FlipBook3D() {
   };
 
   const openingCover = !open && turning;
-  // Pendant le mouvement, on montre immédiatement la page qui sera révélée.
-  // Une feuille physique = recto courant + verso suivant/précédent.
   const revealLeft = turning && direction === 'previous' ? leftPage - 1 : leftPage;
   const revealRight = turning && direction === 'next' ? rightPage + 1 : rightPage;
 
@@ -104,6 +102,7 @@ export default function FlipBook3D() {
 
               {openingCover && <motion.div initial={{ rotateY: 0 }} animate={{ rotateY: -180 }} transition={{ duration: TURN_MS / 1000, ease: EASE }} onAnimationComplete={finishTurn} className="absolute inset-y-[6%] right-0 z-50 w-full origin-left overflow-hidden rounded-r-[22px] bg-black shadow-[18px_30px_80px_rgba(0,0,0,.34)] [transform-style:preserve-3d] sm:rounded-r-[30px]"><PageContent page={0} cover /><div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-black/55 via-black/15 to-transparent" /><div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white/10 to-transparent" /></motion.div>}
 
+              {turning && !openingCover && <RevealPage direction={direction} page={direction === 'next' ? rightPage + 1 : leftPage - 1} />}
               {turning && !openingCover && <TurningPage direction={direction} front={direction === 'next' ? rightPage : leftPage} back={direction === 'next' ? rightPage + 1 : leftPage - 1} onComplete={finishTurn} />}
               <div className="pointer-events-none absolute inset-y-[6%] left-1/2 z-[80] w-px -translate-x-1/2 bg-black/10 shadow-[0_0_9px_rgba(0,0,0,.18)]" />
               <div className="absolute inset-x-0 bottom-[-5%] z-[100] flex items-center justify-between px-0 sm:px-4"><NavButton disabled={!canPrevious} onClick={() => turn('previous')} label="Previous page">←</NavButton><div className="rounded-full bg-white/95 px-4 py-2 text-[10px] font-semibold tracking-[.08em] shadow-xl backdrop-blur sm:px-5 sm:py-2.5 sm:text-xs">{open ? `${String(leftPage).padStart(2, '0')}–${String(rightPage).padStart(2, '0')}` : 'COVER'} <span className="text-black/30">/ {pages.length - 1}</span></div><NavButton disabled={turning || (open && !canNext)} onClick={() => turn('next')} label={open ? 'Next page' : 'Open book'}>→</NavButton></div>
@@ -117,6 +116,24 @@ export default function FlipBook3D() {
 }
 
 function Cover({ onOpen }: { onOpen: () => void }) { return <button type="button" onClick={onOpen} aria-label="Open Flipbook" className="group absolute inset-x-[3%] inset-y-[6%] z-40 overflow-hidden rounded-[22px] bg-gradient-to-br from-zinc-950 via-stone-900 to-black text-left shadow-[18px_30px_80px_rgba(0,0,0,.38)] outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-black/40 sm:rounded-[30px]"><div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(255,255,255,.12),transparent_28%),radial-gradient(circle_at_85%_80%,rgba(255,255,255,.08),transparent_30%)]" /><div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-10 lg:p-12"><div className="flex items-center justify-between text-[8px] uppercase tracking-[.28em] text-white/45 sm:text-[10px]"><span>Portfolio / 2026</span><span>Selected / 06</span></div><div><div className="mb-6 h-px w-14 bg-white/25" /><h3 className="whitespace-pre-line text-[clamp(2.4rem,6.4vw,5.6rem)] font-semibold leading-[.82] tracking-[-.065em]">DIGITAL{'\n'}EXPERIENCES</h3><p className="mt-5 max-w-md text-[10px] leading-5 text-white/50 sm:text-xs sm:leading-6">A collection of interfaces, products and visual experiments.</p></div><div className="flex items-end justify-between text-[8px] uppercase tracking-[.18em] text-white/35 sm:text-[9px]"><span>Open book</span><span className="transition-transform duration-300 group-hover:translate-x-1">→</span></div></div></button>; }
+
+function RevealPage({ direction, page }: { direction: Direction; page: number }) {
+  const next = direction === 'next';
+  const clipStart = next
+    ? 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)'
+    : 'polygon(0 0, 0 0, 0 100%, 0 100%)';
+  const clipEnd = 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
+
+  return <motion.div
+    initial={{ clipPath: clipStart }}
+    animate={{ clipPath: clipEnd }}
+    transition={{ duration: TURN_MS / 1000, ease: EASE }}
+    className={`absolute inset-y-[6%] z-20 w-1/2 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.18)] ${next ? 'right-0 rounded-r-[22px] sm:rounded-r-[30px]' : 'left-0 rounded-l-[22px] sm:rounded-l-[30px]'}`}
+  >
+    <PageContent page={page} />
+    <PageEdge side={next ? 'right' : 'left'} />
+  </motion.div>;
+}
 
 function TurningPage({ direction, front, back, onComplete }: { direction: Direction; front: number; back: number; onComplete: () => void }) {
   const next = direction === 'next';
@@ -133,5 +150,5 @@ function PageContent({ page, cover = false }: { page: number; cover?: boolean })
 }
 
 function CurlShade({ side }: { side: 'left' | 'right' }) { return <div className={`pointer-events-none absolute inset-y-0 ${side === 'right' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} w-24 from-black/35 via-black/10 to-transparent`} />; }
-function PageEdge({ side }: { side: 'left' | 'right' }) { return <div className={`pointer-events-none absolute inset-y-0 ${side === 'left' ? 'right-0' : 'left-0'} w-4 bg-gradient-to-${side === 'left' ? 'l' : 'r'} from-black/10 to-transparent`} />; }
+function PageEdge({ side }: { side: 'left' | 'right' }) { return <div className={`pointer-events-none absolute inset-y-0 ${side === 'left' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} w-4 from-black/10 to-transparent`} />; }
 function NavButton({ disabled, onClick, label, children }: { disabled?: boolean; onClick: () => void; label: string; children: React.ReactNode }) { return <button type="button" disabled={disabled} onClick={onClick} aria-label={label} className="grid h-11 w-11 place-items-center rounded-full bg-white/95 text-lg shadow-[0_12px_30px_rgba(0,0,0,.16)] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-35 sm:h-12 sm:w-12">{children}</button>; }
