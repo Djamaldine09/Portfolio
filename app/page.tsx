@@ -28,7 +28,9 @@ export default function Portfolio() {
         <About />
         <Projects />
         <ScrollTimelinePro />
-        <ScrollTextLines />
+        <div className="bg-[#0a0f0d] pt-16 sm:pt-24 lg:pt-28">
+          <ScrollTextLines />
+        </div>
         <Skills />
         <Contact />
       </div>
