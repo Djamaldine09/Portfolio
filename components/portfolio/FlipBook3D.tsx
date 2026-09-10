@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 
 type Direction = 'next' | 'previous';
-
 type Page = { eyebrow: string; title: string; subtitle: string; tone: string; light?: boolean };
 
 const pages: Page[] = [
@@ -74,8 +73,10 @@ export default function FlipBook3D() {
   };
 
   const openingCover = !open && turning;
-  const displayLeftPage = turning && direction === 'previous' ? leftPage - 2 : leftPage;
-  const displayRightPage = turning && direction === 'next' ? rightPage + 2 : rightPage;
+  // Pendant le mouvement, on montre immédiatement la page qui sera révélée.
+  // Une feuille physique = recto courant + verso suivant/précédent.
+  const revealLeft = turning && direction === 'previous' ? leftPage - 1 : leftPage;
+  const revealRight = turning && direction === 'next' ? rightPage + 1 : rightPage;
 
   return (
     <section id="flipbook" className="relative overflow-hidden bg-[#e8e5e2] px-5 py-24 text-[#111] sm:px-10 sm:py-32 lg:px-16 lg:py-40">
@@ -96,8 +97,8 @@ export default function FlipBook3D() {
 
               {open && (
                 <div className="absolute inset-x-0 inset-y-[6%] z-10 [transform-style:preserve-3d]">
-                  <div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden rounded-l-[22px] bg-white shadow-[-12px_22px_45px_rgba(0,0,0,.12)] sm:rounded-l-[30px]"><PageContent page={displayLeftPage} /><PageEdge side="left" /></div>
-                  <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden rounded-r-[22px] bg-white shadow-[12px_22px_45px_rgba(0,0,0,.12)] sm:rounded-r-[30px]"><PageContent page={displayRightPage} /><PageEdge side="right" /></div>
+                  <div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden rounded-l-[22px] bg-white shadow-[-12px_22px_45px_rgba(0,0,0,.12)] sm:rounded-l-[30px]"><PageContent page={revealLeft} /><PageEdge side="left" /></div>
+                  <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden rounded-r-[22px] bg-white shadow-[12px_22px_45px_rgba(0,0,0,.12)] sm:rounded-r-[30px]"><PageContent page={revealRight} /><PageEdge side="right" /></div>
                 </div>
               )}
 
