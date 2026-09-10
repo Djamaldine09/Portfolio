@@ -14,7 +14,8 @@ const pages = [
   { eyebrow: '07 / NEXT', title: 'MORE TO\nEXPLORE', subtitle: 'More experiments, products and digital experiences are always in progress.', tone: 'from-zinc-900 via-neutral-800 to-black' },
 ];
 
-const DURATION = 1.55;
+const DURATION = 1.7;
+const EASE = [0.16, 0.7, 0.22, 1] as const;
 type Direction = 'next' | 'previous';
 
 export default function FlipBook3D() {
@@ -24,41 +25,44 @@ export default function FlipBook3D() {
   const [turning, setTurning] = useState(false);
   const [direction, setDirection] = useState<Direction>('next');
 
+  const finishTurn = () => {
+    if (!turning) return;
+    if (direction === 'next') {
+      setLeftPage((p) => Math.min(p + 2, pages.length - 2));
+      setRightPage((p) => Math.min(p + 2, pages.length - 1));
+    } else {
+      setLeftPage((p) => Math.max(p - 2, 1));
+      setRightPage((p) => Math.max(p - 2, 2));
+    }
+    setTurning(false);
+  };
+
   const turn = (dir: Direction) => {
     if (turning) return;
     if (!open && dir === 'next') {
       setDirection('next');
       setOpen(true);
       setTurning(true);
-      window.setTimeout(() => setTurning(false), DURATION * 1000);
       return;
     }
     if (dir === 'next' && rightPage >= pages.length - 1) return;
     if (dir === 'previous' && leftPage <= 1) return;
     setDirection(dir);
     setTurning(true);
-    window.setTimeout(() => {
-      if (dir === 'next') {
-        setLeftPage((p) => p + 2);
-        setRightPage((p) => Math.min(p + 2, pages.length - 1));
-      } else {
-        setLeftPage((p) => Math.max(p - 2, 1));
-        setRightPage((p) => Math.max(p - 2, 2));
-      }
-      setTurning(false);
-    }, DURATION * 1000);
   };
 
   useEffect(() => {
-    const key = (e: KeyboardEvent) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') turn('next');
       if (e.key === 'ArrowLeft') turn('previous');
     };
-    window.addEventListener('keydown', key);
-    return () => window.removeEventListener('keydown', key);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
   });
 
-  const coverVisible = !open || (turning && direction === 'next' && leftPage === 1 && rightPage === 2);
+  const openingCover = !open && turning;
+  const normalTurn = turning && !openingCover;
+  const coverVisible = !open || openingCover;
   const canNext = open && !turning && rightPage < pages.length - 1;
   const canPrevious = open && !turning && leftPage > 1;
 
@@ -71,34 +75,37 @@ export default function FlipBook3D() {
           <p className="mt-8 max-w-lg text-base leading-7 text-black/60 sm:text-lg">A physical-looking digital booklet with a visible 3D opening, realistic page turns and responsive interaction.</p>
           <div className="mt-9 space-y-4 border-t border-black/10 pt-6">
             <p className="text-xs font-medium uppercase tracking-[.2em] text-black/40">Realistic 180° page turn</p>
-            <div className="flex flex-wrap gap-2">{['Real 3D Turn','180° Rotation','CMS Ready','Touch','Keyboard','Responsive'].map((tag) => <span key={tag} className="rounded-full border border-black/10 px-3 py-1.5 text-[10px] uppercase tracking-[.16em] text-black/55">{tag}</span>)}</div>
+            <div className="flex flex-wrap gap-2">{['Real 3D Turn','180° Rotation','Page Curl','CMS Ready','Touch','Keyboard','Responsive'].map((tag) => <span key={tag} className="rounded-full border border-black/10 px-3 py-1.5 text-[10px] uppercase tracking-[.16em] text-black/55">{tag}</span>)}</div>
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-4xl [perspective:2600px]">
+        <div className="mx-auto w-full max-w-4xl [perspective:2400px]">
           <div className="relative aspect-[1.42/1] w-full select-none [transform-style:preserve-3d]">
             <div className="absolute inset-[4%] rounded-[24px] bg-[#d8d2ca] shadow-[0_45px_100px_rgba(0,0,0,.25)] sm:rounded-[30px]" />
 
-            {open && <div className="absolute inset-y-[4%] inset-x-0 [transform-style:preserve-3d]">
-              <div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden rounded-l-[22px] bg-white shadow-[-8px_25px_45px_rgba(0,0,0,.12)] sm:rounded-l-[28px]"><PageContent page={leftPage} /><PageEdge side="left" /></div>
-              <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden rounded-r-[22px] bg-white shadow-[8px_25px_45px_rgba(0,0,0,.12)] sm:rounded-r-[28px]"><PageContent page={rightPage} /><PageEdge side="right" /></div>
+            {open && <div className="absolute inset-y-[4%] inset-x-0 z-10 [transform-style:preserve-3d]">
+              <div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden rounded-l-[22px] bg-white shadow-[-10px_25px_45px_rgba(0,0,0,.13)] sm:rounded-l-[28px]"><PageContent page={leftPage} /><PageEdge side="left" /></div>
+              <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden rounded-r-[22px] bg-white shadow-[10px_25px_45px_rgba(0,0,0,.13)] sm:rounded-r-[28px]"><PageContent page={rightPage} /><PageEdge side="right" /></div>
             </div>}
 
             {coverVisible && <motion.div
               initial={false}
               animate={{ rotateY: open ? -180 : 0 }}
-              transition={{ duration: DURATION, ease: [0.18, 0.7, 0.28, 1] }}
-              className="absolute inset-y-[4%] right-0 z-50 w-full origin-left overflow-hidden rounded-r-[22px] bg-black shadow-[15px_30px_80px_rgba(0,0,0,.38)] [transform-style:preserve-3d] sm:rounded-r-[28px]"
+              transition={{ duration: DURATION, ease: EASE }}
+              onAnimationComplete={() => { if (openingCover) finishTurn(); }}
+              className="absolute inset-y-[4%] right-0 z-50 w-full origin-left overflow-hidden rounded-r-[22px] bg-black shadow-[15px_30px_80px_rgba(0,0,0,.38)] [transform-style:preserve-3d] [backface-visibility:visible] sm:rounded-r-[28px]"
             >
               <PageContent page={0} cover />
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-black/45 to-transparent" />
+              <div className="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-black/55 via-black/15 to-transparent" />
               <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white/10 to-transparent" />
             </motion.div>}
 
-            {turning && open && !(direction === 'next' && leftPage === 1 && rightPage === 2) && <TurningSheet
+            {normalTurn && <TurningSheet
+              key={`${direction}-${leftPage}-${rightPage}`}
               direction={direction}
               front={direction === 'next' ? rightPage : leftPage}
               back={direction === 'next' ? Math.min(rightPage + 1, pages.length - 1) : Math.max(leftPage - 1, 1)}
+              onComplete={finishTurn}
             />}
 
             <div className="pointer-events-none absolute inset-y-[4%] left-1/2 z-[80] w-[2px] -translate-x-1/2 bg-black/15 shadow-[0_0_8px_rgba(0,0,0,.12)]" />
@@ -108,40 +115,38 @@ export default function FlipBook3D() {
               <button type="button" onClick={() => turn('next')} disabled={turning || (open && !canNext)} aria-label={open ? 'Next page' : 'Open book'} className="grid h-12 w-12 place-items-center rounded-full bg-white text-xl shadow-xl transition hover:scale-105 active:scale-95 disabled:pointer-events-none disabled:opacity-30">→</button>
             </div>
           </div>
-          <div className="mt-12 flex items-center justify-between text-[10px] uppercase tracking-[.22em] text-black/35"><span>{open ? 'Turn the page / keyboard' : 'Open the book'}</span><span>Visible 3D page turn</span></div>
+          <div className="mt-12 flex items-center justify-between text-[10px] uppercase tracking-[.22em] text-black/35"><span>{open ? 'Turn the page / keyboard' : 'Open the book'}</span><span>Realistic 3D paper turn</span></div>
         </div>
       </div>
     </section>
   );
 }
 
-function TurningSheet({ front, back, direction }: { front: number; back: number; direction: Direction }) {
+function TurningSheet({ front, back, direction, onComplete }: { front: number; back: number; direction: Direction; onComplete: () => void }) {
   const next = direction === 'next';
-
   return <motion.div
-    initial={{ rotateY: 0 }}
-    animate={{ rotateY: next ? -180 : 180 }}
-    transition={{ duration: DURATION, ease: [0.18, 0.7, 0.28, 1] }}
-    /* IMPORTANT: do not put backface-visibility:hidden on this wrapper.
-       That was the bug: the entire sheet vanished at exactly 90 degrees. */
+    initial={{ rotateY: 0, rotateX: 0, scale: 1 }}
+    animate={{ rotateY: next ? -180 : 180, rotateX: [0, -0.8, 0.5, 0], scale: [1, 1.008, 1.012, 1] }}
+    transition={{ duration: DURATION, ease: EASE, rotateX: { duration: DURATION, ease: 'easeInOut' }, scale: { duration: DURATION, ease: 'easeInOut' } }}
+    onAnimationComplete={onComplete}
     className={`absolute inset-y-[4%] z-[90] w-1/2 overflow-visible bg-transparent [transform-style:preserve-3d] ${next ? 'left-1/2 origin-left' : 'left-0 origin-right'}`}
   >
-    <div className="absolute inset-0 overflow-hidden bg-white shadow-[0_28px_70px_rgba(0,0,0,.28)] [backface-visibility:hidden]">
+    <div className="absolute inset-0 overflow-hidden bg-white shadow-[0_28px_70px_rgba(0,0,0,.30)] [backface-visibility:hidden]">
       <PageContent page={front} />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-black/25 via-black/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-black/30 via-black/8 to-transparent" />
     </div>
 
-    <div className="absolute inset-0 overflow-hidden bg-white shadow-[0_28px_70px_rgba(0,0,0,.28)] [transform:rotateY(180deg)] [backface-visibility:hidden]">
+    <div className="absolute inset-0 overflow-hidden bg-white shadow-[0_28px_70px_rgba(0,0,0,.30)] [transform:rotateY(180deg)] [backface-visibility:hidden]">
       <PageContent page={back} />
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-black/25 via-black/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-28 bg-gradient-to-r from-black/30 via-black/8 to-transparent" />
     </div>
 
     <motion.div
       aria-hidden="true"
-      initial={{ opacity: 0.08, scaleX: 0.7 }}
-      animate={{ opacity: [0.08, 0.38, 0.18, 0.06], scaleX: [0.7, 1, 0.8, 0.55] }}
+      initial={{ opacity: 0.05, scaleX: 0.45 }}
+      animate={{ opacity: [0.05, 0.42, 0.20, 0.05], scaleX: [0.45, 1, 0.8, 0.5] }}
       transition={{ duration: DURATION, ease: 'easeInOut' }}
-      className={`pointer-events-none absolute inset-y-0 top-0 w-14 bg-gradient-to-r from-black/25 via-white/10 to-transparent mix-blend-multiply ${next ? 'right-0' : 'left-0'}`}
+      className={`pointer-events-none absolute inset-y-0 top-0 w-16 bg-gradient-to-r from-black/35 via-white/10 to-transparent mix-blend-multiply ${next ? 'right-0' : 'left-0'}`}
     />
   </motion.div>;
 }
