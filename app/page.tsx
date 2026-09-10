@@ -5,6 +5,7 @@ import Hero from '@/components/portfolio/Hero';
 import About from '@/components/portfolio/About';
 import Projects from '@/components/portfolio/Projects';
 import ScrollTextLines from '@/components/portfolio/ScrollTextLines';
+import ScrollTimelinePro from '@/components/portfolio/ScrollTimelinePro';
 import Skills from '@/components/portfolio/Skills';
 import Contact from '@/components/portfolio/Contact';
 import Footer from '@/components/portfolio/Footer';
@@ -17,9 +18,7 @@ export default function Portfolio() {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return (
     <main className="min-h-screen overflow-x-clip bg-[#0a0f0d]">
@@ -28,6 +27,7 @@ export default function Portfolio() {
         <Hero />
         <About />
         <Projects />
+        <ScrollTimelinePro />
         <ScrollTextLines />
         <Skills />
         <Contact />
