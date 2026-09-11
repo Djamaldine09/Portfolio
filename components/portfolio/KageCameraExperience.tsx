@@ -10,7 +10,7 @@ const chapters = [
 ];
 
 type LeafData = { x: number; y: number; z: number; phase: number; speed: number; drift: number; size: number; rotation: number };
-type CloudData = { group: any; baseX: number; speed: number; phase: number };
+type CloudData = { group: any; baseX: number; baseY: number; speed: number; phase: number };
 type ThreeState = { renderer: any; scene: any; camera: any; group: any; leaves: any; leafData: LeafData[]; clouds: CloudData[] };
 type ThreeWindow = Window & { THREE?: any };
 
@@ -113,7 +113,12 @@ function createMountain(THREE: any, x: number, z: number, scale: number, color: 
 
 function createCloud(THREE: any, x: number, y: number, z: number, scale: number, mobile: boolean) {
   const root = new THREE.Group();
-  const material = new THREE.MeshBasicMaterial({ color: 0xaeb9c7, transparent: true, opacity: mobile ? 0.085 : 0.105, depthWrite: false });
+  const material = new THREE.MeshBasicMaterial({
+    color: 0xb9c3cf,
+    transparent: true,
+    opacity: mobile ? 0.07 : 0.09,
+    depthWrite: false,
+  });
   const parts = mobile ? 3 : 5;
   for (let i = 0; i < parts; i += 1) {
     const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.5 + (i % 2) * 0.45, mobile ? 10 : 14, mobile ? 8 : 10), material);
@@ -156,21 +161,76 @@ function createLeaves(THREE: any, mobile: boolean, depth: number) {
   return { mesh, data };
 }
 
+function createMoonTexture(THREE: any, mobile: boolean) {
+  const size = mobile ? 256 : 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  const image = ctx.createImageData(size, size);
+  const data = image.data;
+  const hash = (x: number, y: number) => {
+    const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+    return n - Math.floor(n);
+  };
+
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const n1 = hash(x * 0.018, y * 0.018);
+      const n2 = hash(x * 0.047, y * 0.047);
+      const value = Math.max(112, Math.min(232, 190 + (n1 - 0.5) * 35 + (n2 - 0.5) * 22));
+      const index = (y * size + x) * 4;
+      data[index] = value;
+      data[index + 1] = value * 0.985;
+      data[index + 2] = value * 0.94;
+      data[index + 3] = 255;
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+
+  const craterCount = mobile ? 80 : 150;
+  for (let i = 0; i < craterCount; i += 1) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const radius = (2 + Math.random() * 12) * (size / 512);
+    const gradient = ctx.createRadialGradient(x - radius * 0.2, y - radius * 0.2, radius * 0.12, x, y, radius);
+    gradient.addColorStop(0, 'rgba(70,68,63,0.24)');
+    gradient.addColorStop(0.65, 'rgba(105,101,94,0.15)');
+    gradient.addColorStop(0.9, 'rgba(235,230,217,0.10)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 function disposeObject(object: any) {
   object.traverse((child: any) => {
     child.geometry?.dispose?.();
     const materials = Array.isArray(child.material) ? child.material : [child.material];
-    materials.forEach((material: any) => material?.dispose?.());
+    materials.forEach((material: any) => {
+      if (material?.map) material.map.dispose?.();
+      if (material?.bumpMap) material.bumpMap.dispose?.();
+      material?.dispose?.();
+    });
   });
 }
 
 function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, stateRef: { current: ThreeState | null }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.35));
-  renderer.setClearColor(0x040608, 1);
+  renderer.setClearColor(0x030508, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = 1.08;
 
   const scene = new THREE.Scene();
   scene.fog = new THREE.FogExp2(0x080a0d, mobile ? 0.038 : 0.03);
@@ -180,36 +240,60 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
 
   const group = new THREE.Group();
   scene.add(group);
-  scene.add(new THREE.HemisphereLight(0x9eabc5, 0x080604, 1.15));
-  const moonLight = new THREE.DirectionalLight(0xdde8ff, 1.35);
-  moonLight.position.set(-8, 14, 4);
-  scene.add(moonLight);
+  scene.add(new THREE.HemisphereLight(0x9eabc5, 0x080604, 1.05));
 
-  // Realistic moon: higher in the sky, with a bright core and layered atmospheric glow.
-  const moon = new THREE.Mesh(
-    new THREE.SphereGeometry(2.35, mobile ? 24 : 36, mobile ? 24 : 36),
-    new THREE.MeshStandardMaterial({ color: 0xf4eee0, roughness: 0.92, metalness: 0, emissive: 0x8d877b, emissiveIntensity: 0.22 }),
-  );
-  moon.position.set(8, 14.5, -46);
+  const moonPosition = new THREE.Vector3(7.5, 18.2, -49);
+  const moonTexture = createMoonTexture(THREE, mobile);
+  const moonMaterial = new THREE.MeshStandardMaterial({
+    color: 0xf4efe3,
+    map: moonTexture || undefined,
+    bumpMap: moonTexture || undefined,
+    bumpScale: 0.11,
+    roughness: 0.96,
+    metalness: 0,
+    emissive: 0x6e6a61,
+    emissiveIntensity: 0.12,
+  });
+  const moon = new THREE.Mesh(new THREE.SphereGeometry(2.45, mobile ? 28 : 44, mobile ? 28 : 44), moonMaterial);
+  moon.position.copy(moonPosition);
+  moon.rotation.y = -0.5;
   scene.add(moon);
 
   const moonGlowOuter = new THREE.Mesh(
-    new THREE.SphereGeometry(5.8, mobile ? 16 : 24, mobile ? 16 : 24),
-    new THREE.MeshBasicMaterial({ color: 0xbcc7d9, transparent: true, opacity: mobile ? 0.055 : 0.075, depthWrite: false, blending: THREE.AdditiveBlending }),
+    new THREE.SphereGeometry(7.4, mobile ? 18 : 28, mobile ? 18 : 28),
+    new THREE.MeshBasicMaterial({
+      color: 0x91a7c8,
+      transparent: true,
+      opacity: mobile ? 0.045 : 0.065,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
   );
-  moonGlowOuter.position.copy(moon.position);
+  moonGlowOuter.position.copy(moonPosition);
   scene.add(moonGlowOuter);
 
   const moonGlowInner = new THREE.Mesh(
-    new THREE.SphereGeometry(3.65, mobile ? 16 : 24, mobile ? 16 : 24),
-    new THREE.MeshBasicMaterial({ color: 0xe7dfcb, transparent: true, opacity: mobile ? 0.09 : 0.12, depthWrite: false, blending: THREE.AdditiveBlending }),
+    new THREE.SphereGeometry(4.1, mobile ? 18 : 28, mobile ? 18 : 28),
+    new THREE.MeshBasicMaterial({
+      color: 0xf0eadc,
+      transparent: true,
+      opacity: mobile ? 0.085 : 0.115,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }),
   );
-  moonGlowInner.position.copy(moon.position);
+  moonGlowInner.position.copy(moonPosition);
   scene.add(moonGlowInner);
 
-  const moonLightSource = new THREE.PointLight(0xdfe8ff, mobile ? 0.65 : 0.9, 34, 2);
-  moonLightSource.position.copy(moon.position);
-  scene.add(moonLightSource);
+  const moonLight = new THREE.DirectionalLight(0xdce8ff, mobile ? 1.35 : 1.75);
+  moonLight.position.copy(moonPosition);
+  moonLight.target.position.set(0, 0, -45);
+  scene.add(moonLight);
+  scene.add(moonLight.target);
+
+  const moonPoint = new THREE.PointLight(0xe7edff, mobile ? 0.35 : 0.55, 38, 2);
+  moonPoint.position.copy(moonPosition);
+  scene.add(moonPoint);
 
   const depth = mobile ? 88 : 108;
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(34, depth, 1, 12), new THREE.MeshStandardMaterial({ color: 0x11100f, roughness: 1 }));
@@ -261,14 +345,14 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   const clouds: CloudData[] = [];
   const cloudSpecs: [number, number, number, number, number][] = [
     [-8, 8.5, -42, 1.6, 0.9],
-    [6, 9.8, -50, 1.9, 0.7],
-    [-3, 11.5, -62, 2.2, 0.5],
-    [11, 8.2, -70, 1.7, 0.35],
+    [6, 10.2, -50, 1.9, 0.7],
+    [-3, 12.2, -62, 2.2, 0.5],
+    [11, 9.2, -70, 1.7, 0.35],
   ];
   cloudSpecs.forEach(([x, y, z, scale, speed], index) => {
     const cloud = createCloud(THREE, x, y, z, scale, mobile);
     group.add(cloud);
-    clouds.push({ group: cloud, baseX: x, speed, phase: index * 1.8 });
+    clouds.push({ group: cloud, baseX: x, baseY: y, speed, phase: index * 1.8 });
   });
 
   const leafSet = createLeaves(THREE, mobile, depth);
@@ -380,7 +464,7 @@ export default function KageCameraExperience() {
             if (!reduced) {
               state.clouds.forEach((cloud) => {
                 cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5;
-                cloud.group.position.y += Math.sin(elapsed * 0.12 + cloud.phase) * 0.0007;
+                cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035;
               });
 
               state.leafData.forEach((leaf, index) => {
