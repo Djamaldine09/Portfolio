@@ -29,9 +29,11 @@ export default function KageExperience() {
     let pointerY = 0.5;
     let smoothX = 0.5;
     let smoothY = 0.5;
+    let camera = 0;
+    let targetCamera = 0;
     let last = 0;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const particles: Particle[] = Array.from({ length: reduced ? 55 : 150 }, (_, i) => ({
+    const particles: Particle[] = Array.from({ length: reduced ? 55 : 170 }, (_, i) => ({
       x: Math.random() * 2 - 1,
       y: Math.random() * 2 - 1,
       z: Math.random(),
@@ -97,6 +99,7 @@ export default function KageExperience() {
       const h = canvas.clientHeight;
       smoothX += (pointerX - smoothX) * (reduced ? 0.025 : 0.065);
       smoothY += (pointerY - smoothY) * (reduced ? 0.025 : 0.065);
+      camera += (targetCamera - camera) * (reduced ? 0.045 : 0.075);
 
       ctx.clearRect(0, 0, w, h);
       const sky = ctx.createLinearGradient(0, 0, 0, h);
@@ -107,7 +110,6 @@ export default function KageExperience() {
       ctx.fillStyle = sky;
       ctx.fillRect(0, 0, w, h);
 
-      // Subtle animated sky haze.
       const haze = ctx.createRadialGradient(w * 0.5, h * 0.48, 0, w * 0.5, h * 0.48, h * 0.62);
       haze.addColorStop(0, 'rgba(111,128,151,.09)');
       haze.addColorStop(0.45, 'rgba(62,76,94,.025)');
@@ -115,7 +117,6 @@ export default function KageExperience() {
       ctx.fillStyle = haze;
       ctx.fillRect(0, 0, w, h);
 
-      // Moon + bloom.
       const moonX = w * (0.72 + (smoothX - 0.5) * 0.055);
       const moonY = h * (0.205 + (smoothY - 0.5) * 0.025);
       const moonGlow = ctx.createRadialGradient(moonX, moonY, 2, moonX, moonY, h * 0.28);
@@ -133,47 +134,79 @@ export default function KageExperience() {
       drawMountain(w, h, 0.73, h * 0.075, smoothX * 3.5 + 1, '#080a0e');
       drawMountain(w, h, 0.81, h * 0.065, smoothX * 4.8 + 3, '#0a090b');
 
-      // Perspective path.
+      // The camera advances through a long perspective corridor as the user scrolls.
       const cx = w * 0.5 + (smoothX - 0.5) * 95;
       const horizon = h * 0.64;
-      ctx.fillStyle = 'rgba(24,20,18,.8)';
+      const cameraShift = camera * 0.92;
+      const pathPulse = reduced ? 0 : Math.sin(time * 0.00045) * 0.008;
+      ctx.fillStyle = 'rgba(24,20,18,.82)';
       ctx.beginPath();
-      ctx.moveTo(cx - 25, horizon);
-      ctx.lineTo(cx + 25, horizon);
-      ctx.lineTo(cx + w * 0.22, h);
-      ctx.lineTo(cx - w * 0.22, h);
+      ctx.moveTo(cx - 24, horizon);
+      ctx.lineTo(cx + 24, horizon);
+      ctx.lineTo(cx + w * (0.22 + pathPulse), h);
+      ctx.lineTo(cx - w * (0.22 + pathPulse), h);
       ctx.closePath();
       ctx.fill();
 
-      // Receding torii / architectural frames create a real sense of depth.
-      for (let i = 0; i < 7; i++) {
-        const z = i / 7;
-        const perspective = 1 - z;
-        const y = horizon + (h - horizon) * Math.pow(perspective, 1.35);
-        const half = 12 + perspective * w * 0.16;
-        const height = 28 + perspective * 120;
-        const alpha = 0.08 + perspective * 0.34;
-        ctx.strokeStyle = `rgba(157,105,62,${alpha})`;
-        ctx.lineWidth = Math.max(1, perspective * 4);
+      // Depth rails make the forward movement readable even between gates.
+      for (let side = -1; side <= 1; side += 2) {
         ctx.beginPath();
-        ctx.moveTo(cx - half, y);
-        ctx.lineTo(cx - half, y - height);
-        ctx.moveTo(cx + half, y);
-        ctx.lineTo(cx + half, y - height);
-        ctx.moveTo(cx - half - 10 * perspective, y - height);
-        ctx.lineTo(cx + half + 10 * perspective, y - height);
+        for (let i = 0; i <= 20; i++) {
+          const t = i / 20;
+          const y = horizon + (h - horizon) * t;
+          const spread = 20 + t * w * 0.22;
+          const x = cx + side * spread;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = 'rgba(132,103,77,.13)';
+        ctx.lineWidth = 1;
         ctx.stroke();
       }
 
-      // Lanterns in depth.
+      // World-space torii. Their z position is advanced by the camera and wrapped,
+      // so gates continuously approach the viewer and disappear behind the camera.
+      for (let i = 0; i < 10; i++) {
+        const worldZ = i / 10;
+        let depth = (worldZ - cameraShift) % 1;
+        if (depth < 0) depth += 1;
+        if (depth < 0.025) continue;
+        const perspective = 1 - depth;
+        const y = horizon + (h - horizon) * Math.pow(perspective, 1.42);
+        const half = 10 + perspective * w * 0.18;
+        const height = 24 + perspective * 128;
+        const alpha = 0.055 + perspective * 0.39;
+        const lean = (smoothX - 0.5) * perspective * 12;
+        ctx.strokeStyle = `rgba(157,105,62,${alpha})`;
+        ctx.lineWidth = Math.max(1, perspective * 4.2);
+        ctx.beginPath();
+        ctx.moveTo(cx - half + lean, y);
+        ctx.lineTo(cx - half + lean, y - height);
+        ctx.moveTo(cx + half + lean, y);
+        ctx.lineTo(cx + half + lean, y - height);
+        ctx.moveTo(cx - half - 10 * perspective + lean, y - height);
+        ctx.lineTo(cx + half + 10 * perspective + lean, y - height);
+        ctx.stroke();
+
+        if (perspective > 0.72) {
+          ctx.strokeStyle = `rgba(225,181,123,${alpha * 0.16})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(cx - half + lean, y - height + 7);
+          ctx.lineTo(cx + half + lean, y - height + 7);
+          ctx.stroke();
+        }
+      }
+
       lanterns.forEach((l) => {
+        let depth = (l.z - cameraShift * 0.9) % 1;
+        if (depth < 0) depth += 1;
+        const perspective = 0.35 + (1 - depth) * 1.5;
         const drift = reduced ? 0 : Math.sin(time * 0.0009 + l.phase) * l.sway;
-        const px = w * (0.5 + l.x * (0.52 + l.z * 0.18) + (smoothX - 0.5) * l.z * 0.12);
-        const py = h * (l.y + drift + (smoothY - 0.5) * l.z * 0.04);
-        drawLantern(px, py, 0.55 + l.z * 0.95, 0.25 + l.z * 0.62, time);
+        const px = cx + l.x * w * (0.52 + (1 - depth) * 0.2) + (smoothX - 0.5) * depth * w * 0.12;
+        const py = h * (l.y + drift + (smoothY - 0.5) * depth * 0.04) + (1 - depth) * h * 0.1;
+        if (px > -100 && px < w + 100) drawLantern(px, py, 0.42 + perspective * 0.7, 0.2 + perspective * 0.38, time);
       });
 
-      // Floating embers / rain streaks moving toward the viewer.
       particles.forEach((p) => {
         if (!reduced) p.z -= p.speed * 0.012 * dt;
         if (p.z < 0.015) {
@@ -182,7 +215,7 @@ export default function KageExperience() {
           p.y = Math.random() * 2 - 1;
         }
         const depth = 1 - p.z;
-        const perspective = 1 + depth * 2.8;
+        const perspective = 1 + depth * 3.1;
         const px = w * 0.5 + (p.x + (smoothX - 0.5) * p.z * 0.18) * w * 0.43 * perspective;
         const py = h * 0.52 + (p.y + (smoothY - 0.5) * p.z * 0.12) * h * 0.5 * perspective;
         if (px < -20 || px > w + 20 || py < -20 || py > h + 20) return;
@@ -201,7 +234,6 @@ export default function KageExperience() {
         }
       });
 
-      // Moving fog ribbons.
       for (let i = 0; i < 3; i++) {
         const y = h * (0.57 + i * 0.1);
         const grad = ctx.createLinearGradient(0, y, w, y);
@@ -237,6 +269,7 @@ export default function KageExperience() {
       if (!el) return;
       const total = Math.max(el.offsetHeight - window.innerHeight, 1);
       const p = Math.min(1, Math.max(0, -el.getBoundingClientRect().top / total));
+      targetCamera = p * 3.2;
       setProgress(p);
       setChapter(Math.min(chapters.length - 1, Math.floor(p * chapters.length)));
     };
