@@ -144,13 +144,13 @@ export default function Skills() {
               className="relative h-[68vh] min-h-[520px] max-h-[820px] w-full overflow-hidden rounded-none bg-black sm:rounded-[2rem]"
               aria-label="Animated Section About Parallax scroll"
             >
-          <motion.div
-            className="absolute inset-0"
-            key={activeSection}
-            initial={reducedMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: reducedMotion ? 0 : 0.45 }}
-          >
+              <motion.div
+                className="absolute inset-0"
+                key={activeSection}
+                initial={reducedMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: reducedMotion ? 0 : 0.45 }}
+              >
             <motion.div
               initial={reducedMotion ? false : { y: '-100%' }}
               animate={{ y: '0%' }}
@@ -160,7 +160,7 @@ export default function Skills() {
               <motion.img
                 src={current.leftImage}
                 alt=""
-                className="absolute inset-[-5%] h-[110%] w-[110%] object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 style={{ x: parallaxX }}
                 initial={reducedMotion ? false : { scale: 1.16 }}
                 animate={{ scale: 1 }}
@@ -177,7 +177,7 @@ export default function Skills() {
               <motion.img
                 src={current.rightImage}
                 alt=""
-                className="absolute inset-[-5%] h-[110%] w-[110%] object-cover"
+                className="absolute inset-0 h-full w-full object-cover"
                 style={{ x: parallaxX }}
                 initial={reducedMotion ? false : { scale: 1.16 }}
                 animate={{ scale: 1 }}
