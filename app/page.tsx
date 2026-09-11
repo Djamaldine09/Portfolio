@@ -7,7 +7,7 @@ import Projects from '@/components/portfolio/Projects';
 import ScrollTextLines from '@/components/portfolio/ScrollTextLines';
 import ScrollTimelinePro from '@/components/portfolio/ScrollTimelinePro';
 import ShaderFlow from '@/components/portfolio/ShaderFlow';
-import FlipBook3D from '@/components/portfolio/FlipBook3D';
+import ScrollBendSection from '@/components/portfolio/ScrollBendSection';
 import Skills from '@/components/portfolio/Skills';
 import Contact from '@/components/portfolio/Contact';
 import Footer from '@/components/portfolio/Footer';
@@ -30,7 +30,7 @@ export default function Portfolio() {
         <About />
         <Projects />
         <ScrollTimelinePro />
-        <FlipBook3D />
+        <ScrollBendSection />
         <div className="bg-[#0a0f0d] pt-16 sm:pt-24 lg:pt-28">
           <ScrollTextLines />
         </div>
