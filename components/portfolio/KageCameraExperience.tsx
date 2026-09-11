@@ -36,255 +36,48 @@ function loadThree(): Promise<any> {
   });
 }
 
-function themeMaterial(material: any, night: number, day: number, themeParts: ThemePart[]) {
-  themeParts.push({ material, night, day });
-  material.color.setHex(night);
-  return material;
-}
-
-function createTorii(THREE: any, color: number, themeParts: ThemePart[]) {
-  const root = new THREE.Group();
-  const material = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.05 }), color, color, themeParts);
-  const box = (x: number, y: number, sx: number, sy: number, sz: number) => { const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material); mesh.position.set(x, y, 0); root.add(mesh); };
-  box(-2.05, 1.65, 0.32, 3.3, 0.34); box(2.05, 1.65, 0.32, 3.3, 0.34); box(0, 3.05, 4.8, 0.3, 0.42); box(0, 2.7, 4.25, 0.16, 0.32); box(0, 3.35, 5.15, 0.18, 0.5);
-  return root;
-}
-
-function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) {
-  const root = new THREE.Group();
-  const dark = new THREE.MeshStandardMaterial({ color: 0x17110c, roughness: 1 });
-  const warm = themeMaterial(new THREE.MeshStandardMaterial({ color: 0xffad45, emissive: 0xd86b17, emissiveIntensity: 1.5 }), 0xffad45, 0xffc45b, themeParts);
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.55, 0.38), warm); body.position.y = 1.65; root.add(body);
-  const top = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.2, 4), dark); top.position.y = 2.03; top.rotation.y = Math.PI / 4; root.add(top);
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.12, 6), dark); base.position.y = 1.32; root.add(base);
-  if (withLight) { const light = new THREE.PointLight(0xffa640, 1.8, 5, 2); light.position.y = 1.65; root.add(light); }
-  return root;
-}
+function themeMaterial(material: any, night: number, day: number, themeParts: ThemePart[]) { themeParts.push({ material, night, day }); material.color.setHex(night); return material; }
+function createTorii(THREE: any, color: number, themeParts: ThemePart[]) { const root = new THREE.Group(); const material = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.05 }), color, color, themeParts); const box = (x: number, y: number, sx: number, sy: number, sz: number) => { const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material); mesh.position.set(x, y, 0); root.add(mesh); }; box(-2.05, 1.65, 0.32, 3.3, 0.34); box(2.05, 1.65, 0.32, 3.3, 0.34); box(0, 3.05, 4.8, 0.3, 0.42); box(0, 2.7, 4.25, 0.16, 0.32); box(0, 3.35, 5.15, 0.18, 0.5); return root; }
+function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) { const root = new THREE.Group(); const dark = new THREE.MeshStandardMaterial({ color: 0x17110c, roughness: 1 }); const warm = themeMaterial(new THREE.MeshStandardMaterial({ color: 0xffad45, emissive: 0xd86b17, emissiveIntensity: 1.5 }), 0xffad45, 0xffc45b, themeParts); const body = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.55, 0.38), warm); body.position.y = 1.65; root.add(body); const top = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.2, 4), dark); top.position.y = 2.03; top.rotation.y = Math.PI / 4; root.add(top); const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.12, 6), dark); base.position.y = 1.32; root.add(base); if (withLight) { const light = new THREE.PointLight(0xffa640, 1.8, 5, 2); light.position.y = 1.65; root.add(light); } return root; }
 
 function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: boolean) {
-  const root = new THREE.Group();
-  const trunkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x130d09, roughness: 0.96, metalness: 0 }), 0x130d09, 0x4d2e1c, themeParts);
-  const barkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x24150d, roughness: 1 }), 0x24150d, 0x6b4327, themeParts);
-  const foliageDark = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x03100a, roughness: 0.98 }), 0x03100a, 0x174a26, themeParts);
-  const foliageMid = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x06180d, roughness: 0.98 }), 0x06180d, 0x246336, themeParts);
-  const foliageLight = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x0a2112, roughness: 0.96 }), 0x0a2112, 0x397842, themeParts);
-
-  // Organic trunk: several tapered segments with tiny bends so the silhouette never looks perfectly manufactured.
-  const trunk = new THREE.Group();
-  const trunkSegments = mobile ? 3 : 4;
-  let trunkX = 0;
-  let trunkZ = 0;
-  for (let i = 0; i < trunkSegments; i += 1) {
-    const t = i / trunkSegments;
-    const height = 1.05 + Math.random() * 0.12;
-    const radiusTop = 0.09 - t * 0.035;
-    const radiusBottom = 0.22 - t * 0.04;
-    const segment = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(0.045, radiusTop), radiusBottom, height, 8, 2), i === 0 ? trunkMat : barkMat);
-    segment.position.set(trunkX, i * 0.98 + height * 0.5, trunkZ);
-    segment.rotation.z = (Math.random() - 0.5) * 0.055;
-    segment.rotation.x = (Math.random() - 0.5) * 0.035;
-    trunkX += (Math.random() - 0.5) * 0.055;
-    trunkZ += (Math.random() - 0.5) * 0.045;
-    trunk.add(segment);
-  }
-  root.add(trunk);
-
-  // Smooth foliage volumes plus curved branches: no cones and no faceted icosahedrons.
-  const foliageGeometry = new THREE.SphereGeometry(1, mobile ? 8 : 12, mobile ? 6 : 9);
-  const twigGeometry = new THREE.SphereGeometry(1, mobile ? 6 : 8, mobile ? 5 : 6);
-
-  const addBranch = (baseY: number, angle: number, length: number, droop: number, material: any, branchIndex: number) => {
-    const outward = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
-    const side = new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle));
-    const base = new THREE.Vector3(trunkX * 0.5, baseY, trunkZ * 0.5);
-    const end = base.clone().add(outward.clone().multiplyScalar(length)).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.34));
-    end.y -= droop;
-    const mid = base.clone().add(outward.clone().multiplyScalar(length * (0.42 + Math.random() * 0.08))).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.28));
-    mid.y -= droop * 0.28;
-    const curve = new THREE.CatmullRomCurve3([base, mid, end]);
-    root.add(new THREE.Mesh(new THREE.TubeGeometry(curve, mobile ? 5 : 7, mobile ? 0.055 : 0.065, 5, false), barkMat));
-
-    const tuftCount = mobile ? 2 : 3;
-    for (let k = 0; k < tuftCount; k += 1) {
-      const t = (k + 0.35) / tuftCount;
-      const point = curve.getPointAt(Math.min(0.96, t));
-      const tuft = new THREE.Mesh(foliageGeometry, k === 0 && branchIndex % 2 === 0 ? foliageLight : material);
-      const width = (0.62 - t * 0.18) * (0.9 + Math.random() * 0.2);
-      const height = (0.42 - t * 0.10) * (0.9 + Math.random() * 0.2);
-      tuft.position.copy(point);
-      tuft.position.y += 0.04 + Math.random() * 0.08;
-      tuft.scale.set(width, height, width * (0.72 + Math.random() * 0.18));
-      tuft.rotation.set((Math.random() - 0.5) * 0.35, angle + Math.PI * 0.5 + (Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.35);
-      root.add(tuft);
-
-      if (!mobile && k === tuftCount - 1) {
-        const twigStart = point.clone().add(outward.clone().multiplyScalar(0.05));
-        const twigEnd = twigStart.clone().add(outward.clone().multiplyScalar(0.42 + Math.random() * 0.18)).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.25));
-        twigEnd.y += 0.06 - Math.random() * 0.14;
-        const twigCurve = new THREE.CatmullRomCurve3([twigStart, twigStart.clone().lerp(twigEnd, 0.5), twigEnd]);
-        root.add(new THREE.Mesh(new THREE.TubeGeometry(twigCurve, 4, 0.035, 4, false), barkMat));
-        const twigTip = new THREE.Mesh(twigGeometry, foliageLight);
-        twigTip.position.copy(twigEnd);
-        twigTip.scale.set(0.22, 0.14, 0.18);
-        twigTip.rotation.y = angle;
-        root.add(twigTip);
-      }
-    }
-  };
-
-  const tiers = mobile ? 4 : 5;
-  for (let i = 0; i < tiers; i += 1) {
-    const t = i / (tiers - 1);
-    const y = 2.0 + t * 3.55;
-    const width = (1.75 - t * 1.22) * (0.92 + Math.random() * 0.14);
-    const branches = mobile ? 3 : 4;
-    const phase = Math.random() * Math.PI * 2;
-    for (let j = 0; j < branches; j += 1) {
-      const angle = phase + (j / branches) * Math.PI * 2;
-      const length = width * (0.86 + Math.random() * 0.22);
-      const droop = (0.16 + (1 - t) * 0.28) * (0.8 + Math.random() * 0.35);
-      addBranch(y + (Math.random() - 0.5) * 0.18, angle, length, droop, j % 3 === 0 ? foliageMid : foliageDark, j);
-    }
-  }
-
-  // Asymmetric crown and loose upper shoots avoid the artificial Christmas-tree cone.
-  const crown = new THREE.Mesh(foliageGeometry, foliageLight);
-  crown.position.set(trunkX + (Math.random() - 0.5) * 0.16, 5.65 + Math.random() * 0.18, trunkZ + (Math.random() - 0.5) * 0.16);
-  crown.scale.set(0.48 + Math.random() * 0.16, 0.82 + Math.random() * 0.2, 0.46 + Math.random() * 0.15);
-  crown.rotation.set((Math.random() - 0.5) * 0.18, Math.random() * Math.PI * 2, (Math.random() - 0.5) * 0.18);
-  root.add(crown);
-
-  const shoots = mobile ? 2 : 4;
-  for (let i = 0; i < shoots; i += 1) {
-    const angle = Math.random() * Math.PI * 2;
-    const shoot = new THREE.Mesh(twigGeometry, i % 2 ? foliageMid : foliageLight);
-    shoot.position.set(Math.cos(angle) * (0.28 + Math.random() * 0.25), 5.95 + Math.random() * 0.55, Math.sin(angle) * (0.28 + Math.random() * 0.25));
-    shoot.scale.set(0.22 + Math.random() * 0.12, 0.14 + Math.random() * 0.1, 0.2 + Math.random() * 0.1);
-    shoot.rotation.set(Math.random() * 0.35, angle, Math.random() * 0.35);
-    root.add(shoot);
-  }
-
-  root.rotation.y = Math.random() * Math.PI * 2;
-  root.rotation.z = (Math.random() - 0.5) * 0.035;
-  root.scale.setScalar(scale);
-  return root;
+  const root = new THREE.Group(); const trunkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x130d09, roughness: 0.96, metalness: 0 }), 0x130d09, 0x4d2e1c, themeParts); const barkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x24150d, roughness: 1 }), 0x24150d, 0x6b4327, themeParts); const foliageDark = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x03100a, roughness: 0.98 }), 0x03100a, 0x174a26, themeParts); const foliageMid = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x06180d, roughness: 0.98 }), 0x06180d, 0x246336, themeParts); const foliageLight = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x0a2112, roughness: 0.96 }), 0x0a2112, 0x397842, themeParts);
+  const trunk = new THREE.Group(); const trunkSegments = mobile ? 3 : 4; let trunkX = 0; let trunkZ = 0;
+  for (let i = 0; i < trunkSegments; i += 1) { const t = i / trunkSegments, height = 1.05 + Math.random() * 0.12, radiusTop = 0.09 - t * 0.035, radiusBottom = 0.22 - t * 0.04; const segment = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(0.045, radiusTop), radiusBottom, height, 8, 2), i === 0 ? trunkMat : barkMat); segment.position.set(trunkX, i * 0.98 + height * 0.5, trunkZ); segment.rotation.z = (Math.random() - 0.5) * 0.055; segment.rotation.x = (Math.random() - 0.5) * 0.035; trunkX += (Math.random() - 0.5) * 0.055; trunkZ += (Math.random() - 0.5) * 0.045; trunk.add(segment); }
+  root.add(trunk); const foliageGeometry = new THREE.SphereGeometry(1, mobile ? 8 : 12, mobile ? 6 : 9); const twigGeometry = new THREE.SphereGeometry(1, mobile ? 6 : 8, mobile ? 5 : 6);
+  const addBranch = (baseY: number, angle: number, length: number, droop: number, material: any, branchIndex: number) => { const outward = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)), side = new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle)), base = new THREE.Vector3(trunkX * 0.5, baseY, trunkZ * 0.5), end = base.clone().add(outward.clone().multiplyScalar(length)).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.34)); end.y -= droop; const mid = base.clone().add(outward.clone().multiplyScalar(length * (0.42 + Math.random() * 0.08))).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.28)); mid.y -= droop * 0.28; const curve = new THREE.CatmullRomCurve3([base, mid, end]); root.add(new THREE.Mesh(new THREE.TubeGeometry(curve, mobile ? 5 : 7, mobile ? 0.055 : 0.065, 5, false), barkMat)); const tuftCount = mobile ? 2 : 3; for (let k = 0; k < tuftCount; k += 1) { const t = (k + 0.35) / tuftCount, point = curve.getPointAt(Math.min(0.96, t)), tuft = new THREE.Mesh(foliageGeometry, k === 0 && branchIndex % 2 === 0 ? foliageLight : material), width = (0.62 - t * 0.18) * (0.9 + Math.random() * 0.2), height = (0.42 - t * 0.10) * (0.9 + Math.random() * 0.2); tuft.position.copy(point); tuft.position.y += 0.04 + Math.random() * 0.08; tuft.scale.set(width, height, width * (0.72 + Math.random() * 0.18)); tuft.rotation.set((Math.random() - 0.5) * 0.35, angle + Math.PI * 0.5 + (Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.35); root.add(tuft); if (!mobile && k === tuftCount - 1) { const twigStart = point.clone().add(outward.clone().multiplyScalar(0.05)), twigEnd = twigStart.clone().add(outward.clone().multiplyScalar(0.42 + Math.random() * 0.18)).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.25)); twigEnd.y += 0.06 - Math.random() * 0.14; const twigCurve = new THREE.CatmullRomCurve3([twigStart, twigStart.clone().lerp(twigEnd, 0.5), twigEnd]); root.add(new THREE.Mesh(new THREE.TubeGeometry(twigCurve, 4, 0.035, 4, false), barkMat)); const twigTip = new THREE.Mesh(twigGeometry, foliageLight); twigTip.position.copy(twigEnd); twigTip.scale.set(0.22, 0.14, 0.18); twigTip.rotation.y = angle; root.add(twigTip); } } };
+  const tiers = mobile ? 4 : 5; for (let i = 0; i < tiers; i += 1) { const t = i / (tiers - 1), y = 2.0 + t * 3.55, width = (1.75 - t * 1.22) * (0.92 + Math.random() * 0.14), branches = mobile ? 3 : 4, phase = Math.random() * Math.PI * 2; for (let j = 0; j < branches; j += 1) { const angle = phase + (j / branches) * Math.PI * 2, length = width * (0.86 + Math.random() * 0.22), droop = (0.16 + (1 - t) * 0.28) * (0.8 + Math.random() * 0.35); addBranch(y + (Math.random() - 0.5) * 0.18, angle, length, droop, j % 3 === 0 ? foliageMid : foliageDark, j); } }
+  const crown = new THREE.Mesh(foliageGeometry, foliageLight); crown.position.set(trunkX + (Math.random() - 0.5) * 0.16, 5.65 + Math.random() * 0.18, trunkZ + (Math.random() - 0.5) * 0.16); crown.scale.set(0.48 + Math.random() * 0.16, 0.82 + Math.random() * 0.2, 0.46 + Math.random() * 0.15); crown.rotation.set((Math.random() - 0.5) * 0.18, Math.random() * Math.PI * 2, (Math.random() - 0.5) * 0.18); root.add(crown);
+  const shoots = mobile ? 2 : 4; for (let i = 0; i < shoots; i += 1) { const angle = Math.random() * Math.PI * 2, shoot = new THREE.Mesh(twigGeometry, i % 2 ? foliageMid : foliageLight); shoot.position.set(Math.cos(angle) * (0.28 + Math.random() * 0.25), 5.95 + Math.random() * 0.55, Math.sin(angle) * (0.28 + Math.random() * 0.25)); shoot.scale.set(0.22 + Math.random() * 0.12, 0.14 + Math.random() * 0.1, 0.2 + Math.random() * 0.1); shoot.rotation.set(Math.random() * 0.35, angle, Math.random() * 0.35); root.add(shoot); }
+  root.rotation.y = Math.random() * Math.PI * 2; root.rotation.z = (Math.random() - 0.5) * 0.035; root.scale.setScalar(scale); return root;
 }
 
-function createMountain(THREE: any, x: number, z: number, scale: number, color: number, themeParts: ThemePart[]) {
-  const root = new THREE.Group();
-  const mountainMat = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true }), color, 0x5f7891, themeParts);
-  const ridgeMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x111722, roughness: 1, flatShading: true }), 0x111722, 0x7892a8, themeParts);
-  const mountain = new THREE.Mesh(new THREE.ConeGeometry(7 * scale, 11 * scale, 32, 3), mountainMat); mountain.position.y = 5.5 * scale; mountain.rotation.y = 0.35; root.add(mountain);
-  const ridge = new THREE.Mesh(new THREE.ConeGeometry(3.2 * scale, 5.4 * scale, 16, 2), ridgeMat); ridge.position.set(-1.7 * scale, 2.6 * scale, 1.5 * scale); ridge.rotation.z = -0.08; root.add(ridge);
-  root.position.set(x, 0, z); return root;
-}
-
-function createCloud(THREE: any, x: number, y: number, z: number, scale: number, mobile: boolean, themeParts: ThemePart[]) {
-  const root = new THREE.Group();
-  const material = themeMaterial(new THREE.MeshBasicMaterial({ color: 0xb9c3cf, transparent: true, opacity: mobile ? 0.07 : 0.09, depthWrite: false }), 0x7e8794, 0xffffff, themeParts);
-  const parts = mobile ? 3 : 5;
-  for (let i = 0; i < parts; i += 1) { const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.5 + (i % 2) * 0.45, mobile ? 10 : 14, mobile ? 8 : 10), material); sphere.position.set((i - (parts - 1) / 2) * 1.25, Math.sin(i * 1.7) * 0.35, Math.cos(i * 1.2) * 0.35); sphere.scale.y = 0.42 + (i % 2) * 0.08; root.add(sphere); }
-  root.position.set(x, y, z); root.scale.setScalar(scale); return root;
-}
-
-function createLeaves(THREE: any, mobile: boolean, depth: number, themeParts: ThemePart[]) {
-  const count = mobile ? 28 : 65;
-  const material = themeMaterial(new THREE.MeshBasicMaterial({ color: 0x7e6b4b, transparent: true, opacity: 0.88, side: THREE.DoubleSide, depthWrite: false }), 0x7e6b4b, 0x3f7b3e, themeParts);
-  const mesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.32, 0.16), material, count);
-  const data: LeafData[] = []; const dummy = new THREE.Object3D();
-  for (let i = 0; i < count; i += 1) { const item: LeafData = { x: (Math.random() - 0.5) * 11, y: 0.8 + Math.random() * 7.5, z: -8 - Math.random() * (depth - 8), phase: Math.random() * Math.PI * 2, speed: 0.55 + Math.random() * 0.8, drift: 0.7 + Math.random() * 1.3, size: 0.55 + Math.random() * 0.8, rotation: Math.random() * Math.PI }; data.push(item); dummy.position.set(item.x, item.y, item.z); dummy.rotation.set(Math.random(), item.rotation, Math.random()); dummy.scale.set(item.size, item.size, item.size); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); }
-  mesh.instanceMatrix.needsUpdate = true; return { mesh, data };
-}
-
-function createMoonTexture(THREE: any, mobile: boolean) {
-  const size = mobile ? 256 : 512, canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
-  const ctx = canvas.getContext('2d'); if (!ctx) return null;
-  const gradient = ctx.createRadialGradient(size * 0.38, size * 0.34, size * 0.05, size * 0.52, size * 0.5, size * 0.72); gradient.addColorStop(0, '#fffdf3'); gradient.addColorStop(0.42, '#e9e4d7'); gradient.addColorStop(0.78, '#bdb9ae'); gradient.addColorStop(1, '#74726c'); ctx.fillStyle = gradient; ctx.fillRect(0, 0, size, size);
-  const hash = (x: number, y: number) => { const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return n - Math.floor(n); };
-  const image = ctx.getImageData(0, 0, size, size), data = image.data;
-  for (let y = 0; y < size; y += 1) for (let x = 0; x < size; x += 1) { const i = (y * size + x) * 4, noise = (hash(x * 0.026, y * 0.026) - 0.5) * 18 + (hash(x * 0.071, y * 0.071) - 0.5) * 10; data[i] = Math.max(110, Math.min(255, data[i] + noise)); data[i + 1] = Math.max(108, Math.min(253, data[i + 1] + noise)); data[i + 2] = Math.max(102, Math.min(245, data[i + 2] + noise)); }
-  ctx.putImageData(image, 0, 0);
-  const craterCount = mobile ? 70 : 150;
-  for (let i = 0; i < craterCount; i += 1) { const x = size * (0.08 + Math.random() * 0.84), y = size * (0.08 + Math.random() * 0.84), r = (1.8 + Math.random() * 10) * (size / 512); const g = ctx.createRadialGradient(x - r * 0.28, y - r * 0.28, r * 0.08, x, y, r); g.addColorStop(0, 'rgba(55,54,50,0.30)'); g.addColorStop(0.45, 'rgba(90,88,82,0.20)'); g.addColorStop(0.78, 'rgba(230,226,215,0.13)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
-  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.needsUpdate = true; return texture;
-}
-
-function createMoonGlowTexture(THREE: any) {
-  const size = 256, canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d'); if (!ctx) return null;
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); g.addColorStop(0, 'rgba(255,248,220,0.95)'); g.addColorStop(0.12, 'rgba(255,244,205,0.58)'); g.addColorStop(0.32, 'rgba(220,228,244,0.22)'); g.addColorStop(0.62, 'rgba(150,180,220,0.07)'); g.addColorStop(1, 'rgba(80,110,150,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, size, size);
-  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
-}
-
-function createSkyTexture(THREE: any, day: boolean, mobile: boolean) {
-  const size = mobile ? 512 : 1024, canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
-  const ctx = canvas.getContext('2d'); if (!ctx) return null;
-  const gradient = ctx.createLinearGradient(0, 0, 0, size);
-  if (day) { gradient.addColorStop(0, '#2d70b7'); gradient.addColorStop(0.28, '#55a1d6'); gradient.addColorStop(0.56, '#91c9e7'); gradient.addColorStop(0.78, '#d8e7e6'); gradient.addColorStop(0.91, '#ffd6a0'); gradient.addColorStop(1, '#fff0cf'); }
-  else { gradient.addColorStop(0, '#02050b'); gradient.addColorStop(0.38, '#07101e'); gradient.addColorStop(0.7, '#0d1a2b'); gradient.addColorStop(0.88, '#172337'); gradient.addColorStop(1, '#263040'); }
-  ctx.fillStyle = gradient; ctx.fillRect(0, 0, size, size);
-  if (day) { const sun = ctx.createRadialGradient(size * 0.72, size * 0.68, 0, size * 0.72, size * 0.68, size * 0.42); sun.addColorStop(0, 'rgba(255,248,220,0.52)'); sun.addColorStop(0.18, 'rgba(255,224,165,0.24)'); sun.addColorStop(0.48, 'rgba(255,205,145,0.08)'); sun.addColorStop(1, 'rgba(255,190,120,0)'); ctx.fillStyle = sun; ctx.fillRect(0, 0, size, size); const horizon = ctx.createLinearGradient(0, size * 0.68, 0, size); horizon.addColorStop(0, 'rgba(255,206,151,0)'); horizon.addColorStop(0.5, 'rgba(255,202,145,0.12)'); horizon.addColorStop(1, 'rgba(255,238,205,0.28)'); ctx.fillStyle = horizon; ctx.fillRect(0, size * 0.64, size, size * 0.36); }
-  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.needsUpdate = true; return texture;
-}
-
+function createMountain(THREE: any, x: number, z: number, scale: number, color: number, themeParts: ThemePart[]) { const root = new THREE.Group(); const mountainMat = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true }), color, 0x5f7891, themeParts); const ridgeMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x111722, roughness: 1, flatShading: true }), 0x111722, 0x7892a8, themeParts); const mountain = new THREE.Mesh(new THREE.ConeGeometry(7 * scale, 11 * scale, 32, 3), mountainMat); mountain.position.y = 5.5 * scale; mountain.rotation.y = 0.35; root.add(mountain); const ridge = new THREE.Mesh(new THREE.ConeGeometry(3.2 * scale, 5.4 * scale, 16, 2), ridgeMat); ridge.position.set(-1.7 * scale, 2.6 * scale, 1.5 * scale); ridge.rotation.z = -0.08; root.add(ridge); root.position.set(x, 0, z); return root; }
+function createCloud(THREE: any, x: number, y: number, z: number, scale: number, mobile: boolean, themeParts: ThemePart[]) { const root = new THREE.Group(); const material = themeMaterial(new THREE.MeshBasicMaterial({ color: 0xb9c3cf, transparent: true, opacity: mobile ? 0.07 : 0.09, depthWrite: false }), 0x7e8794, 0xffffff, themeParts); const parts = mobile ? 3 : 5; for (let i = 0; i < parts; i += 1) { const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.5 + (i % 2) * 0.45, mobile ? 10 : 14, mobile ? 8 : 10), material); sphere.position.set((i - (parts - 1) / 2) * 1.25, Math.sin(i * 1.7) * 0.35, Math.cos(i * 1.2) * 0.35); sphere.scale.y = 0.42 + (i % 2) * 0.08; root.add(sphere); } root.position.set(x, y, z); root.scale.setScalar(scale); return root; }
+function createLeaves(THREE: any, mobile: boolean, depth: number, themeParts: ThemePart[]) { const count = mobile ? 28 : 65; const material = themeMaterial(new THREE.MeshBasicMaterial({ color: 0x7e6b4b, transparent: true, opacity: 0.88, side: THREE.DoubleSide, depthWrite: false }), 0x7e6b4b, 0x3f7b3e, themeParts); const mesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.32, 0.16), material, count); const data: LeafData[] = []; const dummy = new THREE.Object3D(); for (let i = 0; i < count; i += 1) { const item: LeafData = { x: (Math.random() - 0.5) * 11, y: 0.8 + Math.random() * 7.5, z: -8 - Math.random() * (depth - 8), phase: Math.random() * Math.PI * 2, speed: 0.55 + Math.random() * 0.8, drift: 0.7 + Math.random() * 1.3, size: 0.55 + Math.random() * 0.8, rotation: Math.random() * Math.PI }; data.push(item); dummy.position.set(item.x, item.y, item.z); dummy.rotation.set(Math.random(), item.rotation, Math.random()); dummy.scale.set(item.size, item.size, item.size); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); } mesh.instanceMatrix.needsUpdate = true; return { mesh, data }; }
+function createMoonTexture(THREE: any, mobile: boolean) { const size = mobile ? 256 : 512, canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d'); if (!ctx) return null; const gradient = ctx.createRadialGradient(size * 0.38, size * 0.34, size * 0.05, size * 0.52, size * 0.5, size * 0.72); gradient.addColorStop(0, '#fffdf3'); gradient.addColorStop(0.42, '#e9e4d7'); gradient.addColorStop(0.78, '#bdb9ae'); gradient.addColorStop(1, '#74726c'); ctx.fillStyle = gradient; ctx.fillRect(0, 0, size, size); const hash = (x: number, y: number) => { const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453; return n - Math.floor(n); }; const image = ctx.getImageData(0, 0, size, size), data = image.data; for (let y = 0; y < size; y += 1) for (let x = 0; x < size; x += 1) { const i = (y * size + x) * 4, noise = (hash(x * 0.026, y * 0.026) - 0.5) * 18 + (hash(x * 0.071, y * 0.071) - 0.5) * 10; data[i] = Math.max(110, Math.min(255, data[i] + noise)); data[i + 1] = Math.max(108, Math.min(253, data[i + 1] + noise)); data[i + 2] = Math.max(102, Math.min(245, data[i + 2] + noise)); } ctx.putImageData(image, 0, 0); const craterCount = mobile ? 70 : 150; for (let i = 0; i < craterCount; i += 1) { const x = size * (0.08 + Math.random() * 0.84), y = size * (0.08 + Math.random() * 0.84), r = (1.8 + Math.random() * 10) * (size / 512); const g = ctx.createRadialGradient(x - r * 0.28, y - r * 0.28, r * 0.08, x, y, r); g.addColorStop(0, 'rgba(55,54,50,0.30)'); g.addColorStop(0.45, 'rgba(90,88,82,0.20)'); g.addColorStop(0.78, 'rgba(230,226,215,0.13)'); g.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); } const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.needsUpdate = true; return texture; }
+function createMoonGlowTexture(THREE: any) { const size = 256, canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d'); if (!ctx) return null; const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2); g.addColorStop(0, 'rgba(255,248,220,0.95)'); g.addColorStop(0.12, 'rgba(255,244,205,0.58)'); g.addColorStop(0.32, 'rgba(220,228,244,0.22)'); g.addColorStop(0.62, 'rgba(150,180,220,0.07)'); g.addColorStop(1, 'rgba(80,110,150,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, size, size); const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture; }
+function createSkyTexture(THREE: any, day: boolean, mobile: boolean) { const size = mobile ? 512 : 1024, canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size; const ctx = canvas.getContext('2d'); if (!ctx) return null; const gradient = ctx.createLinearGradient(0, 0, 0, size); if (day) { gradient.addColorStop(0, '#2d70b7'); gradient.addColorStop(0.28, '#55a1d6'); gradient.addColorStop(0.56, '#91c9e7'); gradient.addColorStop(0.78, '#d8e7e6'); gradient.addColorStop(0.91, '#ffd6a0'); gradient.addColorStop(1, '#fff0cf'); } else { gradient.addColorStop(0, '#02050b'); gradient.addColorStop(0.38, '#07101e'); gradient.addColorStop(0.7, '#0d1a2b'); gradient.addColorStop(0.88, '#172337'); gradient.addColorStop(1, '#263040'); } ctx.fillStyle = gradient; ctx.fillRect(0, 0, size, size); if (day) { const sun = ctx.createRadialGradient(size * 0.72, size * 0.68, 0, size * 0.72, size * 0.68, size * 0.42); sun.addColorStop(0, 'rgba(255,248,220,0.52)'); sun.addColorStop(0.18, 'rgba(255,224,165,0.24)'); sun.addColorStop(0.48, 'rgba(255,205,145,0.08)'); sun.addColorStop(1, 'rgba(255,190,120,0)'); ctx.fillStyle = sun; ctx.fillRect(0, 0, size, size); const horizon = ctx.createLinearGradient(0, size * 0.68, 0, size); horizon.addColorStop(0, 'rgba(255,206,151,0)'); horizon.addColorStop(0.5, 'rgba(255,202,145,0.12)'); horizon.addColorStop(1, 'rgba(255,238,205,0.28)'); ctx.fillStyle = horizon; ctx.fillRect(0, size * 0.64, size, size * 0.36); } const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.needsUpdate = true; return texture; }
 function disposeObject(object: any) { object.traverse((child: any) => { child.geometry?.dispose?.(); const materials = Array.isArray(child.material) ? child.material : [child.material]; materials.forEach((material: any) => { material?.map?.dispose?.(); material?.bumpMap?.dispose?.(); material?.emissiveMap?.dispose?.(); material?.dispose?.(); }); }); }
 
 function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, stateRef: { current: ThreeState | null }) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: false, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.35)); renderer.setClearColor(0x030508, 1); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2;
-  const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x080a0d, mobile ? 0.038 : 0.03);
-  const camera = new THREE.PerspectiveCamera(54, 1, 0.1, 150); camera.position.set(0, 2.15, 8.5);
-  const group = new THREE.Group(); scene.add(group); const hemisphere = new THREE.HemisphereLight(0x9eabc5, 0x080604, 1.05); scene.add(hemisphere);
-  const themeParts: ThemePart[] = [];
-  let skyTexture = createSkyTexture(THREE, false, mobile); if (skyTexture) scene.background = skyTexture;
-  const moonPosition = new THREE.Vector3(7.0, 20.8, -44);
-  const moonTexture = createMoonTexture(THREE, mobile);
-  const moonMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, map: moonTexture || undefined, bumpMap: moonTexture || undefined, bumpScale: 0.075, roughness: 0.98, metalness: 0, emissive: 0xfff3d6, emissiveMap: moonTexture || undefined, emissiveIntensity: 0.72 });
-  const moon = new THREE.Mesh(new THREE.SphereGeometry(2.65, mobile ? 32 : 56, mobile ? 32 : 56), moonMaterial); moon.position.copy(moonPosition); moon.rotation.y = -0.55; scene.add(moon);
-  const glowTexture = createMoonGlowTexture(THREE);
-  const glowMaterial = new THREE.SpriteMaterial({ map: glowTexture || undefined, color: 0xfff1ce, transparent: true, opacity: mobile ? 0.62 : 0.72, depthWrite: false, blending: THREE.AdditiveBlending });
-  const glow = new THREE.Sprite(glowMaterial); glow.position.copy(moonPosition); glow.scale.set(15, 15, 1); scene.add(glow);
-  const glow2Material = new THREE.SpriteMaterial({ map: glowTexture || undefined, color: 0xdde9ff, transparent: true, opacity: mobile ? 0.28 : 0.34, depthWrite: false, blending: THREE.AdditiveBlending });
-  const glow2 = new THREE.Sprite(glow2Material); glow2.position.copy(moonPosition); glow2.scale.set(25, 25, 1); scene.add(glow2);
-  const moonLight = new THREE.DirectionalLight(0xdce8ff, mobile ? 1.55 : 2.0); moonLight.position.copy(moonPosition); moonLight.target.position.set(0, 0, -45); scene.add(moonLight); scene.add(moonLight.target);
-  const moonPoint = new THREE.PointLight(0xfff2d0, mobile ? 0.45 : 0.65, 42, 2); moonPoint.position.copy(moonPosition); scene.add(moonPoint);
-  const depth = mobile ? 88 : 108;
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(34, depth, 1, 12), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x11100f, roughness: 1 }), 0x11100f, 0x4e633d, themeParts)); ground.rotation.x = -Math.PI / 2; ground.position.z = -depth / 2 + 10; group.add(ground);
-  const path = new THREE.Mesh(new THREE.PlaneGeometry(mobile ? 5.4 : 5.8, depth), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x29211b, roughness: 1 }), 0x29211b, 0x8b6a4a, themeParts)); path.rotation.x = -Math.PI / 2; path.position.set(0, 0.01, ground.position.z); group.add(path);
-  const count = mobile ? 10 : 13;
-  for (let i = 0; i < count; i += 1) { const z = -7 - i * 7.2, scale = Math.max(mobile ? 0.68 : 0.72, 1 - i * 0.018); const gate = createTorii(THREE, i % 3 === 0 ? 0xb45c36 : 0x8f4329, themeParts); gate.position.z = z; gate.scale.setScalar(scale); group.add(gate); const left = createLantern(THREE, i < 6, themeParts); left.position.set(-2.75, 0, z - 0.8); left.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(left); const right = createLantern(THREE, i < 6, themeParts); right.position.set(2.75, 0, z - 0.8); right.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(right); if (i % 2 === 0) { const treeScale = mobile ? 1.05 : 1.25; const lt = createTree(THREE, treeScale - i * 0.02, themeParts, mobile); lt.position.set(-5.1, 0, z - 1.8); group.add(lt); const rt = createTree(THREE, treeScale + 0.08 - i * 0.02, themeParts, mobile); rt.position.set(5.1, 0, z - 2.2); group.add(rt); } }
-  const mountainSpecs: [number, number, number, number][] = [[-13, -49, 1.55, 0x0b1018], [-3, -58, 2.25, 0x070b12], [9, -53, 1.85, 0x0a0e16], [17, -68, 2.3, 0x080b11]];
-  mountainSpecs.forEach(([x, z, scale, color]) => group.add(createMountain(THREE, x, z, scale, color, themeParts)));
-  const clouds: CloudData[] = []; const cloudSpecs: [number, number, number, number, number][] = [[-8, 8.5, -42, 1.6, 0.9], [6, 10.2, -50, 1.9, 0.7], [-3, 12.2, -62, 2.2, 0.5], [11, 9.2, -70, 1.7, 0.35]];
-  cloudSpecs.forEach(([x, y, z, scale, speed], index) => { const cloud = createCloud(THREE, x, y, z, scale, mobile, themeParts); group.add(cloud); clouds.push({ group: cloud, baseX: x, baseY: y, speed, phase: index * 1.8 }); });
-  const leafSet = createLeaves(THREE, mobile, depth, themeParts); group.add(leafSet.mesh);
-  const particleCount = mobile ? 120 : 260, positions = new Float32Array(particleCount * 3); for (let i = 0; i < particleCount; i += 1) { positions[i * 3] = (Math.random() - 0.5) * 28; positions[i * 3 + 1] = Math.random() * 10; positions[i * 3 + 2] = -Math.random() * depth - 4; }
-  const particleGeometry = new THREE.BufferGeometry(); particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  group.add(new THREE.Points(particleGeometry, themeMaterial(new THREE.PointsMaterial({ color: 0xc8a875, size: mobile ? 0.045 : 0.04, transparent: true, opacity: 0.32, depthWrite: false }), 0xc8a875, 0xffffff, themeParts)));
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: false, powerPreference: 'high-performance' }); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.35)); renderer.setClearColor(0x030508, 1); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2;
+  const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x080a0d, mobile ? 0.038 : 0.03); const camera = new THREE.PerspectiveCamera(54, 1, 0.1, 150); camera.position.set(0, 2.15, 8.5); const group = new THREE.Group(); scene.add(group); const hemisphere = new THREE.HemisphereLight(0x9eabc5, 0x080604, 1.05); scene.add(hemisphere); const themeParts: ThemePart[] = [];
+  let skyTexture = createSkyTexture(THREE, false, mobile); if (skyTexture) scene.background = skyTexture; const moonPosition = new THREE.Vector3(7.0, 20.8, -44); const moonTexture = createMoonTexture(THREE, mobile); const moonMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, map: moonTexture || undefined, bumpMap: moonTexture || undefined, bumpScale: 0.075, roughness: 0.98, metalness: 0, emissive: 0xfff3d6, emissiveMap: moonTexture || undefined, emissiveIntensity: 0.72 }); const moon = new THREE.Mesh(new THREE.SphereGeometry(2.65, mobile ? 32 : 56, mobile ? 32 : 56), moonMaterial); moon.position.copy(moonPosition); moon.rotation.y = -0.55; scene.add(moon); const glowTexture = createMoonGlowTexture(THREE); const glowMaterial = new THREE.SpriteMaterial({ map: glowTexture || undefined, color: 0xfff1ce, transparent: true, opacity: mobile ? 0.62 : 0.72, depthWrite: false, blending: THREE.AdditiveBlending }); const glow = new THREE.Sprite(glowMaterial); glow.position.copy(moonPosition); glow.scale.set(15, 15, 1); scene.add(glow); const glow2Material = new THREE.SpriteMaterial({ map: glowTexture || undefined, color: 0xdde9ff, transparent: true, opacity: mobile ? 0.28 : 0.34, depthWrite: false, blending: THREE.AdditiveBlending }); const glow2 = new THREE.Sprite(glow2Material); glow2.position.copy(moonPosition); glow2.scale.set(25, 25, 1); scene.add(glow2); const moonLight = new THREE.DirectionalLight(0xdce8ff, mobile ? 1.55 : 2.0); moonLight.position.copy(moonPosition); moonLight.target.position.set(0, 0, -45); scene.add(moonLight); scene.add(moonLight.target); const moonPoint = new THREE.PointLight(0xfff2d0, mobile ? 0.45 : 0.65, 42, 2); moonPoint.position.copy(moonPosition); scene.add(moonPoint);
+  const depth = mobile ? 88 : 108; const ground = new THREE.Mesh(new THREE.PlaneGeometry(34, depth, 1, 12), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x11100f, roughness: 1 }), 0x11100f, 0x4e633d, themeParts)); ground.rotation.x = -Math.PI / 2; ground.position.z = -depth / 2 + 10; group.add(ground);
+  const pathWidth = mobile ? 5.4 : 5.8; const pathBase = new THREE.Mesh(new THREE.PlaneGeometry(pathWidth, depth), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x29211b, roughness: 1 }), 0x29211b, 0x6f654f, themeParts)); pathBase.rotation.x = -Math.PI / 2; pathBase.position.set(0, 0.01, ground.position.z); group.add(pathBase);
+  const stoneMaterials = [themeMaterial(new THREE.MeshStandardMaterial({ color: 0x45423d, roughness: 0.92, metalness: 0 }), 0x45423d, 0x827d70, themeParts), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x57534a, roughness: 0.95, metalness: 0 }), 0x57534a, 0x918b7d, themeParts), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x3c3a36, roughness: 0.98, metalness: 0 }), 0x3c3a36, 0x777267, themeParts)];
+  const pavingRows = mobile ? 34 : 48, rowDepth = depth / pavingRows, slabGap = mobile ? 0.045 : 0.065;
+  for (let row = 0; row < pavingRows; row += 1) { const z = ground.position.z + depth * 0.5 - (row + 0.5) * rowDepth, columns = mobile ? 2 : 3, usableWidth = pathWidth - 0.12, slabWidth = usableWidth / columns, offset = row % 2 === 0 ? 0.06 : -0.08; for (let col = 0; col < columns; col += 1) { const material = stoneMaterials[(row + col) % stoneMaterials.length], width = slabWidth - slabGap - Math.random() * 0.08, depthSize = rowDepth - slabGap - Math.random() * 0.06, stone = new THREE.Mesh(new THREE.BoxGeometry(width, 0.075 + Math.random() * 0.035, depthSize), material); stone.position.set(-pathWidth * 0.5 + slabWidth * (col + 0.5) + offset + (Math.random() - 0.5) * 0.08, 0.055 + Math.random() * 0.018, z + (Math.random() - 0.5) * 0.035); stone.rotation.y = (Math.random() - 0.5) * 0.025; stone.rotation.x = (Math.random() - 0.5) * 0.018; group.add(stone); } }
+  const count = mobile ? 10 : 13; for (let i = 0; i < count; i += 1) { const z = -7 - i * 7.2, scale = Math.max(mobile ? 0.68 : 0.72, 1 - i * 0.018); const gate = createTorii(THREE, i % 3 === 0 ? 0xb45c36 : 0x8f4329, themeParts); gate.position.z = z; gate.scale.setScalar(scale); group.add(gate); const left = createLantern(THREE, i < 6, themeParts); left.position.set(-2.75, 0, z - 0.8); left.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(left); const right = createLantern(THREE, i < 6, themeParts); right.position.set(2.75, 0, z - 0.8); right.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(right); if (i % 2 === 0) { const treeScale = mobile ? 1.05 : 1.25; const lt = createTree(THREE, treeScale - i * 0.02, themeParts, mobile); lt.position.set(-5.1, 0, z - 1.8); group.add(lt); const rt = createTree(THREE, treeScale + 0.08 - i * 0.02, themeParts, mobile); rt.position.set(5.1, 0, z - 2.2); group.add(rt); } }
+  const mountainSpecs: [number, number, number, number][] = [[-13, -49, 1.55, 0x0b1018], [-3, -58, 2.25, 0x070b12], [9, -53, 1.85, 0x0a0e16], [17, -68, 2.3, 0x080b11]]; mountainSpecs.forEach(([x, z, scale, color]) => group.add(createMountain(THREE, x, z, scale, color, themeParts))); const clouds: CloudData[] = []; const cloudSpecs: [number, number, number, number, number][] = [[-8, 8.5, -42, 1.6, 0.9], [6, 10.2, -50, 1.9, 0.7], [-3, 12.2, -62, 2.2, 0.5], [11, 9.2, -70, 1.7, 0.35]]; cloudSpecs.forEach(([x, y, z, scale, speed], index) => { const cloud = createCloud(THREE, x, y, z, scale, mobile, themeParts); group.add(cloud); clouds.push({ group: cloud, baseX: x, baseY: y, speed, phase: index * 1.8 }); }); const leafSet = createLeaves(THREE, mobile, depth, themeParts); group.add(leafSet.mesh);
+  const particleCount = mobile ? 120 : 260, positions = new Float32Array(particleCount * 3); for (let i = 0; i < particleCount; i += 1) { positions[i * 3] = (Math.random() - 0.5) * 28; positions[i * 3 + 1] = Math.random() * 10; positions[i * 3 + 2] = -Math.random() * depth - 4; } const particleGeometry = new THREE.BufferGeometry(); particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); group.add(new THREE.Points(particleGeometry, themeMaterial(new THREE.PointsMaterial({ color: 0xc8a875, size: mobile ? 0.045 : 0.04, transparent: true, opacity: 0.32, depthWrite: false }), 0xc8a875, 0xffffff, themeParts)));
   const applyTheme = (day: boolean) => { renderer.setClearColor(day ? 0x8fc4e9 : 0x030508, 1); if (skyTexture) skyTexture.dispose(); skyTexture = createSkyTexture(THREE, day, mobile); if (skyTexture) scene.background = skyTexture; scene.fog.color.setHex(day ? 0x8fc4e9 : 0x080a0d); scene.fog.density = day ? (mobile ? 0.018 : 0.014) : (mobile ? 0.038 : 0.03); hemisphere.color.setHex(day ? 0xbfe4ff : 0x9eabc5); hemisphere.groundColor.setHex(day ? 0x304d2c : 0x080604); hemisphere.intensity = day ? 1.55 : 1.05; moonMaterial.map = day ? undefined : moonTexture || undefined; moonMaterial.bumpMap = day ? undefined : moonTexture || undefined; moonMaterial.emissiveMap = day ? undefined : moonTexture || undefined; moonMaterial.color.setHex(day ? 0xffd85a : 0xffffff); moonMaterial.emissive.setHex(day ? 0xff9d1a : 0xfff3d6); moonMaterial.emissiveIntensity = day ? 2.2 : 0.72; moonMaterial.bumpScale = day ? 0 : 0.075; moonMaterial.needsUpdate = true; glowMaterial.color.setHex(day ? 0xffb62e : 0xfff1ce); glowMaterial.opacity = mobile ? (day ? 0.7 : 0.62) : (day ? 0.82 : 0.72); glow2Material.color.setHex(day ? 0xffd36a : 0xdde9ff); glow2Material.opacity = mobile ? (day ? 0.18 : 0.28) : (day ? 0.22 : 0.34); moonLight.color.setHex(day ? 0xffe4b0 : 0xdce8ff); moonLight.intensity = day ? (mobile ? 2.6 : 3.2) : (mobile ? 1.55 : 2.0); moonPoint.color.setHex(day ? 0xffb52e : 0xfff2d0); moonPoint.intensity = day ? 0.7 : (mobile ? 0.45 : 0.65); themeParts.forEach(({ material, night, day: dayColor }) => material.color.setHex(day ? dayColor : night)); const cloudMaterials = clouds.map((cloud) => cloud.group.children[0]?.material).filter(Boolean); cloudMaterials.forEach((material: any) => { material.opacity = mobile ? (day ? 0.3 : 0.07) : (day ? 0.42 : 0.09); material.needsUpdate = true; }); };
-  const resize = () => { const width = Math.max(1, canvas.clientWidth || window.innerWidth), height = Math.max(1, canvas.clientHeight || window.innerHeight); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); };
-  resize(); const observer = new ResizeObserver(resize); observer.observe(canvas);
-  stateRef.current = { renderer, scene, camera, group, leaves: leafSet.mesh, leafData: leafSet.data, clouds, themeParts, moonMaterial, glowMaterial, glow2Material, moonLight, moonPoint, applyTheme };
-  return () => { observer.disconnect(); disposeObject(scene); renderer.dispose(); stateRef.current = null; };
+  const resize = () => { const width = Math.max(1, canvas.clientWidth || window.innerWidth), height = Math.max(1, canvas.clientHeight || window.innerHeight); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }; resize(); const observer = new ResizeObserver(resize); observer.observe(canvas); stateRef.current = { renderer, scene, camera, group, leaves: leafSet.mesh, leafData: leafSet.data, clouds, themeParts, moonMaterial, glowMaterial, glow2Material, moonLight, moonPoint, applyTheme }; return () => { observer.disconnect(); disposeObject(scene); renderer.dispose(); stateRef.current = null; };
 }
 
 export default function KageCameraExperience() {
-  const canvasRef = useRef<HTMLCanvasElement>(null); const stateRef = useRef<ThreeState | null>(null); const progressRef = useRef(0); const pointerRef = useRef({ x: 0, y: 0 });
-  const [chapter, setChapter] = useState(0); const [ready, setReady] = useState(false);
-  useEffect(() => {
-    const canvas = canvasRef.current, section = document.getElementById('kage-experience'); if (!canvas || !section) return;
-    let disposed = false, cleanup: (() => void) | undefined, raf = 0, visible = true;
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches, mobile = window.matchMedia('(max-width: 767px)').matches;
-    const isDay = () => !document.documentElement.classList.contains('dark');
-    let dayTheme = isDay();
-    const updateProgress = () => { const rect = section.getBoundingClientRect(), travel = Math.max(section.offsetHeight - window.innerHeight, 1); progressRef.current = Math.min(1, Math.max(0, -rect.top / travel)); const next = Math.min(chapters.length - 1, Math.floor(progressRef.current * chapters.length)); setChapter((current) => current === next ? current : next); };
-    let scrollRaf = 0; const onScroll = () => { if (scrollRaf) return; scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; updateProgress(); }); }; updateProgress();
-    const pointerMove = (event: PointerEvent) => { pointerRef.current.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5; pointerRef.current.y = event.clientY / Math.max(window.innerHeight, 1) - 0.5; };
-    const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.01 }); visibilityObserver.observe(section);
-    const themeObserver = new MutationObserver(() => { const next = isDay(); if (next !== dayTheme) { dayTheme = next; stateRef.current?.applyTheme(dayTheme); } }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] });
-    const init = async () => { try { const THREE = await loadThree(); if (disposed) return; cleanup = createScene(THREE, canvas, mobile, stateRef); stateRef.current?.applyTheme(dayTheme); setReady(true); const clock = new THREE.Clock(), dummy = new THREE.Object3D(); const animate = () => { if (disposed) return; const state = stateRef.current; if (state && visible) { const elapsed = clock.getElapsedTime(), p = progressRef.current, targetZ = 8.5 - p * (mobile ? 82 : 102), targetY = 2.15 + Math.sin(p * Math.PI) * 0.3, targetX = pointerRef.current.x * (mobile ? 0.18 : 0.45); state.camera.position.x += (targetX - state.camera.position.x) * 0.055; state.camera.position.y += (targetY - state.camera.position.y) * 0.05; state.camera.position.z += (targetZ - state.camera.position.z) * 0.08; state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035; state.camera.rotation.x += (pointerRef.current.y * -0.008 - state.camera.rotation.x) * 0.035; if (!reduced) { state.clouds.forEach((cloud) => { cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5; cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035; }); state.leafData.forEach((leaf, index) => { const wind = elapsed * leaf.speed + leaf.phase, x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed, y = leaf.y + Math.sin(wind * 1.35) * 0.28, z = leaf.z + Math.cos(wind * 0.7) * 0.55; dummy.position.set(x > 8 ? x - 16 : x, y, z); dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7); dummy.scale.set(leaf.size, leaf.size, leaf.size); dummy.updateMatrix(); state.leaves.setMatrixAt(index, dummy.matrix); }); state.leaves.instanceMatrix.needsUpdate = true; } state.renderer.render(state.scene, state.camera); } raf = requestAnimationFrame(animate); }; raf = requestAnimationFrame(animate); } catch { if (!disposed) setReady(false); } };
-    window.addEventListener('scroll', onScroll, { passive: true }); if (!mobile) window.addEventListener('pointermove', pointerMove, { passive: true }); init();
-    return () => { disposed = true; cancelAnimationFrame(raf); cancelAnimationFrame(scrollRaf); window.removeEventListener('scroll', onScroll); if (!mobile) window.removeEventListener('pointermove', pointerMove); visibilityObserver.disconnect(); themeObserver.disconnect(); cleanup?.(); };
-  }, []);
-  const current = chapters[chapter];
-  return (<section id="kage-experience" className="relative z-0 isolate h-[360vh] bg-[#040608] text-white"><div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /><div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(38,104,168,0.02),rgba(255,219,170,0.12)_72%,rgba(255,237,208,0.22))] dark:bg-[radial-gradient(circle_at_50%_45%,transparent_0%,rgba(3,5,8,0.08)_45%,rgba(3,5,8,0.68)_100%)]" /><div className="relative z-10 flex h-full items-end px-5 pb-20 sm:px-8 sm:pb-24 lg:px-16 lg:pb-28"><div className="w-full max-w-3xl"><div className="mb-5 flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.38em] text-amber-200/75 sm:text-xs"><span className="h-px w-12 bg-amber-200/60" /><span>{current.kicker}</span></div><h2 className="max-w-3xl whitespace-pre-line text-[clamp(3.1rem,10vw,7.8rem)] font-light leading-[0.88] tracking-[-0.055em] text-white drop-shadow-2xl">{current.title}</h2><p className="mt-7 max-w-2xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:text-xl">{current.body}</p></div></div><div className="absolute bottom-5 right-5 z-20 flex items-center gap-3 sm:bottom-8 sm:right-8"><div className="h-1 w-20 overflow-hidden rounded-full bg-white/15 sm:w-28"><div className="h-full rounded-full bg-amber-200/80 transition-[width] duration-150" style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} /></div><span className="text-[10px] tracking-[0.3em] text-white/55">SCROLL</span></div>{!ready && <div className="pointer-events-none absolute inset-0 z-30 bg-[#040608]" />}</div></section>);
+  const canvasRef = useRef<HTMLCanvasElement>(null); const stateRef = useRef<ThreeState | null>(null); const progressRef = useRef(0); const pointerRef = useRef({ x: 0, y: 0 }); const [chapter, setChapter] = useState(0); const [ready, setReady] = useState(false);
+  useEffect(() => { const canvas = canvasRef.current, section = document.getElementById('kage-experience'); if (!canvas || !section) return; let disposed = false, cleanup: (() => void) | undefined, raf = 0, visible = true; const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches, mobile = window.matchMedia('(max-width: 767px)').matches; const isDay = () => !document.documentElement.classList.contains('dark'); let dayTheme = isDay(); const updateProgress = () => { const rect = section.getBoundingClientRect(), travel = Math.max(section.offsetHeight - window.innerHeight, 1); progressRef.current = Math.min(1, Math.max(0, -rect.top / travel)); const next = Math.min(chapters.length - 1, Math.floor(progressRef.current * chapters.length)); setChapter((current) => current === next ? current : next); }; let scrollRaf = 0; const onScroll = () => { if (scrollRaf) return; scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; updateProgress(); }); }; updateProgress(); const pointerMove = (event: PointerEvent) => { pointerRef.current.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5; pointerRef.current.y = event.clientY / Math.max(window.innerHeight, 1) - 0.5; }; const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.01 }); visibilityObserver.observe(section); const themeObserver = new MutationObserver(() => { const next = isDay(); if (next !== dayTheme) { dayTheme = next; stateRef.current?.applyTheme(dayTheme); } }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] }); const init = async () => { try { const THREE = await loadThree(); if (disposed) return; cleanup = createScene(THREE, canvas, mobile, stateRef); stateRef.current?.applyTheme(dayTheme); setReady(true); const clock = new THREE.Clock(), dummy = new THREE.Object3D(); const animate = () => { if (disposed) return; const state = stateRef.current; if (state && visible) { const elapsed = clock.getElapsedTime(), p = progressRef.current, targetZ = 8.5 - p * (mobile ? 82 : 102), targetY = 2.15 + Math.sin(p * Math.PI) * 0.3, targetX = pointerRef.current.x * (mobile ? 0.18 : 0.45); state.camera.position.x += (targetX - state.camera.position.x) * 0.055; state.camera.position.y += (targetY - state.camera.position.y) * 0.05; state.camera.position.z += (targetZ - state.camera.position.z) * 0.08; state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035; state.camera.rotation.x += (pointerRef.current.y * -0.008 - state.camera.rotation.x) * 0.035; if (!reduced) { state.clouds.forEach((cloud) => { cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5; cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035; }); state.leafData.forEach((leaf, index) => { const wind = elapsed * leaf.speed + leaf.phase, x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed, y = leaf.y + Math.sin(wind * 1.35) * 0.28, z = leaf.z + Math.cos(wind * 0.7) * 0.55; dummy.position.set(x > 8 ? x - 16 : x, y, z); dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7); dummy.scale.set(leaf.size, leaf.size, leaf.size); dummy.updateMatrix(); state.leaves.setMatrixAt(index, dummy.matrix); }); state.leaves.instanceMatrix.needsUpdate = true; } state.renderer.render(state.scene, state.camera); } raf = requestAnimationFrame(animate); }; raf = requestAnimationFrame(animate); } catch { if (!disposed) setReady(false); } }; window.addEventListener('scroll', onScroll, { passive: true }); if (!mobile) window.addEventListener('pointermove', pointerMove, { passive: true }); init(); return () => { disposed = true; cancelAnimationFrame(raf); cancelAnimationFrame(scrollRaf); window.removeEventListener('scroll', onScroll); if (!mobile) window.removeEventListener('pointermove', pointerMove); visibilityObserver.disconnect(); themeObserver.disconnect(); cleanup?.(); }; }, []);
+  const current = chapters[chapter]; return (<section id="kage-experience" className="relative z-0 isolate h-[360vh] bg-[#040608] text-white"><div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /><div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(38,104,168,0.02),rgba(255,219,170,0.12)_72%,rgba(255,237,208,0.22))] dark:bg-[radial-gradient(circle_at_50%_45%,transparent_0%,rgba(3,5,8,0.08)_45%,rgba(3,5,8,0.68)_100%)]" /><div className="relative z-10 flex h-full items-end px-5 pb-20 sm:px-8 sm:pb-24 lg:px-16 lg:pb-28"><div className="w-full max-w-3xl"><div className="mb-5 flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.38em] text-amber-200/75 sm:text-xs"><span className="h-px w-12 bg-amber-200/60" /><span>{current.kicker}</span></div><h2 className="max-w-3xl whitespace-pre-line text-[clamp(3.1rem,10vw,7.8rem)] font-light leading-[0.88] tracking-[-0.055em] text-white drop-shadow-2xl">{current.title}</h2><p className="mt-7 max-w-2xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:text-xl">{current.body}</p></div></div><div className="absolute bottom-5 right-5 z-20 flex items-center gap-3 sm:bottom-8 sm:right-8"><div className="h-1 w-20 overflow-hidden rounded-full bg-white/15 sm:w-28"><div className="h-full rounded-full bg-amber-200/80 transition-[width] duration-150" style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} /></div><span className="text-[10px] tracking-[0.3em] text-white/55">SCROLL</span></div>{!ready && <div className="pointer-events-none absolute inset-0 z-30 bg-[#040608]" />}</div></section>);
 }
