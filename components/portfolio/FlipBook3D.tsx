@@ -1,135 +1,78 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
-type Direction = 'next' | 'previous';
-type Page = { eyebrow: string; title: string; subtitle: string; tone: string; light?: boolean };
-
-const pages: Page[] = [
-  { eyebrow: 'À PROPOS DE MOI', title: 'À PROPOS\nDE MOI', subtitle: 'Je conçois et développe des expériences numériques modernes, pensées pour être claires, fluides et agréables à utiliser.', tone: 'from-zinc-950 via-stone-900 to-black' },
-  { eyebrow: '01 / PROFIL', title: 'CRÉER\nAVEC SENS', subtitle: 'Mon objectif : transformer une idée en une expérience digitale cohérente, soignée et réellement utile.', tone: 'from-stone-100 via-white to-stone-200', light: true },
-  { eyebrow: '02 / WEB', title: 'WEB\nMODERNE', subtitle: 'Je travaille avec Next.js, TypeScript, APIs et des interfaces responsives pensées pour tous les écrans.', tone: 'from-slate-950 via-indigo-950 to-black' },
-  { eyebrow: '03 / FULL-STACK', title: 'BUILD\nSYSTEMS', subtitle: 'Du concept à la réalisation, je construis des produits structurés, rapides et évolutifs.', tone: 'from-emerald-950 via-neutral-900 to-black' },
-  { eyebrow: '04 / MOBILE', title: 'FLUTTER\nAPPS', subtitle: 'Je crée aussi des expériences mobiles multiplateformes avec une attention particulière portée à l’ergonomie.', tone: 'from-blue-950 via-slate-900 to-black' },
-  { eyebrow: '05 / CRÉATIF', title: 'MOTION\n& 3D', subtitle: 'J’aime donner de la profondeur aux interfaces avec la motion, la 3D, les interactions et les effets visuels.', tone: 'from-amber-950 via-stone-900 to-black' },
-  { eyebrow: '06 / APPROCHE', title: 'SIMPLE\n& PRÉCIS', subtitle: 'Chaque détail compte : typographie, rythme, responsive, micro-interactions et qualité de finition.', tone: 'from-fuchsia-950 via-zinc-900 to-black' },
-  { eyebrow: '07 / SUITE', title: 'TOUJOURS\nEXPLORER', subtitle: 'Je continue d’expérimenter de nouvelles technologies et de nouvelles façons de créer des expériences digitales.', tone: 'from-zinc-900 via-neutral-800 to-black' },
+const features = [
+  'Image or video support',
+  'Top and bottom curve controls',
+  'Inward and outward bend direction',
+  'Optional scroll-based animation',
+  'Fast, Natural, Premium, and Custom animation styles',
+  'Responsive curve based on component width',
+  'Corner radius control',
+  'Image focal point controls',
+  'Overlay color and opacity',
+  'Padding controls',
+  'Works as a hero/media section layer in Framer',
 ];
 
-const TURN_MS = 1050;
-const DRAG_TRIGGER = 72;
-const EASE = [0.16, 0.7, 0.22, 1] as const;
-
 export default function FlipBook3D() {
-  const [open, setOpen] = useState(false);
-  const [spread, setSpread] = useState(0);
-  const [turning, setTurning] = useState(false);
-  const [direction, setDirection] = useState<Direction>('next');
-  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] });
 
-  const leftPage = 1 + spread * 2;
-  const rightPage = leftPage + 1;
-  const canNext = open && !turning && rightPage < pages.length - 1;
-  const canPrevious = open && !turning && spread > 0;
-
-  const finishTurn = useCallback(() => {
-    setSpread((current) => direction === 'next' ? Math.min(current + 1, Math.floor((pages.length - 2) / 2)) : Math.max(current - 1, 0));
-    setOpen(true);
-    setTurning(false);
-  }, [direction]);
-
-  const turn = useCallback((dir: Direction) => {
-    if (turning) return;
-    if (!open) {
-      if (dir === 'next') { setDirection('next'); setTurning(true); }
-      return;
-    }
-    if (dir === 'next' && !canNext) return;
-    if (dir === 'previous' && !canPrevious) return;
-    setDirection(dir);
-    setTurning(true);
-  }, [canNext, canPrevious, open, turning]);
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowRight') turn('next');
-      if (event.key === 'ArrowLeft') turn('previous');
-      if (event.key === 'Escape' && open && !turning) setOpen(false);
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [open, turn, turning]);
-
-  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => { pointerStart.current = { x: event.clientX, y: event.clientY }; };
-  const onPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    const start = pointerStart.current;
-    pointerStart.current = null;
-    if (!start || turning) return;
-    const dx = event.clientX - start.x;
-    const dy = event.clientY - start.y;
-    if (Math.abs(dx) < DRAG_TRIGGER || Math.abs(dx) < Math.abs(dy)) return;
-    turn(dx < 0 ? 'next' : 'previous');
-  };
-
-  const openingCover = !open && turning;
-  const revealLeft = turning && direction === 'previous' ? leftPage - 1 : leftPage;
-  const revealRight = turning && direction === 'next' ? rightPage + 1 : rightPage;
+  const imageY = useTransform(scrollYProgress, [0, 1], [70, -70]);
+  const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.08, 1, 1.08]);
+  const topCurve = useTransform(scrollYProgress, [0, 0.5, 1], [0, -16, 0]);
+  const bottomCurve = useTransform(scrollYProgress, [0, 0.5, 1], [0, 16, 0]);
 
   return (
-    <section id="flipbook" className="relative overflow-hidden bg-[#e8e5e2] px-5 py-24 text-[#111] sm:px-10 sm:py-32 lg:px-16 lg:py-40">
-      <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[.72fr_1.28fr] lg:items-center lg:gap-20">
-        <div>
-          <p className="text-[10px] font-medium uppercase tracking-[.28em] text-black/40 sm:text-xs">Portfolio / À propos</p>
-          <h2 className="mt-5 max-w-xl text-[clamp(3.1rem,7.8vw,7rem)] font-semibold leading-[.84] tracking-[-.075em]">À propos<br />de moi</h2>
-          <p className="mt-7 max-w-lg text-sm leading-6 text-black/55 sm:text-lg sm:leading-7">Je conçois et développe des expériences numériques modernes, en combinant design, développement, motion et interactions pour créer des interfaces fluides, responsives et soignées.</p>
-          <div className="mt-8 border-t border-black/10 pt-5"><p className="text-[10px] font-medium uppercase tracking-[.22em] text-black/35">Ce que j’aime créer</p><div className="mt-3 flex flex-wrap gap-2">{['Web', 'Mobile', '3D / Motion', 'UI / UX', 'Responsive'].map((tag) => <span key={tag} className="rounded-full border border-black/10 px-3 py-1.5 text-[9px] uppercase tracking-[.16em] text-black/50">{tag}</span>)}</div></div>
+    <section ref={sectionRef} id="scroll-bend" className="relative overflow-hidden bg-[#e8e5e2] px-5 py-20 text-[#111] sm:px-10 sm:py-28 lg:px-16 lg:py-36">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-10 flex items-end justify-between gap-8 sm:mb-14">
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[.28em] text-black/40 sm:text-xs">Portfolio / Scroll Bend Section</p>
+            <h2 className="mt-5 text-[clamp(3.2rem,8vw,8rem)] font-semibold leading-[.8] tracking-[-.08em]">SCROLL<br />BEND</h2>
+          </div>
+          <p className="hidden max-w-xs pb-2 text-right text-[10px] uppercase leading-5 tracking-[.18em] text-black/35 sm:block">Fluid media section<br />with responsive curves</p>
         </div>
 
-        <div className="mx-auto w-full max-w-4xl">
-          <div className="relative [perspective:2200px]" onPointerDown={onPointerDown} onPointerUp={onPointerUp} style={{ touchAction: 'pan-y' }}>
-            <div className="relative aspect-[1.48/1] w-full [transform-style:preserve-3d]">
-              <div className="absolute inset-[4%_3%_3%] rounded-[22px] bg-[#d4cec6] shadow-[0_42px_90px_rgba(0,0,0,.24)] sm:rounded-[30px]" />
-              <div className="absolute inset-y-[6%] left-1/2 z-[5] w-5 -translate-x-1/2 rounded-full bg-black/[.025] blur-md" />
-              {!open && !openingCover && <Cover onOpen={() => turn('next')} />}
+        <div className="relative px-1 py-8 sm:px-4 sm:py-12">
+          <motion.div style={{ y: imageY, scale: imageScale }} className="relative h-[52vh] min-h-[330px] max-h-[700px] overflow-hidden rounded-[28px] shadow-[0_38px_100px_rgba(0,0,0,.24)] sm:rounded-[42px]">
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-slate-900 to-black" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_55%_35%,rgba(92,103,180,.48),transparent_42%),radial-gradient(ellipse_at_10%_90%,rgba(255,255,255,.12),transparent_32%),radial-gradient(ellipse_at_90%_85%,rgba(255,255,255,.08),transparent_28%)]" />
+            <div className="relative z-10 flex h-full flex-col justify-between p-6 text-white sm:p-10 lg:p-14">
+              <div className="flex items-center justify-between text-[8px] uppercase tracking-[.25em] text-white/45 sm:text-[10px]"><span>Fluid media / 01</span><span>Scroll animation</span></div>
+              <div>
+                <p className="mb-4 text-[9px] uppercase tracking-[.25em] text-white/45 sm:text-xs">Premium curved section</p>
+                <h3 className="max-w-5xl text-[clamp(2.8rem,7vw,7.5rem)] font-semibold leading-[.8] tracking-[-.07em]">SMOOTH<br />CURVED MEDIA</h3>
+                <p className="mt-6 max-w-xl text-xs leading-5 text-white/55 sm:text-base sm:leading-7">Crée des sections média fluides avec des courbes haut et bas, une direction inward ou outward et une animation naturelle au scroll.</p>
+              </div>
+              <div className="flex items-center justify-between text-[8px] uppercase tracking-[.2em] text-white/35 sm:text-[9px]"><span>Scroll to bend</span><span>Responsive width</span></div>
+            </div>
+          </motion.div>
 
-              {open && (
-                <div className="absolute inset-x-0 inset-y-[6%] z-10 [transform-style:preserve-3d]">
-                  <div className="absolute inset-y-0 left-0 w-1/2 overflow-hidden rounded-l-[22px] bg-white shadow-[-12px_22px_45px_rgba(0,0,0,.12)] sm:rounded-l-[30px]"><PageContent page={revealLeft} /><PageEdge side="left" /></div>
-                  <div className="absolute inset-y-0 right-0 w-1/2 overflow-hidden rounded-r-[22px] bg-white shadow-[12px_22px_45px_rgba(0,0,0,.12)] sm:rounded-r-[30px]"><PageContent page={revealRight} /><PageEdge side="right" /></div>
-                </div>
-              )}
+          <motion.div style={{ y: topCurve }} className="pointer-events-none absolute left-[-8%] right-[-8%] top-[-2px] h-20 rounded-[50%] bg-[#e8e5e2] sm:h-28" />
+          <motion.div style={{ y: bottomCurve }} className="pointer-events-none absolute bottom-[-2px] left-[-8%] right-[-8%] h-20 rounded-[50%] bg-[#e8e5e2] sm:h-28" />
+        </div>
 
-              {openingCover && <motion.div initial={{ rotateY: 0 }} animate={{ rotateY: -180 }} transition={{ duration: TURN_MS / 1000, ease: EASE }} onAnimationComplete={finishTurn} className="absolute inset-y-[6%] right-0 z-50 w-full origin-left overflow-hidden rounded-r-[22px] bg-black shadow-[18px_30px_80px_rgba(0,0,0,.34)] [transform-style:preserve-3d] sm:rounded-r-[30px]"><PageContent page={0} cover /><div className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-black/55 via-black/15 to-transparent" /><div className="pointer-events-none absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white/10 to-transparent" /></motion.div>}
+        <div className="mt-12 grid gap-10 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[.25em] text-black/40">About Scroll Bend Section</p>
+            <p className="mt-4 text-sm leading-6 text-black/55 sm:text-base sm:leading-7">Scroll Bend Section lets you create smooth curved media sections directly in Framer. Add an image or video, adjust the top and bottom bend, choose inward or outward curves, set corner radius, crop position, overlay, padding, and optional scroll animation.</p>
+            <p className="mt-5 text-[10px] uppercase tracking-[.18em] text-black/35">Watch video how to use it</p>
+          </div>
 
-              {turning && !openingCover && <TurningPage direction={direction} front={direction === 'next' ? rightPage : leftPage} back={direction === 'next' ? rightPage + 1 : leftPage - 1} onComplete={finishTurn} />}
-              <div className="pointer-events-none absolute inset-y-[6%] left-1/2 z-[80] w-px -translate-x-1/2 bg-black/10 shadow-[0_0_9px_rgba(0,0,0,.18)]" />
-              <div className="absolute inset-x-0 bottom-[-5%] z-[100] flex items-center justify-between px-0 sm:px-4"><NavButton disabled={!canPrevious} onClick={() => turn('previous')} label="Page précédente">←</NavButton><div className="rounded-full bg-white/95 px-4 py-2 text-[10px] font-semibold tracking-[.08em] shadow-xl backdrop-blur sm:px-5 sm:py-2.5 sm:text-xs">{open ? `${String(leftPage).padStart(2, '0')}–${String(rightPage).padStart(2, '0')}` : 'COUVERTURE'} <span className="text-black/30">/ {pages.length - 1}</span></div><NavButton disabled={turning || (open && !canNext)} onClick={() => turn('next')} label={open ? 'Page suivante' : 'Ouvrir'}>→</NavButton></div>
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[.25em] text-black/40">Features</p>
+            <div className="mt-4 grid border-t border-black/10 sm:grid-cols-2">
+              {features.map((feature) => (
+                <div key={feature} className="border-b border-black/10 py-3 pr-5 text-[10px] uppercase leading-5 tracking-[.1em] text-black/55 sm:text-xs">{feature}</div>
+              ))}
             </div>
           </div>
-          <div className="mt-10 flex items-center justify-between text-[9px] uppercase tracking-[.22em] text-black/30 sm:mt-12 sm:text-[10px]"><span>{open ? 'Swipe / glisser / clavier' : 'Appuyer pour ouvrir'}</span><span>Tour de page 3D réaliste</span></div>
         </div>
       </div>
     </section>
   );
 }
-
-function Cover({ onOpen }: { onOpen: () => void }) { return <button type="button" onClick={onOpen} aria-label="Ouvrir le portfolio" className="group absolute inset-x-[3%] inset-y-[6%] z-40 overflow-hidden rounded-[22px] bg-gradient-to-br from-zinc-950 via-stone-900 to-black text-left shadow-[18px_30px_80px_rgba(0,0,0,.38)] outline-none transition-transform duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:ring-black/40 sm:rounded-[30px]"><div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(255,255,255,.12),transparent_28%),radial-gradient(circle_at_85%_80%,rgba(255,255,255,.08),transparent_30%)]" /><div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-10 lg:p-12"><div className="flex items-center justify-between text-[8px] uppercase tracking-[.28em] text-white/45 sm:text-[10px]"><span>Portfolio / 2026</span><span>À propos</span></div><div><div className="mb-6 h-px w-14 bg-white/25" /><h3 className="whitespace-pre-line text-[clamp(2.4rem,6.4vw,5.6rem)] font-semibold leading-[.82] tracking-[-.065em]">À PROPOS{'\n'}DE MOI</h3><p className="mt-5 max-w-md text-[10px] leading-5 text-white/50 sm:text-xs sm:leading-6">Une présentation interactive de mon approche, de mes compétences et de ma façon de créer.</p></div><div className="flex items-end justify-between text-[8px] uppercase tracking-[.18em] text-white/35 sm:text-[9px]"><span>Ouvrir</span><span className="transition-transform duration-300 group-hover:translate-x-1">→</span></div></div></button>; }
-
-function TurningPage({ direction, front, back, onComplete }: { direction: Direction; front: number; back: number; onComplete: () => void }) {
-  const next = direction === 'next';
-  const radius = 'var(--flipbook-radius)';
-  return <motion.div initial={{ rotateY: 0, rotateX: 0, scale: 1 }} animate={{ rotateY: next ? -180 : 180, rotateX: [0, -1.1, .65, 0], scale: [1, 1.012, 1.018, 1] }} transition={{ duration: TURN_MS / 1000, ease: EASE, rotateX: { duration: TURN_MS / 1000, ease: 'easeInOut' }, scale: { duration: TURN_MS / 1000, ease: 'easeInOut' } }} onAnimationComplete={onComplete} className={`absolute inset-y-[6%] z-[90] w-1/2 overflow-visible bg-transparent [transform-style:preserve-3d] [--flipbook-radius:22px] sm:[--flipbook-radius:30px] ${next ? 'left-1/2 origin-left' : 'left-0 origin-right'}`}>
-    <div className="absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [transform-style:preserve-3d]" style={{ borderTopLeftRadius: next ? 0 : radius, borderBottomLeftRadius: next ? 0 : radius, borderTopRightRadius: next ? radius : 0, borderBottomRightRadius: next ? radius : 0 }}><PageContent page={front} /><CurlShade side={next ? 'right' : 'left'} /></div>
-    <div className="absolute inset-0 overflow-hidden bg-white shadow-[0_30px_75px_rgba(0,0,0,.28)] [backface-visibility:hidden] [transform:rotateY(180deg)] [transform-style:preserve-3d]" style={{ borderTopLeftRadius: next ? radius : 0, borderBottomLeftRadius: next ? radius : 0, borderTopRightRadius: next ? 0 : radius, borderBottomRightRadius: next ? 0 : radius }}><PageContent page={back} /><CurlShade side={next ? 'left' : 'right'} /></div>
-  </motion.div>;
-}
-
-function PageContent({ page, cover = false }: { page: number; cover?: boolean }) {
-  const item = pages[page] ?? pages[0];
-  return <div className={`relative h-full w-full overflow-hidden bg-gradient-to-br ${item.tone} ${item.light ? 'text-black' : 'text-white'}`}><div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_20%,rgba(255,255,255,.16),transparent_28%),radial-gradient(circle_at_18%_82%,rgba(255,255,255,.08),transparent_32%)]" /><div className="relative flex h-full flex-col justify-between p-6 sm:p-10 lg:p-12"><div className="flex items-center justify-between text-[8px] uppercase tracking-[.24em] opacity-50 sm:text-[10px]"><span>{item.eyebrow}</span><span>{cover ? 'COUVERTURE' : String(page).padStart(2, '0')}</span></div><div><div className="mb-5 h-px w-12 bg-current opacity-30" /><h3 className="whitespace-pre-line text-[clamp(2rem,5vw,5rem)] font-semibold leading-[.84] tracking-[-.06em]">{item.title}</h3><p className="mt-5 max-w-md text-[9px] leading-5 opacity-55 sm:text-xs sm:leading-6">{item.subtitle}</p></div><div className="flex items-end justify-between text-[8px] uppercase tracking-[.2em] opacity-40 sm:text-[9px]"><span>À propos de moi</span><span>0{Math.min(page, 7)} / 07</span></div></div></div>;
-}
-
-function CurlShade({ side }: { side: 'left' | 'right' }) { return <div className={`pointer-events-none absolute inset-y-0 ${side === 'right' ? 'right-0 bg-gradient-to-l' : 'left-0 bg-gradient-to-r'} w-24 from-black/35 via-black/10 to-transparent`} />; }
-function PageEdge({ side }: { side: 'left' | 'right' }) { return <div className={`pointer-events-none absolute inset-y-0 ${side === 'left' ? 'right-0' : 'left-0'} w-4 ${side === 'left' ? 'bg-gradient-to-l' : 'bg-gradient-to-r'} from-black/10 to-transparent`} />; }
-function NavButton({ disabled, onClick, label, children }: { disabled?: boolean; onClick: () => void; label: string; children: React.ReactNode }) { return <button type="button" disabled={disabled} onClick={onClick} aria-label={label} className="grid h-11 w-11 place-items-center rounded-full bg-white/95 text-lg shadow-[0_12px_30px_rgba(0,0,0,.16)] transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-35 sm:h-12 sm:w-12">{children}</button>; }
