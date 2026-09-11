@@ -57,11 +57,29 @@ export default function Skills() {
 
         <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
-            <div className="mb-5 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400"><ImageIcon className="h-4 w-4" />Scroll Reveal + Parallax</div>
-            <h3 className="text-3xl font-bold sm:text-4xl">Des images qui prennent vie au fil du scroll.</h3>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">J’intègre des révélations éditoriales, du scroll scrub et un parallaxe subtil pour créer une navigation immersive. Les effets restent fluides, responsives et respectueux des préférences de réduction des mouvements.</p>
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {revealStyles.map(({ label, icon: Icon }, index) => <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:bg-white/[0.07]"><Icon className="mb-3 h-5 w-5 text-cyan-400" /><span className="text-xs leading-4 text-slate-300">{label}</span><span className="mt-2 block font-mono text-[10px] text-slate-600">0{index + 1}</span></div>)}
+            <div className="mb-5 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400"><ImageIcon className="h-4 w-4" />Animated Section</div>
+            <h3 className="text-3xl font-bold sm:text-4xl">About Parallax scroll</h3>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">Customize every part of the experience with flexible controls:</p>
+
+            <div className="mt-7 grid gap-4 sm:grid-cols-2">
+              {[
+                ['Sections', 'Add up to 10 sections, custom heading text, left/right or top/bottom images, seamless infinite loop between sections.'],
+                ['Layout', 'Side-by-side or stacked layout with responsive split behavior.'],
+                ['Typography', 'Font family, size, weight, style, letter spacing, line height and text color control.'],
+                ['Divider', 'Toggle divider on/off with adjustable color and thickness, adapting to horizontal or vertical layout.'],
+                ['Overlay', 'Adjustable opacity, direction control (top, bottom, both) and improved text readability over images.'],
+                ['Animation', 'Transition speed, easing style selection and smooth continuous looping transitions.'],
+                ['Interaction', 'Scroll navigation, touch swipe, keyboard navigation with arrow/page keys and continuous loop navigation.'],
+                ['Styling', 'Clean, full-viewport layout designed for an immersive presentation.'],
+              ].map(([title, description], index) => (
+                <div key={title} className="rounded-2xl border border-white/10 bg-white/[0.035] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:bg-white/[0.07]">
+                  <div className="mb-2 flex items-center justify-between">
+                    <h4 className="font-semibold text-white">{title}</h4>
+                    <span className="font-mono text-[10px] text-slate-600">0{index + 1}</span>
+                  </div>
+                  <p className="text-sm leading-6 text-slate-400">{description}</p>
+                </div>
+              ))}
             </div>
           </div>
 
