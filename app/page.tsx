@@ -30,7 +30,6 @@ export default function Portfolio() {
         <About />
         <Projects />
         <ScrollTimelinePro />
-        <ShaderFlow />
         <FlipBook3D />
         <div className="bg-[#0a0f0d] pt-16 sm:pt-24 lg:pt-28">
           <ScrollTextLines />

@@ -69,17 +69,6 @@ export default function Hero() {
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:56px_56px]" />
 
       <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
-        <div className="flex items-center justify-between gap-6">
-          <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/55">
-            <span className="h-2 w-2 rounded-full bg-lime-300 shadow-[0_0_20px_rgba(190,242,100,.8)]" />
-            Available for new projects
-          </div>
-          <div className="hidden items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/40 md:flex">
-            Hover the mask
-            <Sparkles size={14} />
-          </div>
-        </div>
-
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
             <p className="mb-5 text-sm font-medium uppercase tracking-[0.24em] text-white/50 sm:text-base">Full Stack Developer · Madagascar</p>
