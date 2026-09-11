@@ -61,53 +61,89 @@ function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) 
   return root;
 }
 
-function createTree(THREE: any, scale: number, themeParts: ThemePart[]) {
+function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: boolean) {
   const root = new THREE.Group();
-  const trunkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x130d09, roughness: 0.95 }), 0x130d09, 0x4d2e1c, themeParts);
-  const foliageMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x050b09, roughness: 0.98 }), 0x050b09, 0x2f6b38, themeParts);
-  const foliageLightMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x07120c, roughness: 1 }), 0x07120c, 0x3d7c43, themeParts);
+  const boughGeometry = new THREE.IcosahedronGeometry(1, mobile ? 0 : 1);
+  const trunkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x130d09, roughness: 0.94 }), 0x130d09, 0x4d2e1c, themeParts);
+  const barkLightMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x21140d, roughness: 1 }), 0x21140d, 0x624025, themeParts);
+  const foliageMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x050b09, roughness: 0.98, flatShading: true }), 0x050b09, 0x285f31, themeParts);
+  const foliageMidMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x07120c, roughness: 1, flatShading: true }), 0x07120c, 0x36743d, themeParts);
+  const foliageLightMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x0b1810, roughness: 1, flatShading: true }), 0x0b1810, 0x47864a, themeParts);
 
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.23, 3.05, 7), trunkMat);
-  trunk.position.y = 1.52;
-  trunk.rotation.z = (Math.random() - 0.5) * 0.055;
+  // Slightly tapered, imperfect trunk instead of a perfectly straight cylinder.
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.25, 3.55, 7, 3), trunkMat);
+  trunk.position.y = 1.77;
+  trunk.rotation.z = (Math.random() - 0.5) * 0.06;
+  trunk.rotation.x = (Math.random() - 0.5) * 0.025;
   root.add(trunk);
 
-  // Several irregular branch layers make the silhouette closer to a real fir,
-  // instead of three perfectly stacked cones.
-  const layers = 7;
+  const barkPatch = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 1.7, 6, 1), barkLightMat);
+  barkPatch.position.set(0.02, 1.05, -0.02);
+  barkPatch.rotation.z = trunk.rotation.z * 0.8;
+  root.add(barkPatch);
+
+  const makeBough = (y: number, radius: number, thickness: number, angle: number, material: any) => {
+    const bough = new THREE.Mesh(boughGeometry, material);
+    bough.position.set(Math.cos(angle) * radius * 0.26, y, Math.sin(angle) * radius * 0.26);
+    bough.rotation.set(
+      (Math.random() - 0.5) * 0.25,
+      angle + Math.PI * 0.5,
+      (Math.random() - 0.5) * 0.28,
+    );
+    bough.scale.set(
+      radius * (1.0 + Math.random() * 0.12),
+      thickness * (0.75 + Math.random() * 0.2),
+      radius * (0.78 + Math.random() * 0.16),
+    );
+    root.add(bough);
+    return bough;
+  };
+
+  // Natural fir silhouette: broad, overlapping boughs rather than stacked cones.
+  const layers = mobile ? 5 : 6;
   for (let i = 0; i < layers; i += 1) {
     const t = i / (layers - 1);
-    const y = 1.55 + t * 3.75;
-    const radius = (1.55 - t * 1.12) * (0.88 + Math.random() * 0.18);
-    const height = (1.05 - t * 0.22) * (0.92 + Math.random() * 0.12);
-    const branch = new THREE.Mesh(new THREE.ConeGeometry(radius, height, 9, 1), i % 3 === 0 ? foliageLightMat : foliageMat);
-    branch.position.set((Math.random() - 0.5) * 0.16, y, (Math.random() - 0.5) * 0.12);
-    branch.rotation.y = Math.random() * Math.PI * 2;
-    branch.rotation.z = (Math.random() - 0.5) * 0.06;
-    root.add(branch);
+    const y = 1.55 + t * 3.85;
+    const radius = (1.62 - t * 1.16) * (0.9 + Math.random() * 0.16);
+    const thickness = (0.62 - t * 0.16) * (0.9 + Math.random() * 0.16);
+    const branches = mobile ? 3 : (i < 2 ? 4 : 3);
 
-    if (i > 0 && i < layers - 1) {
-      const underside = new THREE.Mesh(new THREE.ConeGeometry(radius * 0.76, height * 0.58, 8, 1), foliageMat);
-      underside.position.set((Math.random() - 0.5) * 0.3, y - height * 0.22, (Math.random() - 0.5) * 0.24);
+    for (let j = 0; j < branches; j += 1) {
+      const angle = (j / branches) * Math.PI * 2 + Math.random() * 0.55;
+      const bough = makeBough(y + (Math.random() - 0.5) * 0.16, radius, thickness, angle, j % 3 === 0 ? foliageLightMat : foliageMidMat);
+      bough.scale.y *= 0.72;
+    }
+
+    // A darker lower edge gives each bough depth and avoids the flat cartoon look.
+    if (i > 0) {
+      const underside = new THREE.Mesh(boughGeometry, foliageMat);
+      underside.position.y = y - thickness * 0.28;
+      underside.scale.set(radius * 0.92, thickness * 0.3, radius * 0.82);
       underside.rotation.y = Math.random() * Math.PI * 2;
-      underside.rotation.z = (Math.random() - 0.5) * 0.08;
       root.add(underside);
     }
   }
 
-  // Small branch tips break the regular outline and add depth around the edges.
-  const tipCount = 9;
+  // Small irregular tips create broken silhouettes like real branch ends.
+  const tipCount = mobile ? 5 : 8;
   for (let i = 0; i < tipCount; i += 1) {
-    const angle = (i / tipCount) * Math.PI * 2 + Math.random() * 0.35;
-    const y = 1.9 + Math.random() * 3.25;
-    const r = (1.28 - (y - 1.9) * 0.22) * (0.9 + Math.random() * 0.16);
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.34 + Math.random() * 0.18, 0.9 + Math.random() * 0.35, 7, 1), i % 2 ? foliageMat : foliageLightMat);
-    tip.position.set(Math.cos(angle) * r, y, Math.sin(angle) * r);
-    tip.rotation.z = Math.cos(angle) * 0.22;
-    tip.rotation.x = Math.sin(angle) * -0.18;
-    tip.rotation.y = angle + Math.PI / 2;
+    const angle = (i / tipCount) * Math.PI * 2 + Math.random() * 0.4;
+    const y = 1.8 + Math.random() * 3.45;
+    const t = Math.max(0, Math.min(1, (y - 1.8) / 3.45));
+    const radius = (1.32 - t * 0.95) * (0.9 + Math.random() * 0.18);
+    const tip = new THREE.Mesh(boughGeometry, i % 3 === 0 ? foliageLightMat : foliageMat);
+    tip.position.set(Math.cos(angle) * radius, y, Math.sin(angle) * radius);
+    tip.scale.set(0.38 + Math.random() * 0.16, 0.22 + Math.random() * 0.12, 0.28 + Math.random() * 0.14);
+    tip.rotation.set(Math.random() * 0.5, angle, Math.random() * 0.5);
     root.add(tip);
   }
+
+  // Soft irregular top instead of a perfect pointed cone.
+  const crown = new THREE.Mesh(boughGeometry, foliageLightMat);
+  crown.position.y = 5.55;
+  crown.scale.set(0.72, 1.18, 0.72);
+  crown.rotation.y = Math.random() * Math.PI * 2;
+  root.add(crown);
 
   root.rotation.y = Math.random() * Math.PI * 2;
   root.rotation.z = (Math.random() - 0.5) * 0.035;
@@ -211,7 +247,7 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
     const gate = createTorii(THREE, i % 3 === 0 ? 0xb45c36 : 0x8f4329, themeParts); gate.position.z = z; gate.scale.setScalar(scale); group.add(gate);
     const left = createLantern(THREE, i < 6, themeParts); left.position.set(-2.75, 0, z - 0.8); left.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(left);
     const right = createLantern(THREE, i < 6, themeParts); right.position.set(2.75, 0, z - 0.8); right.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(right);
-    if (i % 2 === 0) { const treeScale = mobile ? 1.05 : 1.25; const lt = createTree(THREE, treeScale - i * 0.02, themeParts); lt.position.set(-5.1, 0, z - 1.8); group.add(lt); const rt = createTree(THREE, treeScale + 0.08 - i * 0.02, themeParts); rt.position.set(5.1, 0, z - 2.2); group.add(rt); }
+    if (i % 2 === 0) { const treeScale = mobile ? 1.05 : 1.25; const lt = createTree(THREE, treeScale - i * 0.02, themeParts, mobile); lt.position.set(-5.1, 0, z - 1.8); group.add(lt); const rt = createTree(THREE, treeScale + 0.08 - i * 0.02, themeParts, mobile); rt.position.set(5.1, 0, z - 2.2); group.add(rt); }
   }
 
   const mountainSpecs: [number, number, number, number][] = [[-13, -49, 1.55, 0x0b1018], [-3, -58, 2.25, 0x070b12], [9, -53, 1.85, 0x0a0e16], [17, -68, 2.3, 0x080b11]];
