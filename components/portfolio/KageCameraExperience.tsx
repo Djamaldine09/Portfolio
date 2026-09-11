@@ -63,11 +63,56 @@ function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) 
 
 function createTree(THREE: any, scale: number, themeParts: ThemePart[]) {
   const root = new THREE.Group();
-  const trunkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x130d09, roughness: 1 }), 0x130d09, 0x4d2e1c, themeParts);
-  const leafMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x050b09, roughness: 1 }), 0x050b09, 0x2f6b38, themeParts);
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.2, 2.4, 6), trunkMat); trunk.position.y = 1.2; root.add(trunk);
-  for (let i = 0; i < 3; i += 1) { const cone = new THREE.Mesh(new THREE.ConeGeometry(1.12 - i * 0.18, 1.4, 7), leafMat); cone.position.y = 2 + i * 0.72; root.add(cone); }
-  root.scale.setScalar(scale); return root;
+  const trunkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x130d09, roughness: 0.95 }), 0x130d09, 0x4d2e1c, themeParts);
+  const foliageMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x050b09, roughness: 0.98 }), 0x050b09, 0x2f6b38, themeParts);
+  const foliageLightMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x07120c, roughness: 1 }), 0x07120c, 0x3d7c43, themeParts);
+
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.23, 3.05, 7), trunkMat);
+  trunk.position.y = 1.52;
+  trunk.rotation.z = (Math.random() - 0.5) * 0.055;
+  root.add(trunk);
+
+  // Several irregular branch layers make the silhouette closer to a real fir,
+  // instead of three perfectly stacked cones.
+  const layers = 7;
+  for (let i = 0; i < layers; i += 1) {
+    const t = i / (layers - 1);
+    const y = 1.55 + t * 3.75;
+    const radius = (1.55 - t * 1.12) * (0.88 + Math.random() * 0.18);
+    const height = (1.05 - t * 0.22) * (0.92 + Math.random() * 0.12);
+    const branch = new THREE.Mesh(new THREE.ConeGeometry(radius, height, 9, 1), i % 3 === 0 ? foliageLightMat : foliageMat);
+    branch.position.set((Math.random() - 0.5) * 0.16, y, (Math.random() - 0.5) * 0.12);
+    branch.rotation.y = Math.random() * Math.PI * 2;
+    branch.rotation.z = (Math.random() - 0.5) * 0.06;
+    root.add(branch);
+
+    if (i > 0 && i < layers - 1) {
+      const underside = new THREE.Mesh(new THREE.ConeGeometry(radius * 0.76, height * 0.58, 8, 1), foliageMat);
+      underside.position.set((Math.random() - 0.5) * 0.3, y - height * 0.22, (Math.random() - 0.5) * 0.24);
+      underside.rotation.y = Math.random() * Math.PI * 2;
+      underside.rotation.z = (Math.random() - 0.5) * 0.08;
+      root.add(underside);
+    }
+  }
+
+  // Small branch tips break the regular outline and add depth around the edges.
+  const tipCount = 9;
+  for (let i = 0; i < tipCount; i += 1) {
+    const angle = (i / tipCount) * Math.PI * 2 + Math.random() * 0.35;
+    const y = 1.9 + Math.random() * 3.25;
+    const r = (1.28 - (y - 1.9) * 0.22) * (0.9 + Math.random() * 0.16);
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.34 + Math.random() * 0.18, 0.9 + Math.random() * 0.35, 7, 1), i % 2 ? foliageMat : foliageLightMat);
+    tip.position.set(Math.cos(angle) * r, y, Math.sin(angle) * r);
+    tip.rotation.z = Math.cos(angle) * 0.22;
+    tip.rotation.x = Math.sin(angle) * -0.18;
+    tip.rotation.y = angle + Math.PI / 2;
+    root.add(tip);
+  }
+
+  root.rotation.y = Math.random() * Math.PI * 2;
+  root.rotation.z = (Math.random() - 0.5) * 0.035;
+  root.scale.setScalar(scale);
+  return root;
 }
 
 function createMountain(THREE: any, x: number, z: number, scale: number, color: number, themeParts: ThemePart[]) {
@@ -120,27 +165,15 @@ function createSkyTexture(THREE: any, day: boolean, mobile: boolean) {
   const ctx = canvas.getContext('2d'); if (!ctx) return null;
   const gradient = ctx.createLinearGradient(0, 0, 0, size);
   if (day) {
-    gradient.addColorStop(0, '#2d70b7');
-    gradient.addColorStop(0.28, '#55a1d6');
-    gradient.addColorStop(0.56, '#91c9e7');
-    gradient.addColorStop(0.78, '#d8e7e6');
-    gradient.addColorStop(0.91, '#ffd6a0');
-    gradient.addColorStop(1, '#fff0cf');
+    gradient.addColorStop(0, '#2d70b7'); gradient.addColorStop(0.28, '#55a1d6'); gradient.addColorStop(0.56, '#91c9e7'); gradient.addColorStop(0.78, '#d8e7e6'); gradient.addColorStop(0.91, '#ffd6a0'); gradient.addColorStop(1, '#fff0cf');
   } else {
-    gradient.addColorStop(0, '#02050b');
-    gradient.addColorStop(0.38, '#07101e');
-    gradient.addColorStop(0.7, '#0d1a2b');
-    gradient.addColorStop(0.88, '#172337');
-    gradient.addColorStop(1, '#263040');
+    gradient.addColorStop(0, '#02050b'); gradient.addColorStop(0.38, '#07101e'); gradient.addColorStop(0.7, '#0d1a2b'); gradient.addColorStop(0.88, '#172337'); gradient.addColorStop(1, '#263040');
   }
   ctx.fillStyle = gradient; ctx.fillRect(0, 0, size, size);
   if (day) {
     const sun = ctx.createRadialGradient(size * 0.72, size * 0.68, 0, size * 0.72, size * 0.68, size * 0.42);
-    sun.addColorStop(0, 'rgba(255,248,220,0.52)'); sun.addColorStop(0.18, 'rgba(255,224,165,0.24)'); sun.addColorStop(0.48, 'rgba(255,205,145,0.08)'); sun.addColorStop(1, 'rgba(255,190,120,0)');
-    ctx.fillStyle = sun; ctx.fillRect(0, 0, size, size);
-    const horizon = ctx.createLinearGradient(0, size * 0.68, 0, size);
-    horizon.addColorStop(0, 'rgba(255,206,151,0)'); horizon.addColorStop(0.5, 'rgba(255,202,145,0.12)'); horizon.addColorStop(1, 'rgba(255,238,205,0.28)');
-    ctx.fillStyle = horizon; ctx.fillRect(0, size * 0.64, size, size * 0.36);
+    sun.addColorStop(0, 'rgba(255,248,220,0.52)'); sun.addColorStop(0.18, 'rgba(255,224,165,0.24)'); sun.addColorStop(0.48, 'rgba(255,205,145,0.08)'); sun.addColorStop(1, 'rgba(255,190,120,0)'); ctx.fillStyle = sun; ctx.fillRect(0, 0, size, size);
+    const horizon = ctx.createLinearGradient(0, size * 0.68, 0, size); horizon.addColorStop(0, 'rgba(255,206,151,0)'); horizon.addColorStop(0.5, 'rgba(255,202,145,0.12)'); horizon.addColorStop(1, 'rgba(255,238,205,0.28)'); ctx.fillStyle = horizon; ctx.fillRect(0, size * 0.64, size, size * 0.36);
   }
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.needsUpdate = true; return texture;
 }
