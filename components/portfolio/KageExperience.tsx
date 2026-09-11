@@ -35,7 +35,7 @@ function addBox(v: number[], c: number[], center: V3, size: V3, color: V3) {
     [[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0]], [[x1,y0,z1],[x0,y0,z1],[x0,y1,z1],[x1,y1,z1]],
     [[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]], [[x0,y0,z1],[x1,y0,z1],[x1,y0,z0],[x0,y0,z0]],
     [[x0,y0,z1],[x0,y0,z0],[x0,y1,z0],[x0,y1,z1]], [[x1,y0,z0],[x1,y0,z1],[x1,y1,z1],[x1,y1,z0]],
-  ] as V3[][][];
+  ] as V3[][];
   for (const f of faces) {
     const inds = [0,1,2,0,2,3];
     for (const i of inds) { v.push(...f[i]); c.push(...color); }
