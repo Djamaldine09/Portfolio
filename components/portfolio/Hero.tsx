@@ -1,306 +1,131 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'framer-motion';
-import { 
-  ArrowUpRight, 
-  Check, 
-  Copy, 
-  FileText, 
-  Github, 
-  Linkedin, 
-  Sparkles,
-  Radio
-} from 'lucide-react';
+import Image from 'next/image';
+import { useRef } from 'react';
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from 'framer-motion';
+import { ArrowDown, ArrowUpRight, Github, Linkedin, Sparkles } from 'lucide-react';
 
-// Variantes d'animation orchestrées (Stagger effect)
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.15,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { 
-      duration: 0.5, 
-      ease: [0.25, 0.1, 0.25, 1] 
-    },
-  },
-};
-
-const techStack = ['HTML', 'TypeScript', 'Next.js', 'React', 'Tailwind', 'Node.js'];
+const MASK_SIZE = 270;
 
 export default function Hero() {
-  const heroRef = useRef<HTMLElement>(null);
-  const [copied, setCopied] = useState(false);
-  const email = "alexandre.v@example.com";
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -110]);
-  const smoothContentY = useSpring(contentY, { stiffness: 90, damping: 24, mass: 0.6 });
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const contentScale = useTransform(scrollYProgress, [0, 1], [1, 0.94]);
+  const containerRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
+  const mouseX = useMotionValue(50);
+  const mouseY = useMotionValue(50);
+  const smoothX = useSpring(mouseX, { stiffness: 120, damping: 20, mass: 0.55 });
+  const smoothY = useSpring(mouseY, { stiffness: 120, damping: 20, mass: 0.55 });
+  const maskX = useTransform(smoothX, (value) => `calc(${value}% - ${MASK_SIZE / 2}px)`);
+  const maskY = useTransform(smoothY, (value) => `calc(${value}% - ${MASK_SIZE / 2}px)`);
 
-  const handleCopyEmail = () => {
-    navigator.clipboard.writeText(email);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
+    const bounds = containerRef.current?.getBoundingClientRect();
+    if (!bounds) return;
+    mouseX.set(((event.clientX - bounds.left) / bounds.width) * 100);
+    mouseY.set(((event.clientY - bounds.top) / bounds.height) * 100);
+  };
+
+  const handlePointerLeave = () => {
+    mouseX.set(50);
+    mouseY.set(50);
   };
 
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <section
-      ref={heroRef}
+      ref={containerRef}
       id="hero"
-      className="relative min-h-[200vh] w-full max-w-[100vw] overflow-x-hidden bg-[#070b14]"
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
+      className="relative min-h-screen w-full overflow-hidden bg-[#070a09] text-white"
     >
-      <div className="sticky top-0 flex min-h-screen w-full max-w-[100vw] items-center justify-center overflow-hidden px-4 py-20 text-slate-100 sm:px-6 lg:px-12">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(163,230,53,.12),transparent_28%),radial-gradient(circle_at_80%_70%,rgba(34,197,94,.08),transparent_30%)]" />
 
-        {/* Fond glassmorphisme avec gradient animé */}
-        <div aria-hidden="true" className="absolute inset-0 z-0 overflow-hidden">
-          <motion.div
-            animate={{
-              background: [
-                'radial-gradient(circle at 20% 30%, rgba(6,182,212,0.25), transparent 55%), radial-gradient(circle at 80% 70%, rgba(59,130,246,0.22), transparent 55%), radial-gradient(circle at 50% 100%, rgba(139,92,246,0.18), transparent 60%)',
-                'radial-gradient(circle at 30% 70%, rgba(6,182,212,0.25), transparent 55%), radial-gradient(circle at 70% 20%, rgba(59,130,246,0.22), transparent 55%), radial-gradient(circle at 50% 0%, rgba(139,92,246,0.18), transparent 60%)',
-                'radial-gradient(circle at 20% 30%, rgba(6,182,212,0.25), transparent 55%), radial-gradient(circle at 80% 70%, rgba(59,130,246,0.22), transparent 55%), radial-gradient(circle at 50% 100%, rgba(139,92,246,0.18), transparent 60%)',
-              ],
-            }}
-            transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute inset-0"
-          />
-          {/* Voile de verre pour l'effet glassmorphisme */}
-          <div className="absolute inset-0 bg-[#070b14]/40 backdrop-blur-3xl" />
-          {/* Grain léger pour la profondeur */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#070b14]/20 to-[#070b14]" />
-        </div>
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+        animate={reducedMotion ? undefined : { scale: [1, 1.035, 1] }}
+        transition={reducedMotion ? undefined : { duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <Image src="/avatar.png" alt="" fill priority sizes="100vw" className="object-cover object-center opacity-95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-lime-300/55 via-emerald-400/20 to-cyan-400/55 mix-blend-screen" />
+        <div className="absolute inset-0 bg-black/20" />
+      </motion.div>
 
-        <div className="relative z-10 mx-auto min-w-0 w-full max-w-7xl">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid min-w-0 grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-8"
-        >
+      <motion.div
+        aria-hidden="true"
+        className="pointer-events-none absolute z-10 rounded-full border border-white/40 bg-black/5 shadow-[0_0_0_1px_rgba(255,255,255,.08),0_25px_80px_rgba(0,0,0,.28)] backdrop-blur-[2px]"
+        style={{ left: maskX, top: maskY, width: MASK_SIZE, height: MASK_SIZE }}
+      />
 
-          {/* ======================================================== */}
-          {/* COLONNE GAUCHE : Badge de profil */}
-          {/* ======================================================== */}
-          <motion.div 
-            variants={itemVariants}
-            className="lg:col-span-5 flex flex-col items-center justify-center"
-          >
-            {/* Carte glassmorphisme */}
-            <motion.div
-              variants={itemVariants}
-              className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl"
-            >
-              <div className="flex flex-col items-center gap-4 text-center">
-                <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 text-3xl font-bold text-cyan-300 backdrop-blur-xl">
-                  DM
-                </div>
-                <div>
-                  <p className="text-lg font-semibold text-white">Djamaldine M.</p>
-                  <p className="text-sm text-slate-400">Développeur Full Stack</p>
-                </div>
-              </div>
-            </motion.div>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:56px_56px]" />
 
-            {/* Badge signalétique */}
-            <motion.div 
-              variants={itemVariants}
-              className="mt-6 flex max-w-full items-center gap-2 rounded-md border border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs font-mono text-cyan-400/90 shadow-sm"
-            >
-              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-400 animate-ping" />
-              <span className="truncate">PROFIL ACTIF : DJAMALDINE M. — ID-3094</span>
-            </motion.div>
-          </motion.div>
-
-          {/* ======================================================== */}
-          {/* COLONNE DROITE : Textes, Badges & Actions */}
-          {/* ======================================================== */}
-          <motion.div
-            style={{ y: smoothContentY, opacity: contentOpacity, scale: contentScale }}
-            className="min-w-0 lg:col-span-7 flex flex-col items-center text-center lg:items-start lg:text-left"
-          >
-            
-            {/* Status Badge */}
-            <motion.div variants={itemVariants}>
-              <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-950/40 px-3 py-1 text-xs font-medium text-emerald-400 backdrop-blur-md mb-6">
-                <Radio className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-                <span className="break-words">Disponible pour de nouveaux projets</span>
-              </div>
-            </motion.div>
-
-            {/* Titre Principal */}
-            <motion.h1 
-              variants={itemVariants}
-              className="max-w-full break-words text-4xl font-bold leading-[1.15] tracking-tight text-slate-100 mb-6 sm:text-5xl lg:max-w-2xl lg:text-6xl"
-            >
-              Concevoir des applications{' '}
-              <span className="bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 bg-clip-text text-transparent">
-                modernes, robustes
-              </span>{' '}
-              & performantes.
-            </motion.h1>
-
-            {/* Sous-titre */}
-            <motion.p 
-              variants={itemVariants}
-              className="max-w-full break-words text-base leading-relaxed text-slate-400 mb-8 sm:text-lg sm:max-w-xl"
-            >
-              Bonjour, je suis <span className="text-white font-medium">Djamaldine</span>. Développeur Full Stack spécialisé dans la création d'expériences web interactives, scalables et soignées.
-            </motion.p>
-
-            {/* Stack Technique (Badges interactifs) */}
-            <motion.div 
-              variants={itemVariants}
-              className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-10"
-            >
-              <span className="text-xs font-mono text-slate-500 uppercase mr-1">TechStack</span>
-              {techStack.map((tech) => (
-                <motion.span
-                  key={tech}
-                  whileHover={{ scale: 1.07, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-3 py-1 text-xs font-medium text-slate-300 rounded-lg bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 hover:text-cyan-300 transition-colors shadow-sm cursor-default"
-                >
-                  {tech}
-                </motion.span>
-              ))}
-            </motion.div>
-
-            {/* Boutons d'Action (CTAs) */}
-            <motion.div 
-              variants={itemVariants}
-              className="flex flex-col sm:flex-row items-center gap-4 mb-10 w-full sm:w-auto"
-            >
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => scrollToSection('projects')}
-                className="w-full sm:w-auto px-7 h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-semibold shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all flex items-center justify-center gap-2 group cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4 text-slate-950 group-hover:rotate-12 transition-transform" />
-                <span>Explorer mes projets</span>
-                <ArrowUpRight className="w-4 h-4 text-slate-950 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </motion.button>
-
-              <motion.a
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                href="/cv.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto px-7 h-12 rounded-xl border border-slate-800 bg-slate-900/70 hover:bg-slate-800/90 text-slate-300 hover:text-white font-medium transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <FileText className="w-4 h-4 text-slate-400" />
-                <span>Télécharger mon CV</span>
-              </motion.a>
-            </motion.div>
-
-            {/* Liens Sociaux & Copie Email */}
-            <motion.div
-              variants={itemVariants}
-              className="flex max-w-full flex-wrap items-center justify-center gap-3 lg:justify-start"
-            >
-              <motion.a
-                whileHover={{ scale: 1.08, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-white hover:border-slate-700 transition-colors"
-                aria-label="GitHub"
-              >
-                <Github className="w-5 h-5" />
-              </motion.a>
-
-              <motion.a
-                whileHover={{ scale: 1.08, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                href="https://linkedin.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-xl border border-slate-800 bg-slate-900/60 text-slate-400 hover:text-cyan-400 hover:border-slate-700 transition-colors"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-5 h-5" />
-              </motion.a>
-
-              {/* Copie rapide d'email animée */}
-              <motion.button
-                whileHover={{ scale: 1.03, y: -1 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={handleCopyEmail}
-                className="flex max-w-full min-w-0 items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-xs font-mono text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200"
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  {copied ? (
-                    <motion.div
-                      key="copied"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="flex items-center gap-1.5 text-emerald-400 font-sans"
-                    >
-                      <Check className="w-4 h-4" />
-                      <span>Email copié !</span>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="copy"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="flex min-w-0 max-w-full items-center gap-1.5"
-                    >
-                      <Copy className="w-4 h-4 text-slate-500" />
-                      <span className="truncate">{email}</span>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            </motion.div>
-
-          </motion.div>
-        </motion.div>
-        </div>
-
-        {/* Indicateur Scroll Souris Animé */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.6 }}
-          onClick={() => scrollToSection('about')}
-          aria-label="Scroll vers le bas"
-          className="absolute bottom-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2 text-slate-500 transition-colors hover:text-cyan-400"
-        >
-          <div className="flex h-9 w-5 justify-center rounded-full border-2 border-slate-700 p-1">
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-              className="h-2 w-1 rounded-full bg-cyan-400"
-            />
+      <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
+        <div className="flex items-center justify-between gap-6">
+          <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/55">
+            <span className="h-2 w-2 rounded-full bg-lime-300 shadow-[0_0_20px_rgba(190,242,100,.8)]" />
+            Available for new projects
           </div>
-        </motion.button>
+          <div className="hidden items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.28em] text-white/40 md:flex">
+            Hover the mask
+            <Sparkles size={14} />
+          </div>
+        </div>
+
+        <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
+          <div className="max-w-6xl">
+            <p className="mb-5 text-sm font-medium uppercase tracking-[0.24em] text-white/50 sm:text-base">Full Stack Developer · Madagascar</p>
+            <h1 className="font-black uppercase leading-[0.82] tracking-[-0.075em]">
+              <span className="block text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
+              <span className="block text-[clamp(4.8rem,15vw,13rem)] text-white/12 [-webkit-text-stroke:1px_rgba(255,255,255,.32)]">Moustafa</span>
+            </h1>
+
+            <div className="mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-[1.3fr_.7fr] md:items-end">
+              <p className="max-w-2xl text-lg leading-7 text-white/65 sm:text-xl sm:leading-8">
+                Je conçois des applications web et mobiles modernes, robustes et interactives avec une attention particulière portée au design, à l&apos;expérience utilisateur et aux performances.
+              </p>
+              <div className="flex flex-wrap gap-3 md:justify-end">
+                <motion.button whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => scrollToSection('projects')} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition-colors hover:bg-lime-200">
+                  Voir mes projets
+                  <ArrowUpRight size={16} />
+                </motion.button>
+                <motion.button whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => scrollToSection('contact')} className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white/10">
+                  Me contacter
+                </motion.button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-end justify-between gap-6">
+          <div className="flex items-center gap-2">
+            <motion.a whileHover={{ y: -3, scale: 1.05 }} href="https://github.com/Djamaldine09" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/65 backdrop-blur-md hover:text-white">
+              <Github size={18} />
+            </motion.a>
+            <motion.a whileHover={{ y: -3, scale: 1.05 }} href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/65 backdrop-blur-md hover:text-white">
+              <Linkedin size={18} />
+            </motion.a>
+          </div>
+
+          <button onClick={() => scrollToSection('about')} className="group flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.26em] text-white/45 hover:text-white">
+            Scroll to explore
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-transform group-hover:translate-y-1">
+              <ArrowDown size={14} />
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-24 left-1/2 z-30 -translate-x-1/2 text-center text-[9px] font-medium uppercase tracking-[0.24em] text-white/35 md:hidden">
+        Touchez l&apos;écran et déplacez votre doigt
       </div>
     </section>
   );
