@@ -115,6 +115,36 @@ function createMoonGlowTexture(THREE: any) {
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
 }
 
+function createSkyTexture(THREE: any, day: boolean, mobile: boolean) {
+  const size = mobile ? 512 : 1024, canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
+  const ctx = canvas.getContext('2d'); if (!ctx) return null;
+  const gradient = ctx.createLinearGradient(0, 0, 0, size);
+  if (day) {
+    gradient.addColorStop(0, '#2d70b7');
+    gradient.addColorStop(0.28, '#55a1d6');
+    gradient.addColorStop(0.56, '#91c9e7');
+    gradient.addColorStop(0.78, '#d8e7e6');
+    gradient.addColorStop(0.91, '#ffd6a0');
+    gradient.addColorStop(1, '#fff0cf');
+  } else {
+    gradient.addColorStop(0, '#02050b');
+    gradient.addColorStop(0.38, '#07101e');
+    gradient.addColorStop(0.7, '#0d1a2b');
+    gradient.addColorStop(0.88, '#172337');
+    gradient.addColorStop(1, '#263040');
+  }
+  ctx.fillStyle = gradient; ctx.fillRect(0, 0, size, size);
+  if (day) {
+    const sun = ctx.createRadialGradient(size * 0.72, size * 0.68, 0, size * 0.72, size * 0.68, size * 0.42);
+    sun.addColorStop(0, 'rgba(255,248,220,0.52)'); sun.addColorStop(0.18, 'rgba(255,224,165,0.24)'); sun.addColorStop(0.48, 'rgba(255,205,145,0.08)'); sun.addColorStop(1, 'rgba(255,190,120,0)');
+    ctx.fillStyle = sun; ctx.fillRect(0, 0, size, size);
+    const horizon = ctx.createLinearGradient(0, size * 0.68, 0, size);
+    horizon.addColorStop(0, 'rgba(255,206,151,0)'); horizon.addColorStop(0.5, 'rgba(255,202,145,0.12)'); horizon.addColorStop(1, 'rgba(255,238,205,0.28)');
+    ctx.fillStyle = horizon; ctx.fillRect(0, size * 0.64, size, size * 0.36);
+  }
+  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.needsUpdate = true; return texture;
+}
+
 function disposeObject(object: any) { object.traverse((child: any) => { child.geometry?.dispose?.(); const materials = Array.isArray(child.material) ? child.material : [child.material]; materials.forEach((material: any) => { material?.map?.dispose?.(); material?.bumpMap?.dispose?.(); material?.emissiveMap?.dispose?.(); material?.dispose?.(); }); }); }
 
 function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, stateRef: { current: ThreeState | null }) {
@@ -124,6 +154,7 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   const camera = new THREE.PerspectiveCamera(54, 1, 0.1, 150); camera.position.set(0, 2.15, 8.5);
   const group = new THREE.Group(); scene.add(group); const hemisphere = new THREE.HemisphereLight(0x9eabc5, 0x080604, 1.05); scene.add(hemisphere);
   const themeParts: ThemePart[] = [];
+  let skyTexture = createSkyTexture(THREE, false, mobile); if (skyTexture) scene.background = skyTexture;
 
   const moonPosition = new THREE.Vector3(7.0, 20.8, -44);
   const moonTexture = createMoonTexture(THREE, mobile);
@@ -161,7 +192,9 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   group.add(new THREE.Points(particleGeometry, themeMaterial(new THREE.PointsMaterial({ color: 0xc8a875, size: mobile ? 0.045 : 0.04, transparent: true, opacity: 0.32, depthWrite: false }), 0xc8a875, 0xffffff, themeParts)));
 
   const applyTheme = (day: boolean) => {
-    renderer.setClearColor(day ? 0x79b8e8 : 0x030508, 1);
+    renderer.setClearColor(day ? 0x8fc4e9 : 0x030508, 1);
+    if (skyTexture) skyTexture.dispose();
+    skyTexture = createSkyTexture(THREE, day, mobile); if (skyTexture) scene.background = skyTexture;
     scene.fog.color.setHex(day ? 0x8fc4e9 : 0x080a0d); scene.fog.density = day ? (mobile ? 0.018 : 0.014) : (mobile ? 0.038 : 0.03);
     hemisphere.color.setHex(day ? 0xbfe4ff : 0x9eabc5); hemisphere.groundColor.setHex(day ? 0x304d2c : 0x080604); hemisphere.intensity = day ? 1.55 : 1.05;
     moonMaterial.map = day ? undefined : moonTexture || undefined; moonMaterial.bumpMap = day ? undefined : moonTexture || undefined; moonMaterial.emissiveMap = day ? undefined : moonTexture || undefined;
@@ -228,7 +261,7 @@ export default function KageCameraExperience() {
     <section id="kage-experience" className="relative z-0 isolate h-[360vh] bg-[#040608] text-white">
       <div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden">
         <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,transparent_0%,rgba(3,5,8,0.08)_45%,rgba(3,5,8,0.68)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(38,104,168,0.02),rgba(255,219,170,0.12)_72%,rgba(255,237,208,0.22))] dark:bg-[radial-gradient(circle_at_50%_45%,transparent_0%,rgba(3,5,8,0.08)_45%,rgba(3,5,8,0.68)_100%)]" />
         <div className="relative z-10 flex h-full items-end px-5 pb-20 sm:px-8 sm:pb-24 lg:px-16 lg:pb-28">
           <div className="w-full max-w-3xl"><div className="mb-5 flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.38em] text-amber-200/75 sm:text-xs"><span className="h-px w-12 bg-amber-200/60" /><span>{current.kicker}</span></div><h2 className="max-w-3xl whitespace-pre-line text-[clamp(3.1rem,10vw,7.8rem)] font-light leading-[0.88] tracking-[-0.055em] text-white drop-shadow-2xl">{current.title}</h2><p className="mt-7 max-w-2xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:text-xl">{current.body}</p></div>
         </div>
