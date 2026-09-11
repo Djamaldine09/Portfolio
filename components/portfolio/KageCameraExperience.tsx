@@ -185,12 +185,31 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   moonLight.position.set(-8, 14, 4);
   scene.add(moonLight);
 
-  const moon = new THREE.Mesh(new THREE.SphereGeometry(2.1, mobile ? 20 : 28, mobile ? 20 : 28), new THREE.MeshBasicMaterial({ color: 0xe8dfc7 }));
-  moon.position.set(8, 11, -46);
+  // Realistic moon: higher in the sky, with a bright core and layered atmospheric glow.
+  const moon = new THREE.Mesh(
+    new THREE.SphereGeometry(2.35, mobile ? 24 : 36, mobile ? 24 : 36),
+    new THREE.MeshStandardMaterial({ color: 0xf4eee0, roughness: 0.92, metalness: 0, emissive: 0x8d877b, emissiveIntensity: 0.22 }),
+  );
+  moon.position.set(8, 14.5, -46);
   scene.add(moon);
-  const glow = new THREE.Mesh(new THREE.SphereGeometry(3.4, 16, 16), new THREE.MeshBasicMaterial({ color: 0x8b8171, transparent: true, opacity: 0.07, depthWrite: false }));
-  glow.position.copy(moon.position);
-  scene.add(glow);
+
+  const moonGlowOuter = new THREE.Mesh(
+    new THREE.SphereGeometry(5.8, mobile ? 16 : 24, mobile ? 16 : 24),
+    new THREE.MeshBasicMaterial({ color: 0xbcc7d9, transparent: true, opacity: mobile ? 0.055 : 0.075, depthWrite: false, blending: THREE.AdditiveBlending }),
+  );
+  moonGlowOuter.position.copy(moon.position);
+  scene.add(moonGlowOuter);
+
+  const moonGlowInner = new THREE.Mesh(
+    new THREE.SphereGeometry(3.65, mobile ? 16 : 24, mobile ? 16 : 24),
+    new THREE.MeshBasicMaterial({ color: 0xe7dfcb, transparent: true, opacity: mobile ? 0.09 : 0.12, depthWrite: false, blending: THREE.AdditiveBlending }),
+  );
+  moonGlowInner.position.copy(moon.position);
+  scene.add(moonGlowInner);
+
+  const moonLightSource = new THREE.PointLight(0xdfe8ff, mobile ? 0.65 : 0.9, 34, 2);
+  moonLightSource.position.copy(moon.position);
+  scene.add(moonLightSource);
 
   const depth = mobile ? 88 : 108;
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(34, depth, 1, 12), new THREE.MeshStandardMaterial({ color: 0x11100f, roughness: 1 }));
