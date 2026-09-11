@@ -99,6 +99,7 @@ export default function KageExperience() {
       const h = canvas.clientHeight;
       smoothX += (pointerX - smoothX) * (reduced ? 0.025 : 0.065);
       smoothY += (pointerY - smoothY) * (reduced ? 0.025 : 0.065);
+      targetCamera = progressRef.current * 0.95;
       camera += (targetCamera - camera) * (reduced ? 0.045 : 0.075);
 
       ctx.clearRect(0, 0, w, h);
@@ -130,14 +131,13 @@ export default function KageExperience() {
       ctx.arc(moonX, moonY, Math.min(w, h) * 0.048, 0, TAU);
       ctx.fill();
 
-      drawMountain(w, h, 0.66, h * 0.055, smoothX * 2.5, '#060910');
-      drawMountain(w, h, 0.73, h * 0.075, smoothX * 3.5 + 1, '#080a0e');
-      drawMountain(w, h, 0.81, h * 0.065, smoothX * 4.8 + 3, '#0a090b');
+      drawMountain(w, h, 0.66, h * 0.055, smoothX * 2.5 + camera * 0.35, '#060910');
+      drawMountain(w, h, 0.73, h * 0.075, smoothX * 3.5 + 1 + camera * 0.55, '#080a0e');
+      drawMountain(w, h, 0.81, h * 0.065, smoothX * 4.8 + 3 + camera * 0.8, '#0a090b');
 
-      // The camera advances through a long perspective corridor as the user scrolls.
       const cx = w * 0.5 + (smoothX - 0.5) * 95;
       const horizon = h * 0.64;
-      const cameraShift = camera * 0.92;
+      const cameraShift = camera * 1.05;
       const pathPulse = reduced ? 0 : Math.sin(time * 0.00045) * 0.008;
       ctx.fillStyle = 'rgba(24,20,18,.82)';
       ctx.beginPath();
@@ -148,7 +148,6 @@ export default function KageExperience() {
       ctx.closePath();
       ctx.fill();
 
-      // Depth rails make the forward movement readable even between gates.
       for (let side = -1; side <= 1; side += 2) {
         ctx.beginPath();
         for (let i = 0; i <= 20; i++) {
@@ -163,8 +162,6 @@ export default function KageExperience() {
         ctx.stroke();
       }
 
-      // World-space torii. Their z position is advanced by the camera and wrapped,
-      // so gates continuously approach the viewer and disappear behind the camera.
       for (let i = 0; i < 10; i++) {
         const worldZ = i / 10;
         let depth = (worldZ - cameraShift) % 1;
@@ -186,7 +183,6 @@ export default function KageExperience() {
         ctx.moveTo(cx - half - 10 * perspective + lean, y - height);
         ctx.lineTo(cx + half + 10 * perspective + lean, y - height);
         ctx.stroke();
-
         if (perspective > 0.72) {
           ctx.strokeStyle = `rgba(225,181,123,${alpha * 0.16})`;
           ctx.lineWidth = 1;
@@ -269,9 +265,9 @@ export default function KageExperience() {
       if (!el) return;
       const total = Math.max(el.offsetHeight - window.innerHeight, 1);
       const p = Math.min(1, Math.max(0, -el.getBoundingClientRect().top / total));
-      targetCamera = p * 3.2;
       setProgress(p);
       setChapter(Math.min(chapters.length - 1, Math.floor(p * chapters.length)));
+      progressRef.current = p;
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
