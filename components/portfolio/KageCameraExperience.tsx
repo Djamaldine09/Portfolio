@@ -69,6 +69,7 @@ function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: 
   const foliageMid = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x06180d, roughness: 0.98 }), 0x06180d, 0x246336, themeParts);
   const foliageLight = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x0a2112, roughness: 0.96 }), 0x0a2112, 0x397842, themeParts);
 
+  // Organic trunk: several tapered segments with tiny bends so the silhouette never looks perfectly manufactured.
   const trunk = new THREE.Group();
   const trunkSegments = mobile ? 3 : 4;
   let trunkX = 0;
@@ -88,6 +89,7 @@ function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: 
   }
   root.add(trunk);
 
+  // Smooth foliage volumes plus curved branches: no cones and no faceted icosahedrons.
   const foliageGeometry = new THREE.SphereGeometry(1, mobile ? 8 : 12, mobile ? 6 : 9);
   const twigGeometry = new THREE.SphereGeometry(1, mobile ? 6 : 8, mobile ? 5 : 6);
 
@@ -145,6 +147,7 @@ function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: 
     }
   }
 
+  // Asymmetric crown and loose upper shoots avoid the artificial Christmas-tree cone.
   const crown = new THREE.Mesh(foliageGeometry, foliageLight);
   crown.position.set(trunkX + (Math.random() - 0.5) * 0.16, 5.65 + Math.random() * 0.18, trunkZ + (Math.random() - 0.5) * 0.16);
   crown.scale.set(0.48 + Math.random() * 0.16, 0.82 + Math.random() * 0.2, 0.46 + Math.random() * 0.15);
