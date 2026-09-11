@@ -8,7 +8,6 @@ import ScrollTextLines from '@/components/portfolio/ScrollTextLines';
 import ScrollTimelinePro from '@/components/portfolio/ScrollTimelinePro';
 import ShaderFlow from '@/components/portfolio/ShaderFlow';
 import FlipBook3D from '@/components/portfolio/FlipBook3D';
-import HoverMask from '@/components/portfolio/HoverMask';
 import Skills from '@/components/portfolio/Skills';
 import Contact from '@/components/portfolio/Contact';
 import Footer from '@/components/portfolio/Footer';
@@ -33,7 +32,6 @@ export default function Portfolio() {
         <ScrollTimelinePro />
         <ShaderFlow />
         <FlipBook3D />
-        <HoverMask />
         <div className="bg-[#0a0f0d] pt-16 sm:pt-24 lg:pt-28">
           <ScrollTextLines />
         </div>
