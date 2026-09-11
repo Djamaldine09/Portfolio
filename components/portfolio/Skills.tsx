@@ -191,11 +191,10 @@ export default function Skills() {
               initial={reducedMotion ? false : { y: '-50%', opacity: 0 }}
               animate={{ y: '-50%', opacity: 1 }}
               transition={{ duration: reducedMotion ? 0 : 0.7, delay: reducedMotion ? 0 : 0.15 }}
-              className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 text-center"
+              className="absolute left-1/2 top-1/2 z-10 w-full -translate-x-1/2 px-4 text-center"
             >
-              <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.5em] text-white/60">0{activeSection + 1} / 03</p>
-              <h4 className="text-6xl font-light tracking-tight text-white drop-shadow-2xl sm:text-7xl md:text-8xl lg:text-9xl">{current.heading}</h4>
-              <p className="mx-auto mt-5 max-w-md text-sm leading-6 text-white/75 drop-shadow-lg sm:text-base">{current.text}</p>
+              <h4 className="text-5xl font-light leading-none tracking-tight text-white drop-shadow-2xl sm:text-7xl md:text-8xl lg:text-9xl">{current.heading}</h4>
+              <p className="mx-auto mt-4 max-w-[18rem] text-xs leading-5 text-white/75 drop-shadow-lg sm:mt-5 sm:max-w-md sm:text-base sm:leading-6">{current.text}</p>
             </motion.div>
 
             <div className="absolute bottom-7 left-1/2 z-10 flex -translate-x-1/2 gap-2">
