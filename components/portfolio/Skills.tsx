@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion';
 import { Image as ImageIcon, Sparkles } from 'lucide-react';
 
 const skills = [
@@ -33,11 +33,16 @@ const animatedSections = [
 
 export default function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
+  const animatedScrollRef = useRef<HTMLDivElement>(null);
   const animatedRef = useRef<HTMLDivElement>(null);
-  const wheelLock = useRef(false);
   const [isVisible, setIsVisible] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+
+  const { scrollYProgress } = useScroll({
+    target: animatedScrollRef,
+    offset: ['start start', 'end end'],
+  });
 
   const pointer = useMotionValue(0);
   const smoothPointer = useSpring(pointer, { stiffness: 80, damping: 22, mass: 0.8 });
@@ -58,31 +63,14 @@ export default function Skills() {
   }, []);
 
   useEffect(() => {
-    const element = animatedRef.current;
-    if (!element) return;
-
-    const handleWheel = (event: WheelEvent) => {
-      if (Math.abs(event.deltaY) < 8 || wheelLock.current) return;
-
-      const direction = event.deltaY > 0 ? 1 : -1;
-      const next = activeSection + direction;
-
-      // The animation owns the scroll only while another slide remains.
-      // Once the third slide is reached, the page is allowed to continue to Contact.
-      if (next < 0 || next >= animatedSections.length) return;
-
-      event.preventDefault();
-      wheelLock.current = true;
+    return scrollYProgress.on('change', (progress) => {
+      const next = Math.min(
+        animatedSections.length - 1,
+        Math.floor(progress * animatedSections.length),
+      );
       setActiveSection(next);
-
-      window.setTimeout(() => {
-        wheelLock.current = false;
-      }, reducedMotion ? 120 : 850);
-    };
-
-    element.addEventListener('wheel', handleWheel, { passive: false });
-    return () => element.removeEventListener('wheel', handleWheel);
-  }, [activeSection, reducedMotion]);
+    });
+  }, [scrollYProgress]);
 
   const current = animatedSections[activeSection];
 
@@ -144,16 +132,18 @@ export default function Skills() {
           <h3 className="text-4xl font-bold sm:text-5xl">About Parallax scroll</h3>
         </div>
 
-        <div
-          ref={animatedRef}
-          onMouseMove={(event) => {
-            const rect = event.currentTarget.getBoundingClientRect();
-            pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1);
-          }}
-          onMouseLeave={() => pointer.set(0)}
-          className="relative h-[68vh] min-h-[520px] max-h-[820px] overflow-hidden rounded-none bg-black sm:rounded-[2rem]"
-          aria-label="Animated Section About Parallax scroll"
-        >
+        <div ref={animatedScrollRef} className="relative min-h-[260vh]">
+          <div className="sticky top-0 flex h-screen items-center justify-center">
+            <div
+              ref={animatedRef}
+              onMouseMove={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect();
+                pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1);
+              }}
+              onMouseLeave={() => pointer.set(0)}
+              className="relative h-[68vh] min-h-[520px] max-h-[820px] w-full overflow-hidden rounded-none bg-black sm:rounded-[2rem]"
+              aria-label="Animated Section About Parallax scroll"
+            >
           <motion.div
             className="absolute inset-0"
             key={activeSection}
@@ -214,6 +204,8 @@ export default function Skills() {
               ))}
             </div>
           </motion.div>
+            </div>
+          </div>
         </div>
 
         <p className="mt-5 text-center text-xs uppercase tracking-[0.25em] text-slate-600">Scroll pour découvrir · 3 transitions · puis Contact</p>
