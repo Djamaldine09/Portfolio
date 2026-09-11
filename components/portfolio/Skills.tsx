@@ -1,145 +1,85 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { Blend, Box, CircleDot, Columns2, Grid2X2, Image as ImageIcon, Layers3, MousePointer2, Move3D, PanelTop, Sparkles } from 'lucide-react';
+
+const skills = [
+  { title: 'Frontend', description: 'Interfaces modernes, rapides et responsives.', technologies: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS'], image: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1200' },
+  { title: 'Backend', description: 'APIs robustes et architectures adaptées aux besoins.', technologies: ['Node.js', 'Python', 'PostgreSQL', 'MongoDB'], image: 'https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=1200' },
+  { title: 'DevOps & Outils', description: 'Déploiement, versioning et automatisation.', technologies: ['Git', 'GitHub', 'Docker', 'CI/CD', 'AWS'], image: 'https://images.pexels.com/photos/325229/pexels-photo-325229.jpeg?auto=compress&cs=tinysrgb&w=1200' },
+];
+
+const revealStyles = [
+  { label: 'Curtain', icon: PanelTop }, { label: 'Double curtain', icon: Columns2 }, { label: 'Triple curtain', icon: Layers3 }, { label: 'Split columns', icon: Columns2 },
+  { label: 'Split rows', icon: CircleDot }, { label: 'Bi-parting doors', icon: Move3D }, { label: '2×2 grid', icon: Grid2X2 }, { label: 'Clip reveal', icon: Box },
+];
 
 export default function Skills() {
-  const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start end', 'end start'] });
+  const imageY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%']);
+  const imageScale = useTransform(scrollYProgress, [0, 0.5, 1], [1.08, 1, 1.08]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), { threshold: 0.12 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
-  const skillCategories = [
-    {
-      title: 'Frontend',
-      skills: [
-        { name: 'React / Next.js', level: 95 },
-        { name: 'TypeScript', level: 90 },
-        { name: 'TailwindCSS', level: 95 },
-        { name: 'Vue.js', level: 85 },
-      ],
-    },
-    {
-      title: 'Backend',
-      skills: [
-        { name: 'Node.js', level: 90 },
-        { name: 'Python', level: 85 },
-        { name: 'PostgreSQL', level: 88 },
-        { name: 'MongoDB', level: 82 },
-      ],
-    },
-    {
-      title: 'DevOps & Outils',
-      skills: [
-        { name: 'Git / GitHub', level: 92 },
-        { name: 'Docker', level: 85 },
-        { name: 'CI/CD', level: 80 },
-        { name: 'AWS', level: 78 },
-      ],
-    },
-  ];
-
   return (
-    <section
-      id="skills"
-      ref={sectionRef}
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900"
-    >
-      <div className="max-w-7xl mx-auto">
-        <div
-          className={`text-center mb-16 transform transition-all duration-1000 ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}
-        >
-          <h2 className="text-4xl font-bold mb-4">
-            Mes{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              Compétences
-            </span>
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
-            Technologies et outils que je maîtrise
-          </p>
+    <section id="skills" ref={sectionRef} className="relative overflow-hidden bg-[#0a0f0d] py-24 text-white sm:py-32">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(6,182,212,0.12),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(59,130,246,0.10),transparent_30%)]" />
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className={`mb-16 max-w-4xl transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+          <div className="mb-5 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.25em] text-cyan-400"><Sparkles className="h-4 w-4" />Mon savoir-faire</div>
+          <h2 className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">Mes <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">Compétences</span></h2>
+          <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300 sm:text-xl">Je conçois des expériences web modernes en combinant développement, animation et direction visuelle. Mes interfaces utilisent le scroll, le mouvement et le parallaxe pour donner vie aux contenus sans sacrifier les performances.</p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {skillCategories.map((category, categoryIndex) => (
-            <Card
-              key={categoryIndex}
-              className={`hover:shadow-xl transition-all duration-500 border-2 hover:border-blue-200 transform ${
-                isVisible
-                  ? 'translate-y-0 opacity-100'
-                  : 'translate-y-10 opacity-0'
-              }`}
-              style={{ transitionDelay: `${categoryIndex * 150}ms` }}
-            >
-              <CardHeader>
-                <CardTitle className="text-xl bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-                  {category.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {category.skills.map((skill, skillIndex) => (
-                  <div
-                    key={skillIndex}
-                    className="transform transition-all duration-300 hover:translate-x-2"
-                  >
-                    <div className="flex justify-between mb-2">
-                      <span className="font-medium text-gray-700 dark:text-slate-200">{skill.name}</span>
-                      <span className="text-sm text-gray-500 dark:text-slate-400">{skill.level}%</span>
-                    </div>
-                    <div className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-blue-600 to-cyan-600 rounded-full transition-all duration-1000 ease-out"
-                        style={{
-                          width: isVisible ? `${skill.level}%` : '0%',
-                          transitionDelay: `${(categoryIndex * 150) + (skillIndex * 100)}ms`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div
-          className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 transform transition-all duration-1000 delay-500 ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}
-        >
-          {[
-            { label: 'Projets Complétés', value: '50+' },
-            { label: 'Années d\'Expérience', value: '5+' },
-            { label: 'Clients Satisfaits', value: '30+' },
-            { label: 'Taux de Satisfaction', value: '100%' },
-          ].map((stat, index) => (
-            <div
-              key={index}
-              className="text-center p-6 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-700 rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105"
-            >
-              <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-                {stat.value}
+        <div className="mb-24 grid gap-8 lg:grid-cols-3">
+          {skills.map((skill, index) => (
+            <motion.article key={skill.title} initial={{ opacity: 0, y: 50 }} animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }} transition={{ duration: 0.7, delay: index * 0.15 }} className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl backdrop-blur-sm">
+              <div className="relative h-64 overflow-hidden">
+                <motion.img src={skill.image} alt={skill.title} style={{ y: imageY, scale: imageScale }} className="absolute inset-0 h-[116%] w-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0d] via-[#0a0f0d]/30 to-transparent" />
+                <span className="absolute bottom-5 left-5 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-xs font-mono text-cyan-300 backdrop-blur-md">0{index + 1}</span>
               </div>
-              <div className="text-sm text-gray-600 dark:text-slate-300">{stat.label}</div>
-            </div>
+              <div className="p-6 sm:p-7">
+                <h3 className="text-2xl font-semibold">{skill.title}</h3>
+                <p className="mt-2 text-slate-400">{skill.description}</p>
+                <div className="mt-6 flex flex-wrap gap-2">{skill.technologies.map((technology) => <span key={technology} className="rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-sm text-cyan-200 transition-colors group-hover:border-cyan-400/40">{technology}</span>)}</div>
+              </div>
+            </motion.article>
           ))}
+        </div>
+
+        <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div>
+            <div className="mb-5 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400"><ImageIcon className="h-4 w-4" />Scroll Reveal + Parallax</div>
+            <h3 className="text-3xl font-bold sm:text-4xl">Des images qui prennent vie au fil du scroll.</h3>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:text-lg">J’intègre des révélations éditoriales, du scroll scrub et un parallaxe subtil pour créer une navigation immersive. Les effets restent fluides, responsives et respectueux des préférences de réduction des mouvements.</p>
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {revealStyles.map(({ label, icon: Icon }, index) => <div key={label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/40 hover:bg-white/[0.07]"><Icon className="mb-3 h-5 w-5 text-cyan-400" /><span className="text-xs leading-4 text-slate-300">{label}</span><span className="mt-2 block font-mono text-[10px] text-slate-600">0{index + 1}</span></div>)}
+            </div>
+          </div>
+
+          <div className="relative mx-auto w-full max-w-xl">
+            <div className="absolute -inset-5 rounded-[2rem] bg-cyan-400/10 blur-3xl" />
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900 shadow-2xl">
+              <motion.div style={{ y: imageY, scale: imageScale }} className="absolute inset-[-8%]"><img src="https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="Développement web et animation" className="h-full w-full object-cover" /></motion.div>
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-950/40 via-transparent to-cyan-950/70" />
+              <div className="absolute inset-0 flex items-center justify-center"><div className="rounded-2xl border border-white/20 bg-black/30 px-6 py-5 text-center shadow-2xl backdrop-blur-xl"><Blend className="mx-auto mb-3 h-7 w-7 text-cyan-300" /><p className="font-mono text-sm text-cyan-200">SCROLL / REVEAL / PARALLAX</p><p className="mt-1 text-xs text-slate-400">Motion pensé pour le web</p></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-20 flex flex-wrap items-center justify-center gap-x-10 gap-y-4 border-t border-white/10 pt-8 text-sm text-slate-400">
+          <span className="inline-flex items-center gap-2"><MousePointer2 className="h-4 w-4 text-cyan-400" />Scroll scrub</span>
+          <span className="inline-flex items-center gap-2"><Move3D className="h-4 w-4 text-cyan-400" />Parallax X / Y</span>
+          <span className="inline-flex items-center gap-2"><Box className="h-4 w-4 text-cyan-400" />Responsive</span>
+          <span className="inline-flex items-center gap-2"><Sparkles className="h-4 w-4 text-cyan-400" />Reduced motion</span>
         </div>
       </div>
     </section>
