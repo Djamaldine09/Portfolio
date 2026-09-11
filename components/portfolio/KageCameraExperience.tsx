@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 
 const chapters = [
   { kicker: '01 / ENTER', title: 'Bienvenue\ndans la nuit.', body: 'Une traversée 3D immersive où la caméra avance réellement dans un paysage nocturne japonais.' },
-  { kicker: '02 / CRAFT', title: 'Design qui\nprend vie.', body: 'Torii, lanternes, arbres, montagne et brume possèdent une vraie profondeur WebGL.' },
-  { kicker: '03 / EXPERIMENT', title: 'Code. 3D.\nInteraction.', body: 'Le scroll pilote la caméra et le pointeur ajoute une subtile sensation de mouvement.' },
+  { kicker: '02 / CRAFT', title: 'Design qui\nprend vie.', body: 'Torii, lanternes, arbres, montagnes, nuages et brume possèdent une vraie profondeur WebGL.' },
+  { kicker: '03 / EXPERIMENT', title: 'Code. 3D.\nInteraction.', body: 'Le scroll pilote la caméra tandis que le vent anime les feuilles et les nuages au loin.' },
   { kicker: '04 / WORK', title: 'Entre dans\nmes projets.', body: 'La scène se termine naturellement avant de laisser place au reste de ton portfolio.' },
 ];
 
-type ThreeState = { renderer: any; scene: any; camera: any; group: any };
+type LeafData = { x: number; y: number; z: number; phase: number; speed: number; drift: number; size: number; rotation: number };
+type CloudData = { group: any; baseX: number; speed: number; phase: number };
+type ThreeState = { renderer: any; scene: any; camera: any; group: any; leaves: any; leafData: LeafData[]; clouds: CloudData[] };
 type ThreeWindow = Window & { THREE?: any };
 
 function loadThree(): Promise<any> {
@@ -90,7 +92,71 @@ function createTree(THREE: any, scale: number) {
   return root;
 }
 
-function disposeObject(THREE: any, object: any) {
+function createMountain(THREE: any, x: number, z: number, scale: number, color: number) {
+  const root = new THREE.Group();
+  const mountainMaterial = new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true });
+  const mountain = new THREE.Mesh(new THREE.ConeGeometry(7 * scale, 11 * scale, 32, 3), mountainMaterial);
+  mountain.position.y = 5.5 * scale;
+  mountain.rotation.y = 0.35;
+  root.add(mountain);
+
+  const ridge = new THREE.Mesh(
+    new THREE.ConeGeometry(3.2 * scale, 5.4 * scale, 16, 2),
+    new THREE.MeshStandardMaterial({ color: 0x111722, roughness: 1, flatShading: true }),
+  );
+  ridge.position.set(-1.7 * scale, 2.6 * scale, 1.5 * scale);
+  ridge.rotation.z = -0.08;
+  root.add(ridge);
+  root.position.set(x, 0, z);
+  return root;
+}
+
+function createCloud(THREE: any, x: number, y: number, z: number, scale: number, mobile: boolean) {
+  const root = new THREE.Group();
+  const material = new THREE.MeshBasicMaterial({ color: 0xaeb9c7, transparent: true, opacity: mobile ? 0.085 : 0.105, depthWrite: false });
+  const parts = mobile ? 3 : 5;
+  for (let i = 0; i < parts; i += 1) {
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.5 + (i % 2) * 0.45, mobile ? 10 : 14, mobile ? 8 : 10), material);
+    sphere.position.set((i - (parts - 1) / 2) * 1.25, Math.sin(i * 1.7) * 0.35, Math.cos(i * 1.2) * 0.35);
+    sphere.scale.y = 0.42 + (i % 2) * 0.08;
+    root.add(sphere);
+  }
+  root.position.set(x, y, z);
+  root.scale.setScalar(scale);
+  return root;
+}
+
+function createLeaves(THREE: any, mobile: boolean, depth: number) {
+  const count = mobile ? 28 : 65;
+  const geometry = new THREE.PlaneGeometry(0.32, 0.16);
+  const material = new THREE.MeshBasicMaterial({ color: 0x7e6b4b, transparent: true, opacity: 0.88, side: THREE.DoubleSide, depthWrite: false });
+  const mesh = new THREE.InstancedMesh(geometry, material, count);
+  const data: LeafData[] = [];
+  const dummy = new THREE.Object3D();
+
+  for (let i = 0; i < count; i += 1) {
+    const item: LeafData = {
+      x: (Math.random() - 0.5) * 11,
+      y: 0.8 + Math.random() * 7.5,
+      z: -8 - Math.random() * (depth - 8),
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.55 + Math.random() * 0.8,
+      drift: 0.7 + Math.random() * 1.3,
+      size: 0.55 + Math.random() * 0.8,
+      rotation: Math.random() * Math.PI,
+    };
+    data.push(item);
+    dummy.position.set(item.x, item.y, item.z);
+    dummy.rotation.set(Math.random(), item.rotation, Math.random());
+    dummy.scale.set(item.size, item.size, item.size);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i, dummy.matrix);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  return { mesh, data };
+}
+
+function disposeObject(object: any) {
   object.traverse((child: any) => {
     child.geometry?.dispose?.();
     const materials = Array.isArray(child.material) ? child.material : [child.material];
@@ -98,7 +164,7 @@ function disposeObject(THREE: any, object: any) {
   });
 }
 
-function createScene(THREE: any, canvas: HTMLCanvasElement, reduced: boolean, mobile: boolean, stateRef: { current: ThreeState | null }) {
+function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, stateRef: { current: ThreeState | null }) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.35));
   renderer.setClearColor(0x040608, 1);
@@ -107,7 +173,7 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, reduced: boolean, mo
   renderer.toneMappingExposure = 1.05;
 
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x080a0d, mobile ? 0.04 : 0.032);
+  scene.fog = new THREE.FogExp2(0x080a0d, mobile ? 0.038 : 0.03);
 
   const camera = new THREE.PerspectiveCamera(54, 1, 0.1, 150);
   camera.position.set(0, 2.15, 8.5);
@@ -122,7 +188,7 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, reduced: boolean, mo
   const moon = new THREE.Mesh(new THREE.SphereGeometry(2.1, mobile ? 20 : 28, mobile ? 20 : 28), new THREE.MeshBasicMaterial({ color: 0xe8dfc7 }));
   moon.position.set(8, 11, -46);
   scene.add(moon);
-  const glow = new THREE.Mesh(new THREE.SphereGeometry(3.4, 16, 16), new THREE.MeshBasicMaterial({ color: 0x8b8171, transparent: true, opacity: 0.07 }));
+  const glow = new THREE.Mesh(new THREE.SphereGeometry(3.4, 16, 16), new THREE.MeshBasicMaterial({ color: 0x8b8171, transparent: true, opacity: 0.07, depthWrite: false }));
   glow.position.copy(moon.position);
   scene.add(glow);
 
@@ -165,14 +231,31 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, reduced: boolean, mo
     }
   }
 
-  const mountainMat = (color: number) => new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true });
-  [[-11, -52, 1.6, 0x090d13], [1, -60, 2.15, 0x070a10], [13, -55, 1.7, 0x090b10]].forEach(([x, z, s, color]) => {
-    const mountain = new THREE.Mesh(new THREE.ConeGeometry(7 * (s as number), 7 * (s as number), 7), mountainMat(color as number));
-    mountain.position.set(x as number, 3.5 * (s as number), z as number);
-    group.add(mountain);
+  const mountainSpecs: [number, number, number, number][] = [
+    [-13, -49, 1.55, 0x0b1018],
+    [-3, -58, 2.25, 0x070b12],
+    [9, -53, 1.85, 0x0a0e16],
+    [17, -68, 2.3, 0x080b11],
+  ];
+  mountainSpecs.forEach(([x, z, scale, color]) => group.add(createMountain(THREE, x, z, scale, color)));
+
+  const clouds: CloudData[] = [];
+  const cloudSpecs: [number, number, number, number, number][] = [
+    [-8, 8.5, -42, 1.6, 0.9],
+    [6, 9.8, -50, 1.9, 0.7],
+    [-3, 11.5, -62, 2.2, 0.5],
+    [11, 8.2, -70, 1.7, 0.35],
+  ];
+  cloudSpecs.forEach(([x, y, z, scale, speed], index) => {
+    const cloud = createCloud(THREE, x, y, z, scale, mobile);
+    group.add(cloud);
+    clouds.push({ group: cloud, baseX: x, speed, phase: index * 1.8 });
   });
 
-  const particleCount = mobile ? 180 : 360;
+  const leafSet = createLeaves(THREE, mobile, depth);
+  group.add(leafSet.mesh);
+
+  const particleCount = mobile ? 120 : 260;
   const positions = new Float32Array(particleCount * 3);
   for (let i = 0; i < particleCount; i += 1) {
     positions[i * 3] = (Math.random() - 0.5) * 28;
@@ -181,7 +264,7 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, reduced: boolean, mo
   }
   const particleGeometry = new THREE.BufferGeometry();
   particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  group.add(new THREE.Points(particleGeometry, new THREE.PointsMaterial({ color: 0xc8a875, size: mobile ? 0.045 : 0.04, transparent: true, opacity: 0.4, depthWrite: false })));
+  group.add(new THREE.Points(particleGeometry, new THREE.PointsMaterial({ color: 0xc8a875, size: mobile ? 0.045 : 0.04, transparent: true, opacity: 0.32, depthWrite: false })));
 
   const resize = () => {
     const width = Math.max(1, canvas.clientWidth || window.innerWidth);
@@ -193,11 +276,11 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, reduced: boolean, mo
   resize();
   const observer = new ResizeObserver(resize);
   observer.observe(canvas);
-  stateRef.current = { renderer, scene, camera, group };
+  stateRef.current = { renderer, scene, camera, group, leaves: leafSet.mesh, leafData: leafSet.data, clouds };
 
   return () => {
     observer.disconnect();
-    disposeObject(THREE, scene);
+    disposeObject(scene);
     renderer.dispose();
     stateRef.current = null;
   };
@@ -231,7 +314,14 @@ export default function KageCameraExperience() {
       setChapter((current) => (current === nextChapter ? current : nextChapter));
     };
 
-    const onScroll = () => requestAnimationFrame(updateProgress);
+    let scrollRaf = 0;
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        updateProgress();
+      });
+    };
     updateProgress();
 
     const pointerMove = (event: PointerEvent) => {
@@ -248,13 +338,16 @@ export default function KageCameraExperience() {
       try {
         const THREE = await loadThree();
         if (disposed) return;
-        cleanup = createScene(THREE, canvas, reduced, mobile, stateRef);
+        cleanup = createScene(THREE, canvas, mobile, stateRef);
         setReady(true);
 
+        const clock = new THREE.Clock();
+        const dummy = new THREE.Object3D();
         const animate = () => {
           if (disposed) return;
           const state = stateRef.current;
           if (state && visible) {
+            const elapsed = clock.getElapsedTime();
             const p = progressRef.current;
             const targetZ = 8.5 - p * (mobile ? 82 : 102);
             const targetY = 2.15 + Math.sin(p * Math.PI) * 0.3;
@@ -264,6 +357,27 @@ export default function KageCameraExperience() {
             state.camera.position.z += (targetZ - state.camera.position.z) * 0.08;
             state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035;
             state.camera.rotation.x += (pointerRef.current.y * -0.008 - state.camera.rotation.x) * 0.035;
+
+            if (!reduced) {
+              state.clouds.forEach((cloud) => {
+                cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5;
+                cloud.group.position.y += Math.sin(elapsed * 0.12 + cloud.phase) * 0.0007;
+              });
+
+              state.leafData.forEach((leaf, index) => {
+                const wind = elapsed * leaf.speed + leaf.phase;
+                const x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed;
+                const y = leaf.y + Math.sin(wind * 1.35) * 0.28;
+                const z = leaf.z + Math.cos(wind * 0.7) * 0.55;
+                dummy.position.set(x > 8 ? x - 16 : x, y, z);
+                dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7);
+                dummy.scale.set(leaf.size, leaf.size, leaf.size);
+                dummy.updateMatrix();
+                state.leaves.setMatrixAt(index, dummy.matrix);
+              });
+              state.leaves.instanceMatrix.needsUpdate = true;
+            }
+
             state.renderer.render(state.scene, state.camera);
           }
           raf = requestAnimationFrame(animate);
@@ -281,6 +395,7 @@ export default function KageCameraExperience() {
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);
+      cancelAnimationFrame(scrollRaf);
       window.removeEventListener('scroll', onScroll);
       if (!mobile) window.removeEventListener('pointermove', pointerMove);
       visibilityObserver.disconnect();
