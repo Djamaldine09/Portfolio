@@ -6,7 +6,7 @@ import About from '@/components/portfolio/About';
 import Projects from '@/components/portfolio/Projects';
 import ScrollTextLines from '@/components/portfolio/ScrollTextLines';
 import ScrollTimelinePro from '@/components/portfolio/ScrollTimelinePro';
-import KageExperience from '@/components/portfolio/KageExperience';
+import KageCameraExperience from '@/components/portfolio/KageCameraExperience';
 import Skills from '@/components/portfolio/Skills';
 import Contact from '@/components/portfolio/Contact';
 import Footer from '@/components/portfolio/Footer';
@@ -27,7 +27,7 @@ export default function Portfolio() {
         <Navigation />
         <Hero />
         <About />
-        <KageExperience />
+        <KageCameraExperience />
         <Projects />
         <ScrollTimelinePro />
         <div className="bg-[#0a0f0d] pt-16 sm:pt-24 lg:pt-28">
