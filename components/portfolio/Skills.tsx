@@ -75,7 +75,7 @@ export default function Skills() {
   const current = animatedSections[activeSection];
 
   return (
-    <section id="skills" ref={sectionRef} className="relative overflow-hidden bg-[#0a0f0d] py-24 text-white sm:py-32">
+    <section id="skills" ref={sectionRef} className="relative bg-[#0a0f0d] py-24 text-white sm:py-32">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(6,182,212,0.12),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(59,130,246,0.10),transparent_30%)]" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -132,7 +132,7 @@ export default function Skills() {
           <h3 className="text-4xl font-bold sm:text-5xl">About Parallax scroll</h3>
         </div>
 
-        <div ref={animatedScrollRef} className="relative min-h-[260vh]">
+        <div ref={animatedScrollRef} className="relative min-h-[300vh]">
           <div className="sticky top-0 flex h-screen items-center justify-center">
             <div
               ref={animatedRef}
