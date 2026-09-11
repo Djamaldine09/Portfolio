@@ -61,108 +61,126 @@ function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) 
   return root;
 }
 
+const KAGE_PBR = {
+  bark: {
+    map: 'https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01_bark_diff_1k.jpg',
+    normal: 'https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01_bark_nor_gl_1k.jpg',
+    roughness: 'https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01_bark_rough_1k.jpg',
+  },
+  twig: {
+    map: 'https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01_twig_diff_1k.jpg',
+    alpha: 'https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01_twig_alpha_1k.jpg',
+    normal: 'https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01_twig_nor_gl_1k.jpg',
+    roughness: 'https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/pine_tree_01_twig_rough_1k.jpg',
+  },
+};
+
+let kagePBRPromise: Promise<any> | null = null;
+
+function loadKagePBR(THREE: any) {
+  if (kagePBRPromise) return kagePBRPromise;
+  kagePBRPromise = new Promise((resolve) => {
+    const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin('anonymous');
+    const load = (url: string, color = false) => new Promise<any>((done) => {
+      loader.load(url, (texture: any) => {
+        if (color) texture.colorSpace = THREE.SRGBColorSpace;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.anisotropy = 4;
+        done(texture);
+      }, undefined, () => done(null));
+    });
+    Promise.all([
+      load(KAGE_PBR.bark.map, true), load(KAGE_PBR.bark.normal), load(KAGE_PBR.bark.roughness),
+      load(KAGE_PBR.twig.map, true), load(KAGE_PBR.twig.alpha), load(KAGE_PBR.twig.normal), load(KAGE_PBR.twig.roughness),
+    ]).then(([barkMap, barkNormal, barkRough, twigMap, twigAlpha, twigNormal, twigRough]) => resolve({ barkMap, barkNormal, barkRough, twigMap, twigAlpha, twigNormal, twigRough }));
+  });
+  return kagePBRPromise;
+}
+
 function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: boolean) {
   const root = new THREE.Group();
-  const trunkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x130d09, roughness: 0.96, metalness: 0 }), 0x130d09, 0x4d2e1c, themeParts);
-  const barkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x24150d, roughness: 1 }), 0x24150d, 0x6b4327, themeParts);
-  const foliageDark = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x03100a, roughness: 0.98 }), 0x03100a, 0x174a26, themeParts);
-  const foliageMid = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x06180d, roughness: 0.98 }), 0x06180d, 0x246336, themeParts);
-  const foliageLight = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x0a2112, roughness: 0.96 }), 0x0a2112, 0x397842, themeParts);
+  const barkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, metalness: 0 }), 0x3a2417, 0x6b4327, themeParts);
+  const twigMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, metalness: 0, transparent: true, alphaTest: 0.48, side: THREE.DoubleSide, depthWrite: false }), 0x07150b, 0x285f31, themeParts);
 
-  // Organic trunk: several tapered segments with tiny bends so the silhouette never looks perfectly manufactured.
+  // Real photographic PBR maps from the CC0 Poly Haven Pine Tree 01 asset.
+  // The tree is built from curved branch geometry + alpha-cut needle cards, not cones.
+  loadKagePBR(THREE).then((maps) => {
+    if (!maps) return;
+    if (maps.barkMap) { barkMat.map = maps.barkMap; maps.barkMap.repeat.set(1.2, 3.8); }
+    if (maps.barkNormal) { barkMat.normalMap = maps.barkNormal; barkMat.normalScale.set(0.72, 0.72); }
+    if (maps.barkRough) barkMat.roughnessMap = maps.barkRough;
+    barkMat.needsUpdate = true;
+
+    if (maps.twigMap) maps.twigMap.repeat.set(1, 1);
+    if (maps.twigMap) twigMat.map = maps.twigMap;
+    if (maps.twigAlpha) twigMat.alphaMap = maps.twigAlpha;
+    if (maps.twigNormal) { twigMat.normalMap = maps.twigNormal; twigMat.normalScale.set(0.45, 0.45); }
+    if (maps.twigRough) twigMat.roughnessMap = maps.twigRough;
+    twigMat.needsUpdate = true;
+  });
+
   const trunk = new THREE.Group();
   const trunkSegments = mobile ? 3 : 4;
   let trunkX = 0;
   let trunkZ = 0;
   for (let i = 0; i < trunkSegments; i += 1) {
     const t = i / trunkSegments;
-    const height = 1.05 + Math.random() * 0.12;
-    const radiusTop = 0.09 - t * 0.035;
-    const radiusBottom = 0.22 - t * 0.04;
-    const segment = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(0.045, radiusTop), radiusBottom, height, 8, 2), i === 0 ? trunkMat : barkMat);
+    const height = 1.0 + Math.random() * 0.13;
+    const segment = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(0.045, 0.095 - t * 0.04), 0.22 - t * 0.035, height, mobile ? 8 : 10, 2), barkMat);
     segment.position.set(trunkX, i * 0.98 + height * 0.5, trunkZ);
-    segment.rotation.z = (Math.random() - 0.5) * 0.055;
-    segment.rotation.x = (Math.random() - 0.5) * 0.035;
-    trunkX += (Math.random() - 0.5) * 0.055;
-    trunkZ += (Math.random() - 0.5) * 0.045;
+    segment.rotation.z = (Math.random() - 0.5) * 0.06;
+    segment.rotation.x = (Math.random() - 0.5) * 0.04;
+    trunkX += (Math.random() - 0.5) * 0.06;
+    trunkZ += (Math.random() - 0.5) * 0.05;
     trunk.add(segment);
   }
   root.add(trunk);
 
-  // Smooth foliage volumes plus curved branches: no cones and no faceted icosahedrons.
-  const foliageGeometry = new THREE.SphereGeometry(1, mobile ? 8 : 12, mobile ? 6 : 9);
-  const twigGeometry = new THREE.SphereGeometry(1, mobile ? 6 : 8, mobile ? 5 : 6);
+  const needleGeometry = new THREE.PlaneGeometry(1.15, 0.62, 1, 1);
+  const addNeedleCluster = (point: any, angle: number, size: number) => {
+    const cluster = new THREE.Group();
+    cluster.position.copy(point);
+    cluster.rotation.y = angle;
+    const cards = mobile ? 2 : 3;
+    for (let c = 0; c < cards; c += 1) {
+      const card = new THREE.Mesh(needleGeometry, twigMat);
+      card.rotation.y = (Math.PI / cards) * c + (Math.random() - 0.5) * 0.22;
+      card.rotation.x = (Math.random() - 0.5) * 0.48;
+      card.rotation.z = (Math.random() - 0.5) * 0.34;
+      card.scale.setScalar(size * (0.86 + Math.random() * 0.28));
+      cluster.add(card);
+    }
+    root.add(cluster);
+  };
 
-  const addBranch = (baseY: number, angle: number, length: number, droop: number, material: any, branchIndex: number) => {
+  const addBranch = (baseY: number, angle: number, length: number, droop: number) => {
     const outward = new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle));
     const side = new THREE.Vector3(-Math.sin(angle), 0, Math.cos(angle));
-    const base = new THREE.Vector3(trunkX * 0.5, baseY, trunkZ * 0.5);
-    const end = base.clone().add(outward.clone().multiplyScalar(length)).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.34));
+    const base = new THREE.Vector3(trunkX * 0.45, baseY, trunkZ * 0.45);
+    const end = base.clone().add(outward.clone().multiplyScalar(length)).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.28));
     end.y -= droop;
-    const mid = base.clone().add(outward.clone().multiplyScalar(length * (0.42 + Math.random() * 0.08))).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.28));
-    mid.y -= droop * 0.28;
+    const mid = base.clone().lerp(end, 0.48); mid.y += 0.1 + Math.random() * 0.08;
     const curve = new THREE.CatmullRomCurve3([base, mid, end]);
-    root.add(new THREE.Mesh(new THREE.TubeGeometry(curve, mobile ? 5 : 7, mobile ? 0.055 : 0.065, 5, false), barkMat));
-
-    const tuftCount = mobile ? 2 : 3;
-    for (let k = 0; k < tuftCount; k += 1) {
-      const t = (k + 0.35) / tuftCount;
-      const point = curve.getPointAt(Math.min(0.96, t));
-      const tuft = new THREE.Mesh(foliageGeometry, k === 0 && branchIndex % 2 === 0 ? foliageLight : material);
-      const width = (0.62 - t * 0.18) * (0.9 + Math.random() * 0.2);
-      const height = (0.42 - t * 0.10) * (0.9 + Math.random() * 0.2);
-      tuft.position.copy(point);
-      tuft.position.y += 0.04 + Math.random() * 0.08;
-      tuft.scale.set(width, height, width * (0.72 + Math.random() * 0.18));
-      tuft.rotation.set((Math.random() - 0.5) * 0.35, angle + Math.PI * 0.5 + (Math.random() - 0.5) * 0.7, (Math.random() - 0.5) * 0.35);
-      root.add(tuft);
-
-      if (!mobile && k === tuftCount - 1) {
-        const twigStart = point.clone().add(outward.clone().multiplyScalar(0.05));
-        const twigEnd = twigStart.clone().add(outward.clone().multiplyScalar(0.42 + Math.random() * 0.18)).add(side.clone().multiplyScalar((Math.random() - 0.5) * 0.25));
-        twigEnd.y += 0.06 - Math.random() * 0.14;
-        const twigCurve = new THREE.CatmullRomCurve3([twigStart, twigStart.clone().lerp(twigEnd, 0.5), twigEnd]);
-        root.add(new THREE.Mesh(new THREE.TubeGeometry(twigCurve, 4, 0.035, 4, false), barkMat));
-        const twigTip = new THREE.Mesh(twigGeometry, foliageLight);
-        twigTip.position.copy(twigEnd);
-        twigTip.scale.set(0.22, 0.14, 0.18);
-        twigTip.rotation.y = angle;
-        root.add(twigTip);
-      }
+    root.add(new THREE.Mesh(new THREE.TubeGeometry(curve, mobile ? 6 : 9, mobile ? 0.055 : 0.07, 6, false), barkMat));
+    const clusters = mobile ? 3 : 5;
+    for (let k = 0; k < clusters; k += 1) {
+      const t = (k + 0.3) / clusters;
+      const point = curve.getPointAt(Math.min(0.98, t)); point.y += 0.03 + Math.random() * 0.12;
+      addNeedleCluster(point, angle + (Math.random() - 0.5) * 0.8, (0.62 - t * 0.18) * (0.9 + Math.random() * 0.22));
     }
   };
 
-  const tiers = mobile ? 4 : 5;
+  const tiers = mobile ? 4 : 6;
   for (let i = 0; i < tiers; i += 1) {
-    const t = i / (tiers - 1);
-    const y = 2.0 + t * 3.55;
-    const width = (1.75 - t * 1.22) * (0.92 + Math.random() * 0.14);
-    const branches = mobile ? 3 : 4;
-    const phase = Math.random() * Math.PI * 2;
-    for (let j = 0; j < branches; j += 1) {
-      const angle = phase + (j / branches) * Math.PI * 2;
-      const length = width * (0.86 + Math.random() * 0.22);
-      const droop = (0.16 + (1 - t) * 0.28) * (0.8 + Math.random() * 0.35);
-      addBranch(y + (Math.random() - 0.5) * 0.18, angle, length, droop, j % 3 === 0 ? foliageMid : foliageDark, j);
-    }
+    const t = i / (tiers - 1), y = 1.9 + t * 3.65, width = (1.85 - t * 1.28) * (0.9 + Math.random() * 0.18);
+    const branches = mobile ? 3 : 5, phase = Math.random() * Math.PI * 2;
+    for (let j = 0; j < branches; j += 1) addBranch(y + (Math.random() - 0.5) * 0.18, phase + (j / branches) * Math.PI * 2, width * (0.82 + Math.random() * 0.2), 0.14 + (1 - t) * 0.3);
   }
 
-  // Asymmetric crown and loose upper shoots avoid the artificial Christmas-tree cone.
-  const crown = new THREE.Mesh(foliageGeometry, foliageLight);
-  crown.position.set(trunkX + (Math.random() - 0.5) * 0.16, 5.65 + Math.random() * 0.18, trunkZ + (Math.random() - 0.5) * 0.16);
-  crown.scale.set(0.48 + Math.random() * 0.16, 0.82 + Math.random() * 0.2, 0.46 + Math.random() * 0.15);
-  crown.rotation.set((Math.random() - 0.5) * 0.18, Math.random() * Math.PI * 2, (Math.random() - 0.5) * 0.18);
-  root.add(crown);
-
-  const shoots = mobile ? 2 : 4;
-  for (let i = 0; i < shoots; i += 1) {
-    const angle = Math.random() * Math.PI * 2;
-    const shoot = new THREE.Mesh(twigGeometry, i % 2 ? foliageMid : foliageLight);
-    shoot.position.set(Math.cos(angle) * (0.28 + Math.random() * 0.25), 5.95 + Math.random() * 0.55, Math.sin(angle) * (0.28 + Math.random() * 0.25));
-    shoot.scale.set(0.22 + Math.random() * 0.12, 0.14 + Math.random() * 0.1, 0.2 + Math.random() * 0.1);
-    shoot.rotation.set(Math.random() * 0.35, angle, Math.random() * 0.35);
-    root.add(shoot);
-  }
+  const crownPoint = new THREE.Vector3(trunkX, 5.7 + Math.random() * 0.25, trunkZ);
+  for (let i = 0; i < (mobile ? 3 : 5); i += 1) addNeedleCluster(crownPoint.clone().add(new THREE.Vector3((Math.random() - 0.5) * 0.5, (Math.random() - 0.25) * 0.5, (Math.random() - 0.5) * 0.5)), Math.random() * Math.PI * 2, 0.48 + Math.random() * 0.2);
 
   root.rotation.y = Math.random() * Math.PI * 2;
   root.rotation.z = (Math.random() - 0.5) * 0.035;
