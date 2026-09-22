@@ -47,7 +47,7 @@ const panels: AboutPanel[] = [
   },
 ];
 
-const STACK_SLIVER = 72;
+const STACK_SLIVER = 32;
 
 function StackPanel({
   panel,
@@ -71,23 +71,25 @@ function StackPanel({
     { clamp: true }
   );
   const smoothX = useSpring(x, { stiffness: 110, damping: 24, mass: 0.65 });
+  // Reduced motion keeps the same sequential scroll behavior, only without the spring.
+  const panelX = reducedMotion ? x : smoothX;
   const Icon = panel.icon;
 
   return (
     <motion.article
-      style={{ x: reducedMotion ? targetX : smoothX, zIndex: index + 1 }}
+      style={{ x: panelX, zIndex: index + 1 }}
       className={`absolute inset-y-0 left-0 right-0 overflow-hidden border-y border-black/10 shadow-[-18px_0_50px_rgba(0,0,0,0.08)] ${panel.accent}`}
     >
       <div className="flex h-full min-h-[100svh]">
-        <div className="flex w-[72px] shrink-0 flex-col border-r border-black/15 bg-black/[0.04] sm:w-[92px]">
+        <div className="flex w-[18px] shrink-0 flex-col border-r border-black/15 bg-black/[0.04] sm:w-[32px] md:w-[44px]">
           <div className="flex flex-1 items-center justify-center">
-            <span className="text-[7rem] font-black leading-none tracking-[-0.1em] text-black sm:text-[10rem] md:text-[13rem]">
+            <span className="hidden text-[7rem] font-black leading-none tracking-[-0.1em] text-black sm:text-[10rem] md:text-[13rem]">
               {panel.number}
             </span>
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-1 items-center px-7 py-20 sm:px-10 md:px-16 lg:px-24">
+        <div className="flex min-w-0 flex-1 items-center px-6 py-20 sm:px-10 md:px-16 lg:px-24">
           <div className="w-full max-w-4xl">
             <div className="mb-8 flex items-center gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-black bg-black text-white">
@@ -98,7 +100,7 @@ function StackPanel({
               </span>
             </div>
 
-            <h2 className="max-w-4xl text-[clamp(3.2rem,10vw,8rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-black">
+            <h2 className="max-w-4xl text-[clamp(3.5rem,14vw,8.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-black sm:text-[clamp(4.8rem,10vw,8.5rem)]">
               {panel.title}
             </h2>
 
