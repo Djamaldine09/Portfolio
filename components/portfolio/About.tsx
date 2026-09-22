@@ -219,23 +219,6 @@ export default function About() {
       </div>
 
       <MonParcours />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          className={`bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-8 md:p-12 transform transition-all duration-1000 delay-300 ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}
-        >
-          <div className="max-w-3xl mx-auto">
-            <p className="text-gray-700 dark:text-slate-300 leading-relaxed">
-              Je suis constamment à l&apos;affût des dernières technologies et
-              tendances du développement web. Mon objectif est de créer des
-              expériences utilisateur exceptionnelles tout en maintenant un code
-              de haute qualité.
-            </p>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }
