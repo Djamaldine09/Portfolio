@@ -72,9 +72,9 @@ export default function Hero() {
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
             <p className="mb-5 text-sm font-medium uppercase tracking-[0.24em] text-white/50 sm:text-base">Full Stack Developer · Madagascar</p>
-            <h1 className="font-black uppercase leading-[0.82] tracking-[-0.075em]">
-              <span className="block text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
-              <span className="block text-[clamp(4.8rem,15vw,13rem)] text-white/12 [-webkit-text-stroke:1px_rgba(255,255,255,.32)]">Moustafa</span>
+            <h1 className="w-full max-w-full overflow-hidden font-black uppercase leading-[0.82] tracking-[-0.075em]">
+              <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
+              <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] text-white/12 [-webkit-text-stroke:1px_rgba(255,255,255,.32)]">Moustafa</span>
             </h1>
 
             <div className="mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-[1.3fr_.7fr] md:items-end">
