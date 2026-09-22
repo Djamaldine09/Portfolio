@@ -1,224 +1,157 @@
 'use client';
 
-import { useEffect, useRef, useState, Fragment } from 'react';
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-  type MotionValue,
-} from 'framer-motion';
-import { Code2, Rocket, Users, Award } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useRef } from 'react';
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { Code2, Rocket, Users, Award, type LucideIcon } from 'lucide-react';
 
-const PARCOURS_STATEMENT =
-  "Passionné par le développement web depuis plusieurs années, j'ai acquis une solide expérience dans la création d'applications web modernes et performantes, combinant expertise technique et créativité pour livrer des solutions qui dépassent les attentes.";
+type AboutPanel = {
+  number: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  accent: string;
+};
 
-const START_OPACITY = 0.15;
-const SPREAD = 0.8;
-const WORD_DURATION = 0.2;
+const panels: AboutPanel[] = [
+  {
+    number: '01',
+    title: 'Développement Web',
+    description:
+      "Je conçois des applications web modernes, performantes et pensées pour offrir une expérience fluide sur tous les écrans.",
+    icon: Code2,
+    accent: 'bg-[#d8f0e7]',
+  },
+  {
+    number: '02',
+    title: 'Innovation',
+    description:
+      "J'explore les nouvelles technologies pour transformer des idées en expériences digitales créatives, utiles et interactives.",
+    icon: Rocket,
+    accent: 'bg-[#f4df9b]',
+  },
+  {
+    number: '03',
+    title: 'Collaboration',
+    description:
+      "Je privilégie une communication claire et un travail d'équipe structuré pour faire avancer chaque projet efficacement.",
+    icon: Users,
+    accent: 'bg-[#f2b39b]',
+  },
+  {
+    number: '04',
+    title: 'Qualité',
+    description:
+      'Code propre, interfaces soignées et bonnes pratiques : chaque détail compte pour construire des produits durables.',
+    icon: Award,
+    accent: 'bg-[#b9d6ed]',
+  },
+];
 
-interface WordProgressRange {
-  start: number;
-  end: number;
-}
+const STACK_SLIVER = 72;
 
-function getWordProgressRange(index: number, count: number): WordProgressRange {
-  const start = count <= 1 ? 0 : (index / (count - 1)) * SPREAD;
-  return {
-    start,
-    end: Math.min(1, start + WORD_DURATION),
-  };
-}
-
-function getWordOpacity(
-  progress: number,
-  { start, end }: WordProgressRange,
-  startOpacity = START_OPACITY
-): number {
-  if (progress <= start) return startOpacity;
-  if (progress >= end) return 1;
-  const wordProgress = (progress - start) / (end - start);
-  return startOpacity + (1 - startOpacity) * wordProgress;
-}
-
-function ParcoursWord({
-  children,
-  progress,
+function StackPanel({
+  panel,
   index,
-  count,
+  progress,
   reducedMotion,
 }: {
-  children: string;
-  progress: MotionValue<number>;
+  panel: AboutPanel;
   index: number;
-  count: number;
+  progress: ReturnType<typeof useScroll>['scrollYProgress'];
   reducedMotion: boolean;
 }) {
-  const range = getWordProgressRange(index, count);
-  const opacity = useTransform(progress, (latest) => getWordOpacity(latest, range));
-
-  return (
-    <motion.span style={reducedMotion ? undefined : { opacity }}>
-      {children}
-    </motion.span>
+  const count = panels.length;
+  const start = index / count;
+  const revealEnd = Math.min(1, start + 0.24);
+  const targetX = -(index * STACK_SLIVER);
+  const x = useTransform(
+    progress,
+    [start, revealEnd],
+    ['100%', `${targetX}px`],
+    { clamp: true }
   );
-}
-
-function MonParcours() {
-  const parcoursRef = useRef<HTMLDivElement>(null);
-  const reducedMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: parcoursRef,
-    offset: ['start start', 'end end'],
-  });
-  const words = PARCOURS_STATEMENT.split(' ');
+  const smoothX = useSpring(x, { stiffness: 110, damping: 24, mass: 0.65 });
+  const Icon = panel.icon;
 
   return (
-    <div ref={parcoursRef} className="relative min-h-[180vh]">
-      <div className="sticky top-0 min-h-screen flex items-center py-16">
-        <div className="max-w-4xl mx-auto grid grid-cols-[2px_minmax(0,1fr)] gap-8 md:gap-10 items-start px-4">
-          <div
-            className="relative w-[2px] h-24 md:h-28 overflow-hidden rounded-full bg-blue-100"
-            aria-hidden="true"
-          >
-            <motion.span
-              className="absolute inset-0 block bg-gradient-to-b from-blue-600 to-cyan-600 origin-top rounded-full"
-              style={{ scaleY: reducedMotion ? 1 : scrollYProgress }}
-            />
+    <motion.article
+      style={{ x: reducedMotion ? targetX : smoothX, zIndex: index + 1 }}
+      className={`absolute inset-y-0 left-0 right-0 overflow-hidden border-y border-black/10 shadow-[-18px_0_50px_rgba(0,0,0,0.08)] ${panel.accent}`}
+    >
+      <div className="flex h-full min-h-[100svh]">
+        <div className="flex w-[72px] shrink-0 flex-col border-r border-black/15 bg-black/[0.04] sm:w-[92px]">
+          <div className="flex flex-1 items-center justify-center">
+            <span className="text-[7rem] font-black leading-none tracking-[-0.1em] text-black sm:text-[10rem] md:text-[13rem]">
+              {panel.number}
+            </span>
           </div>
+        </div>
 
-          <div>
-            <p className="mb-6 font-mono text-xs uppercase tracking-widest text-blue-600/70">
-              Mon parcours
+        <div className="flex min-w-0 flex-1 items-center px-7 py-20 sm:px-10 md:px-16 lg:px-24">
+          <div className="w-full max-w-4xl">
+            <div className="mb-8 flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-black bg-black text-white">
+                <Icon size={21} strokeWidth={2.2} />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-[0.28em] text-black/55">
+                À propos de moi
+              </span>
+            </div>
+
+            <h2 className="max-w-4xl text-[clamp(3.2rem,10vw,8rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-black">
+              {panel.title}
+            </h2>
+
+            <p className="mt-9 max-w-2xl text-xl leading-[1.3] tracking-[-0.02em] text-black/75 sm:text-2xl md:text-3xl">
+              {panel.description}
             </p>
-            <h3
-              className="max-w-[26ch] text-2xl md:text-4xl font-bold leading-snug text-gray-900"
-              aria-label={PARCOURS_STATEMENT}
-            >
-              {words.map((word, index) => (
-                <Fragment key={`${word}-${index}`}>
-                  <ParcoursWord
-                    progress={scrollYProgress}
-                    index={index}
-                    count={words.length}
-                    reducedMotion={Boolean(reducedMotion)}
-                  >
-                    {word}
-                  </ParcoursWord>
-                  {index < words.length - 1 ? ' ' : null}
-                </Fragment>
-              ))}
-            </h3>
+
+            <div className="mt-12 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.25em] text-black/45">
+              <span className="h-px w-14 bg-black/35" />
+              <span>Scroll pour continuer</span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.article>
   );
 }
 
 export default function About() {
-  const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const reducedMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ['start end', 'end start'],
+    offset: ['start start', 'end end'],
   });
-  const headingY = useTransform(scrollYProgress, [0, 0.45], [40, -25]);
-  const cardsY = useTransform(scrollYProgress, [0.05, 0.55], [50, -10]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  const features = [
-    {
-      icon: Code2,
-      title: 'Développement Web',
-      description: 'Création d\'applications web modernes et performantes',
-    },
-    {
-      icon: Rocket,
-      title: 'Innovation',
-      description: 'Solutions créatives utilisant les dernières technologies',
-    },
-    {
-      icon: Users,
-      title: 'Collaboration',
-      description: 'Travail d\'équipe et communication efficace',
-    },
-    {
-      icon: Award,
-      title: 'Qualité',
-      description: 'Code propre et bonnes pratiques de développement',
-    },
-  ];
 
   return (
     <section
       id="about"
       ref={sectionRef}
-      className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-slate-900"
+      className="relative h-[400vh] bg-[#101214] text-black"
     >
-      <div className="max-w-7xl mx-auto">
-        <motion.div
-          style={{ y: headingY }}
-          className={`text-center mb-16 transform transition-all duration-1000 ${
-            isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
-          }`}
-        >
-          <h2 className="text-4xl font-bold mb-4">
-            À propos de{' '}
-            <span className="bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
-              moi
-            </span>
-          </h2>
-            <p className="text-xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto">
-            Développeur passionné avec plusieurs années d&apos;expérience dans la création
-            d&apos;applications web modernes et performantes.
-          </p>
-        </motion.div>
+      <div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden">
+        {panels.map((panel, index) => (
+          <StackPanel
+            key={panel.number}
+            panel={panel}
+            index={index}
+            progress={scrollYProgress}
+            reducedMotion={Boolean(reducedMotion)}
+          />
+        ))}
 
-        <motion.div style={{ y: cardsY }} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {features.map((feature, index) => (
-            <Card
-              key={index}
-              className={`group hover:shadow-xl transition-all duration-500 border-2 hover:border-blue-200 transform ${
-                isVisible
-                  ? 'translate-y-0 opacity-100'
-                  : 'translate-y-10 opacity-0'
-              }`}
-              style={{ transitionDelay: `${index * 100}ms` }}
-            >
-              <CardContent className="p-6 text-center">
-                <div className="mb-4 inline-block p-4 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                  <feature.icon className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-600 transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 dark:text-slate-300 text-sm">{feature.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </motion.div>
-
+        <div className="pointer-events-none absolute bottom-7 right-7 z-30 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.28em] text-black/45 sm:bottom-10 sm:right-10">
+          <span>About</span>
+          <div className="h-1 w-20 overflow-hidden rounded-full bg-black/10">
+            <motion.div
+              className="h-full origin-left bg-black/70"
+              style={{ scaleX: reducedMotion ? 1 : scrollYProgress }}
+            />
+          </div>
+        </div>
       </div>
-
-      <MonParcours />
     </section>
   );
 }
