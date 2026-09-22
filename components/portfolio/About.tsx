@@ -9,45 +9,52 @@ type AboutPanel = {
   title: string;
   description: string;
   icon: LucideIcon;
-  accent: string;
+  color: string;
+  stripe: string;
 };
 
 const panels: AboutPanel[] = [
   {
-    number: '01',
+    number: '1',
     title: 'Développement Web',
     description:
-      "Je conçois des applications web modernes, performantes et pensées pour offrir une expérience fluide sur tous les écrans.",
+      'Je conçois des applications web modernes, performantes et pensées pour offrir une expérience fluide sur tous les écrans.',
     icon: Code2,
-    accent: 'bg-[#d8f0e7]',
+    color: '#d7eee6',
+    stripe: '#f5b83d',
   },
   {
-    number: '02',
+    number: '2',
     title: 'Innovation',
     description:
       "J'explore les nouvelles technologies pour transformer des idées en expériences digitales créatives, utiles et interactives.",
     icon: Rocket,
-    accent: 'bg-[#f4df9b]',
+    color: '#f4df9b',
+    stripe: '#ef6b45',
   },
   {
-    number: '03',
+    number: '3',
     title: 'Collaboration',
     description:
       "Je privilégie une communication claire et un travail d'équipe structuré pour faire avancer chaque projet efficacement.",
     icon: Users,
-    accent: 'bg-[#f2b39b]',
+    color: '#f2b39b',
+    stripe: '#159b65',
   },
   {
-    number: '04',
+    number: '4',
     title: 'Qualité',
     description:
       'Code propre, interfaces soignées et bonnes pratiques : chaque détail compte pour construire des produits durables.',
     icon: Award,
-    accent: 'bg-[#b9d6ed]',
+    color: '#b9d6ed',
+    stripe: '#4b75d1',
   },
 ];
 
-const STACK_SLIVER = 32;
+const SLIVER = 34;
+const INITIAL_GAP = 0.07;
+const REVEAL = 0.18;
 
 function StackPanel({
   panel,
@@ -60,59 +67,76 @@ function StackPanel({
   progress: ReturnType<typeof useScroll>['scrollYProgress'];
   reducedMotion: boolean;
 }) {
-  const count = panels.length;
-  const start = index / count;
-  const revealEnd = Math.min(1, start + 0.24);
-  const targetX = -(index * STACK_SLIVER);
-  const x = useTransform(
+  const start = INITIAL_GAP + index * ((1 - INITIAL_GAP) / panels.length);
+  const end = Math.min(0.98, start + REVEAL);
+  const targetX = -(index * SLIVER);
+
+  const rawX = useTransform(
     progress,
-    [start, revealEnd],
+    [start, end],
     ['100%', `${targetX}px`],
     { clamp: true }
   );
-  const smoothX = useSpring(x, { stiffness: 110, damping: 24, mass: 0.65 });
-  // Reduced motion keeps the same sequential scroll behavior, only without the spring.
-  const panelX = reducedMotion ? x : smoothX;
+  const smoothX = useSpring(rawX, {
+    stiffness: 125,
+    damping: 25,
+    mass: 0.55,
+  });
+  const x = reducedMotion ? rawX : smoothX;
   const Icon = panel.icon;
 
   return (
     <motion.article
-      style={{ x: panelX, zIndex: index + 1 }}
-      className={`absolute inset-y-0 left-0 right-0 overflow-hidden border-y border-black/10 shadow-[-18px_0_50px_rgba(0,0,0,0.08)] ${panel.accent}`}
+      style={{ x, zIndex: index + 1 }}
+      className="absolute inset-0 overflow-hidden border-y border-black/15"
     >
-      <div className="flex h-full min-h-[100svh]">
-        <div className="flex w-[18px] shrink-0 flex-col border-r border-black/15 bg-black/[0.04] sm:w-[32px] md:w-[44px]">
-          <div className="flex flex-1 items-center justify-center">
-            <span className="hidden text-[7rem] font-black leading-none tracking-[-0.1em] text-black sm:text-[10rem] md:text-[13rem]">
-              {panel.number}
+      <div
+        className="absolute inset-0"
+        style={{ backgroundColor: panel.color }}
+      />
+
+      <div
+        className="absolute inset-y-0 left-0 w-[34px] border-r border-black/20 sm:w-[48px]"
+        style={{ backgroundColor: panel.stripe }}
+      />
+
+      <div className="relative flex h-full min-h-[100svh] flex-col px-10 pb-16 pt-10 sm:px-16 sm:pb-20 sm:pt-12 md:px-20 lg:px-28">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 sm:gap-5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-black bg-black text-white sm:h-14 sm:w-14">
+              <Icon size={21} strokeWidth={2.2} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.32em] text-black sm:text-xs">
+              À propos de moi
             </span>
+          </div>
+
+          <span className="text-xs font-bold uppercase tracking-[0.28em] text-black/55">
+            {String(index + 1).padStart(2, '0')} / {String(panels.length).padStart(2, '0')}
+          </span>
+        </div>
+
+        <div className="flex flex-1 flex-col justify-center">
+          <div
+            className="select-none text-[clamp(12rem,48vw,31rem)] font-black leading-[0.7] tracking-[-0.11em] text-black"
+            aria-hidden="true"
+          >
+            {panel.number}
+          </div>
+
+          <div className="mt-10 max-w-5xl sm:mt-14">
+            <h2 className="max-w-5xl text-[clamp(2.7rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-black">
+              {panel.title}
+            </h2>
+            <p className="mt-7 max-w-3xl text-lg leading-[1.25] tracking-[-0.02em] text-black/75 sm:mt-9 sm:text-2xl md:text-3xl">
+              {panel.description}
+            </p>
           </div>
         </div>
 
-        <div className="flex min-w-0 flex-1 items-center px-6 py-20 sm:px-10 md:px-16 lg:px-24">
-          <div className="w-full max-w-4xl">
-            <div className="mb-8 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-black bg-black text-white">
-                <Icon size={21} strokeWidth={2.2} />
-              </div>
-              <span className="text-xs font-bold uppercase tracking-[0.28em] text-black/55">
-                À propos de moi
-              </span>
-            </div>
-
-            <h2 className="max-w-4xl text-[clamp(3.5rem,14vw,8.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-black sm:text-[clamp(4.8rem,10vw,8.5rem)]">
-              {panel.title}
-            </h2>
-
-            <p className="mt-9 max-w-2xl text-xl leading-[1.3] tracking-[-0.02em] text-black/75 sm:text-2xl md:text-3xl">
-              {panel.description}
-            </p>
-
-            <div className="mt-12 flex items-center gap-3 text-xs font-bold uppercase tracking-[0.25em] text-black/45">
-              <span className="h-px w-14 bg-black/35" />
-              <span>Scroll pour continuer</span>
-            </div>
-          </div>
+        <div className="flex items-center justify-between text-[9px] font-bold uppercase tracking-[0.28em] text-black/55 sm:text-[10px]">
+          <span>Scroll pour continuer</span>
+          <span>About / {String(index + 1).padStart(2, '0')}</span>
         </div>
       </div>
     </motion.article>
@@ -131,7 +155,7 @@ export default function About() {
     <section
       id="about"
       ref={sectionRef}
-      className="relative h-[400vh] bg-[#101214] text-black"
+      className="relative h-[460vh] bg-[#101214]"
     >
       <div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden">
         {panels.map((panel, index) => (
@@ -144,11 +168,11 @@ export default function About() {
           />
         ))}
 
-        <div className="pointer-events-none absolute bottom-7 right-7 z-30 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.28em] text-black/45 sm:bottom-10 sm:right-10">
+        <div className="pointer-events-none absolute bottom-6 right-6 z-50 flex items-center gap-3 text-[9px] font-bold uppercase tracking-[0.3em] text-white/45 sm:bottom-9 sm:right-9">
           <span>About</span>
-          <div className="h-1 w-20 overflow-hidden rounded-full bg-black/10">
+          <div className="h-1 w-16 overflow-hidden rounded-full bg-white/15 sm:w-20">
             <motion.div
-              className="h-full origin-left bg-black/70"
+              className="h-full origin-left bg-white/70"
               style={{ scaleX: reducedMotion ? 1 : scrollYProgress }}
             />
           </div>
