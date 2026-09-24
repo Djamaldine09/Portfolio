@@ -106,6 +106,13 @@ function StackPanel({
       />
       <div className="relative flex h-full min-h-[100svh] flex-col px-7 pb-16 pt-10 sm:px-12 sm:pb-20 sm:pt-12 md:px-16 lg:px-24">
         <div className="flex flex-1 flex-col justify-center">
+          <div
+            className="select-none text-[clamp(12rem,48vw,31rem)] font-black leading-[0.7] tracking-[-0.11em] text-black"
+            aria-hidden="true"
+          >
+            {panel.number}
+          </div>
+
           <div className="mt-10 max-w-5xl sm:mt-14">
             <h2 className="max-w-5xl text-[clamp(2.7rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-black">
               {panel.title}
