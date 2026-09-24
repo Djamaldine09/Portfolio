@@ -52,10 +52,10 @@ const panels: AboutPanel[] = [
   },
 ];
 
-const SLIVER = 34;
-const INITIAL_BLANK = 0.10;
+const SLIVER = 24;
+const INITIAL_BLANK = 0.08;
 const REVEAL = 0.14;
-const HOLD = 0.12;
+const HOLD = 0.10;
 
 function StackPanel({
   panel,
@@ -109,15 +109,22 @@ function StackPanel({
         x,
         opacity,
         zIndex: index + 1,
-        width: index === 0 ? '100%' : `calc(100% - ${SLIVER}px)`,
+        // Keep every previous panel visible as a progressively layered sliver.
+      // The right edge always stays flush with the viewport.
+      width: `calc(100% - ${index * SLIVER}px)`,
       }}
     >
       <div
         className="absolute inset-0"
         style={{ backgroundColor: panel.color }}
       />
+      <div
+        className="absolute inset-y-0 left-0 z-20 w-2 sm:w-2.5"
+        style={{ backgroundColor: panel.stripe }}
+        aria-hidden="true"
+      />
 
-      <div className="relative flex h-full min-h-[100svh] flex-col px-10 pb-16 pt-10 sm:px-16 sm:pb-20 sm:pt-12 md:px-20 lg:px-28">
+      <div className="relative flex h-full min-h-[100svh] flex-col px-7 pb-16 pt-10 sm:px-12 sm:pb-20 sm:pt-12 md:px-16 lg:px-24">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-5">
             <div className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-black bg-black text-white sm:h-14 sm:w-14">
