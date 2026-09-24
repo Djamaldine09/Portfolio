@@ -72,16 +72,19 @@ function StackPanel({
   // scroll window and enters from the right only after the user scrolls.
   const start = INITIAL_BLANK + index * (REVEAL + HOLD);
   const end = start + REVEAL;
-  const targetX = -(index * SLIVER);
 
-  // Keep every panel completely outside the viewport until its own scroll window.
-  // Using viewport units avoids the initial spring/hydration flash seen on mobile.
-  const rawX = useTransform(
-    progress,
-    [0, start, end, 1],
-    ['110vw', '110vw', `${targetX}px`, `${targetX}px`],
-    { clamp: true }
-  );
+  // The active panel always ends at x=0, keeping its right edge flush
+  // with the viewport. Older panels are pushed left one sliver at a time.
+  const input: number[] = [0, start, end];
+  const output: string[] = ['110vw', '110vw', '0px'];
+
+  for (let next = index + 1; next < panels.length; next += 1) {
+    const nextStart = INITIAL_BLANK + next * (REVEAL + HOLD);
+    input.push(nextStart);
+    output.push(`-${(next - index) * SLIVER}px`);
+  }
+
+  const rawX = useTransform(progress, input, output, { clamp: true });
   const opacity = useTransform(
     progress,
     [Math.max(0, start - 0.012), start, start + 0.025],
