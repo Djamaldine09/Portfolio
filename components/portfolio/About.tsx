@@ -74,10 +74,18 @@ function StackPanel({
   const end = start + REVEAL;
   const targetX = -(index * SLIVER);
 
+  // Keep every panel completely outside the viewport until its own scroll window.
+  // Using viewport units avoids the initial spring/hydration flash seen on mobile.
   const rawX = useTransform(
     progress,
     [0, start, end, 1],
-    ['100%', '100%', `${targetX}px`, `${targetX}px`],
+    ['110vw', '110vw', `${targetX}px`, `${targetX}px`],
+    { clamp: true }
+  );
+  const opacity = useTransform(
+    progress,
+    [Math.max(0, start - 0.012), start, start + 0.025],
+    [0, 0, 1],
     { clamp: true }
   );
   const smoothX = useSpring(rawX, {
@@ -90,7 +98,8 @@ function StackPanel({
 
   return (
     <motion.article
-      style={{ x, zIndex: index + 1 }}
+      initial={{ x: '110vw', opacity: 0 }}
+      style={{ x, opacity, zIndex: index + 1 }}
       className="absolute inset-0 overflow-hidden border-y border-black/15"
     >
       <div
