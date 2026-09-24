@@ -106,7 +106,7 @@ function StackPanel({
         zIndex: index + 1,
         // Keep every previous panel visible as a progressively layered sliver.
       // The right edge always stays flush with the viewport.
-      width: '100%',
+      width: `calc(100% - ${index * SLIVER}px)`,
       }}
     >
       <div
