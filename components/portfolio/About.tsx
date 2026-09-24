@@ -10,7 +10,6 @@ type AboutPanel = {
   description: string;
   icon: LucideIcon;
   color: string;
-  stripe: string;
 };
 
 const panels: AboutPanel[] = [
@@ -21,7 +20,6 @@ const panels: AboutPanel[] = [
       'Je conçois des applications web modernes, performantes et pensées pour offrir une expérience fluide sur tous les écrans.',
     icon: Code2,
     color: '#d7eee6',
-    stripe: '#f5b83d',
   },
   {
     number: '2',
@@ -30,7 +28,6 @@ const panels: AboutPanel[] = [
       "J'explore les nouvelles technologies pour transformer des idées en expériences digitales créatives, utiles et interactives.",
     icon: Rocket,
     color: '#f4df9b',
-    stripe: '#ef6b45',
   },
   {
     number: '3',
@@ -39,7 +36,6 @@ const panels: AboutPanel[] = [
       "Je privilégie une communication claire et un travail d'équipe structuré pour faire avancer chaque projet efficacement.",
     icon: Users,
     color: '#f2b39b',
-    stripe: '#159b65',
   },
   {
     number: '4',
@@ -48,7 +44,6 @@ const panels: AboutPanel[] = [
       'Code propre, interfaces soignées et bonnes pratiques : chaque détail compte pour construire des produits durables.',
     icon: Award,
     color: '#b9d6ed',
-    stripe: '#4b75d1',
   },
 ];
 
@@ -118,12 +113,6 @@ function StackPanel({
         className="absolute inset-0"
         style={{ backgroundColor: panel.color }}
       />
-      <div
-        className="absolute inset-y-0 left-0 z-20 w-2 sm:w-2.5"
-        style={{ backgroundColor: panel.stripe }}
-        aria-hidden="true"
-      />
-
       <div className="relative flex h-full min-h-[100svh] flex-col px-7 pb-16 pt-10 sm:px-12 sm:pb-20 sm:pt-12 md:px-16 lg:px-24">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-5">
