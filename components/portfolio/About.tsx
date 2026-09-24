@@ -53,8 +53,9 @@ const panels: AboutPanel[] = [
 ];
 
 const SLIVER = 34;
-const INITIAL_GAP = 0.07;
-const REVEAL = 0.18;
+const INITIAL_BLANK = 0.10;
+const REVEAL = 0.14;
+const HOLD = 0.12;
 
 function StackPanel({
   panel,
@@ -67,14 +68,16 @@ function StackPanel({
   progress: ReturnType<typeof useScroll>['scrollYProgress'];
   reducedMotion: boolean;
 }) {
-  const start = INITIAL_GAP + index * ((1 - INITIAL_GAP) / panels.length);
-  const end = Math.min(0.98, start + REVEAL);
+  // The section starts completely empty. Each panel gets its own
+  // scroll window and enters from the right only after the user scrolls.
+  const start = INITIAL_BLANK + index * (REVEAL + HOLD);
+  const end = start + REVEAL;
   const targetX = -(index * SLIVER);
 
   const rawX = useTransform(
     progress,
-    [start, end],
-    ['100%', `${targetX}px`],
+    [0, start, end, 1],
+    ['100%', '100%', `${targetX}px`, `${targetX}px`],
     { clamp: true }
   );
   const smoothX = useSpring(rawX, {
@@ -155,7 +158,7 @@ export default function About() {
     <section
       id="about"
       ref={sectionRef}
-      className="relative h-[460vh] bg-[#101214]"
+      className="relative h-[520vh] bg-[#101214]"
     >
       <div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden">
         {panels.map((panel, index) => (
