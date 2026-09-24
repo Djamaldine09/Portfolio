@@ -2,13 +2,10 @@
 
 import { useRef } from 'react';
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { Code2, Rocket, Users, Award, type LucideIcon } from 'lucide-react';
-
 type AboutPanel = {
   number: string;
   title: string;
   description: string;
-  icon: LucideIcon;
   color: string;
 };
 
@@ -18,7 +15,6 @@ const panels: AboutPanel[] = [
     title: 'Développement Web',
     description:
       'Je conçois des applications web modernes, performantes et pensées pour offrir une expérience fluide sur tous les écrans.',
-    icon: Code2,
     color: '#d7eee6',
   },
   {
@@ -26,7 +22,6 @@ const panels: AboutPanel[] = [
     title: 'Innovation',
     description:
       "J'explore les nouvelles technologies pour transformer des idées en expériences digitales créatives, utiles et interactives.",
-    icon: Rocket,
     color: '#f4df9b',
   },
   {
@@ -34,7 +29,6 @@ const panels: AboutPanel[] = [
     title: 'Collaboration',
     description:
       "Je privilégie une communication claire et un travail d'équipe structuré pour faire avancer chaque projet efficacement.",
-    icon: Users,
     color: '#f2b39b',
   },
   {
@@ -42,7 +36,6 @@ const panels: AboutPanel[] = [
     title: 'Qualité',
     description:
       'Code propre, interfaces soignées et bonnes pratiques : chaque détail compte pour construire des produits durables.',
-    icon: Award,
     color: '#b9d6ed',
   },
 ];
@@ -94,8 +87,6 @@ function StackPanel({
     mass: 0.55,
   });
   const x = reducedMotion ? rawX : smoothX;
-  const Icon = panel.icon;
-
   return (
     <motion.article
       initial={{ x: '110vw', opacity: 0 }}
@@ -114,29 +105,7 @@ function StackPanel({
         style={{ backgroundColor: panel.color }}
       />
       <div className="relative flex h-full min-h-[100svh] flex-col px-7 pb-16 pt-10 sm:px-12 sm:pb-20 sm:pt-12 md:px-16 lg:px-24">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 sm:gap-5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-black bg-black text-white sm:h-14 sm:w-14">
-              <Icon size={21} strokeWidth={2.2} />
-            </div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.32em] text-black sm:text-xs">
-              À propos de moi
-            </span>
-          </div>
-
-          <span className="text-xs font-bold uppercase tracking-[0.28em] text-black/55">
-            {String(index + 1).padStart(2, '0')} / {String(panels.length).padStart(2, '0')}
-          </span>
-        </div>
-
         <div className="flex flex-1 flex-col justify-center">
-          <div
-            className="select-none text-[clamp(12rem,48vw,31rem)] font-black leading-[0.7] tracking-[-0.11em] text-black"
-            aria-hidden="true"
-          >
-            {panel.number}
-          </div>
-
           <div className="mt-10 max-w-5xl sm:mt-14">
             <h2 className="max-w-5xl text-[clamp(2.7rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.075em] text-black">
               {panel.title}
