@@ -73,10 +73,10 @@ function StackPanel({
   const start = INITIAL_BLANK + index * (REVEAL + HOLD);
   const end = start + REVEAL;
 
-  // The first panel fills the viewport completely. Every following panel
-  // settles one sliver from the left, while the previous panel remains
-  // underneath and becomes the visible colored strip.
-  const finalX = index === 0 ? '0px' : `${SLIVER}px`;
+  // The first panel fills the viewport. Following panels are narrower by
+  // exactly one sliver and stay flush with the right edge, so the previous
+  // panel remains visible only as a clean strip on the left.
+  const finalX = '0px';
   const input: number[] = [0, start, end];
   const output: string[] = ['110vw', '110vw', finalX];
 
@@ -105,7 +105,12 @@ function StackPanel({
     <motion.article
       initial={{ x: '110vw', opacity: 0 }}
       className="absolute inset-y-0 right-0 overflow-hidden border-y border-black/15"
-      style={{ x, opacity, zIndex: index + 1, width: index === 0 ? '100%' : `calc(100% - ${SLIVER}px)` }}
+      style={{
+        x,
+        opacity,
+        zIndex: index + 1,
+        width: index === 0 ? '100%' : `calc(100% - ${SLIVER}px)`,
+      }}
     >
       <div
         className="absolute inset-0"
