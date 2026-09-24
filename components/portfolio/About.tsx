@@ -73,15 +73,17 @@ function StackPanel({
   const start = INITIAL_BLANK + index * (REVEAL + HOLD);
   const end = start + REVEAL;
 
-  // The active panel always ends at x=0, keeping its right edge flush
-  // with the viewport. Older panels are pushed left one sliver at a time.
+  // The first panel fills the viewport completely. Every following panel
+  // settles one sliver from the left, while the previous panel remains
+  // underneath and becomes the visible colored strip.
+  const finalX = index === 0 ? '0px' : `${SLIVER}px`;
   const input: number[] = [0, start, end];
-  const output: string[] = ['110vw', '110vw', '0px'];
+  const output: string[] = ['110vw', '110vw', finalX];
 
   for (let next = index + 1; next < panels.length; next += 1) {
     const nextStart = INITIAL_BLANK + next * (REVEAL + HOLD);
     input.push(nextStart);
-    output.push(`-${(next - index) * SLIVER}px`);
+    output.push(finalX);
   }
 
   const rawX = useTransform(progress, input, output, { clamp: true });
@@ -102,17 +104,12 @@ function StackPanel({
   return (
     <motion.article
       initial={{ x: '110vw', opacity: 0 }}
-      style={{ x, opacity, zIndex: index + 1 }}
-      className="absolute inset-0 overflow-hidden border-y border-black/15"
+      className="absolute inset-y-0 right-0 overflow-hidden border-y border-black/15"
+      style={{ x, opacity, zIndex: index + 1, width: index === 0 ? '100%' : `calc(100% - ${SLIVER}px)` }}
     >
       <div
         className="absolute inset-0"
         style={{ backgroundColor: panel.color }}
-      />
-
-      <div
-        className="absolute inset-y-0 left-0 w-[34px] border-r border-black/20 sm:w-[48px]"
-        style={{ backgroundColor: panel.stripe }}
       />
 
       <div className="relative flex h-full min-h-[100svh] flex-col px-10 pb-16 pt-10 sm:px-16 sm:pb-20 sm:pt-12 md:px-20 lg:px-28">
