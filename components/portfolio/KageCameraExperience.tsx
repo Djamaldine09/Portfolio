@@ -194,39 +194,41 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
     emissive: 0x6c3410,
     emissiveIntensity: 0.18,
   });
-  box(3.02, 2.72, 0.10, 0, 2.34, -0.86, shojiBacking);
+  box(3.72, 2.72, 0.10, 0, 2.34, -0.86, shojiBacking);
 
-  const panelCenters = [-1.01, 0, 1.01];
+  // Fill the whole doorway width so no outside wall is visible beside the
+  // shoji frame when the camera reaches the entrance.
+  const panelCenters = [-1.38, -0.46, 0.46, 1.38];
   panelCenters.forEach((center) => {
-    const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 2.56), shojiPaper);
+    const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.84, 2.56), shojiPaper);
     paper.position.set(center, 2.34, -0.79);
     root.add(paper);
 
-    box(0.055, 2.70, 0.10, center - 0.46, 2.34, -0.70, shojiWood);
-    box(0.055, 2.70, 0.10, center + 0.46, 2.34, -0.70, shojiWood);
-    box(0.92, 0.055, 0.10, center, 3.69, -0.70, shojiWood);
-    box(0.92, 0.055, 0.10, center, 0.99, -0.70, shojiWood);
+    box(0.055, 2.70, 0.10, center - 0.43, 2.34, -0.70, shojiWood);
+    box(0.055, 2.70, 0.10, center + 0.43, 2.34, -0.70, shojiWood);
+    box(0.86, 0.055, 0.10, center, 3.69, -0.70, shojiWood);
+    box(0.86, 0.055, 0.10, center, 0.99, -0.70, shojiWood);
 
     // Fine vertical/horizontal kumiko members.
-    [-0.23, 0.23].forEach((x) =>
+    [-0.21, 0.21].forEach((x) =>
       box(0.032, 2.48, 0.075, center + x, 2.34, -0.68, shojiWood)
     );
     [-0.86, -0.43, 0, 0.43, 0.86].forEach((y) =>
-      box(0.86, 0.032, 0.075, center, 2.34 + y, -0.68, shojiWood)
+      box(0.80, 0.032, 0.075, center, 2.34 + y, -0.68, shojiWood)
     );
   });
 
   // Subtle ceiling beam/joinery visible through the open entrance.
-  box(3.04, 0.10, 0.16, 0, 3.58, 0.72, shojiWood);
-  box(0.10, 0.08, 2.68, -1.22, 3.49, 0.72, shojiWood);
-  box(0.10, 0.08, 2.68, 1.22, 3.49, 0.72, shojiWood);
+  box(3.72, 0.10, 0.16, 0, 3.58, 0.72, shojiWood);
+  box(0.10, 0.08, 2.68, -1.55, 3.49, 0.72, shojiWood);
+  box(0.10, 0.08, 2.68, 1.55, 3.49, 0.72, shojiWood);
 
   const interiorLight = new THREE.PointLight(0xff9b45, 0.62, 6.2, 2);
   interiorLight.position.set(0, 2.12, 0.32);
   root.add(interiorLight);
 
   // Deep rear wall stays behind the shoji so the paper keeps its warm silhouette.
-  box(3.02, 2.74, 0.10, 0, 2.34, -1.05, interiorMat);
+  box(3.72, 2.74, 0.10, 0, 2.34, -1.05, interiorMat);
 
   // Small hanging lantern, intentionally above eye level so it never blocks the view.
   const hangingCord = new THREE.Mesh(
