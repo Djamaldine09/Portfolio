@@ -311,9 +311,7 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   teaPotLid.position.set(-0.20, 1.70, 0.82);
   root.add(teaPotLid);
 
-  const lidKnob = new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 8), ceramicLight);
-  lidKnob.position.set(-0.20, 1.735, 0.82);
-  root.add(lidKnob);
+  // No top handle/knob: keep the tea pot silhouette clean.
 
   const potSpout = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.20, 8), ceramicDark);
   potSpout.position.set(-0.20, 1.58, 0.99);
