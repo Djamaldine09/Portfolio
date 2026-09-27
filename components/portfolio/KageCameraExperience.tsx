@@ -150,51 +150,112 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   // Deep interior backdrop: once the portal opens, the viewer sees a real
   // recessed space instead of a flat dark panel.
   // Nothing solid sits behind the doors at the entrance plane. The first
-  // visible wall is the recessed rear wall, so the opening has real depth.
+  // visible elements are recessed, so the eye reads an actual interior room.
   box(3.10, 0.10, 3.55, 0, 0.88, 1.42, darkWood);
   box(0.12, 2.72, 3.30, -1.55, 2.25, 1.38, darkWood);
   box(0.12, 2.72, 3.30, 1.55, 2.25, 1.38, darkWood);
 
-  const interiorFloor = new THREE.Mesh(
-    new THREE.BoxGeometry(3.02, 0.12, 3.55),
-    new THREE.MeshStandardMaterial({
-      color: 0x6b4a2d,
-      roughness: 0.92,
-      emissive: 0x6b3212,
-      emissiveIntensity: 0.12,
-    })
-  );
-  interiorFloor.position.set(0, 0.96, 1.38);
-  root.add(interiorFloor);
-
-  // Warm inner wall with subtle shoji-like framing for depth.
-  const innerGlow = new THREE.MeshStandardMaterial({
-    color: 0x5b321b,
-    roughness: 0.88,
-    emissive: 0xd06b24,
-    emissiveIntensity: 0.22,
+  const tatamiMat = new THREE.MeshStandardMaterial({
+    color: 0x8b7447,
+    roughness: 0.96,
+    emissive: 0x2a180a,
+    emissiveIntensity: 0.08,
   });
-  // Decorative inner shoji wall is recessed with the rear wall, not at the
-  // doorway, so it cannot hide the interior when the doors slide open.
-  box(2.48, 2.18, 0.06, 0, 2.22, -0.70, innerGlow);
-  [-0.82, 0, 0.82].forEach((x) => box(0.055, 1.98, 0.08, x, 2.22, -0.64, wood));
-  [-0.72, 0, 0.72].forEach((y) => box(2.35, 0.055, 0.08, 0, 2.22 + y, -0.64, wood));
+  // Tatami-like woven floor strips with narrow dark seams.
+  for (let row = 0; row < 4; row += 1) {
+    const mat = new THREE.Mesh(new THREE.BoxGeometry(2.98, 0.075, 0.82), tatamiMat);
+    mat.position.set(0, 1.005, 0.08 + row * 0.80);
+    root.add(mat);
+    if (row < 3) box(3.0, 0.025, 0.025, 0, 1.055, 0.49 + row * 0.80, darkWood);
+  }
+  [-1, 1].forEach((side) => {
+    box(0.025, 0.04, 3.26, side * 0.74, 1.055, 1.38, darkWood);
+  });
 
-  const interiorLight = new THREE.PointLight(0xff9b45, 0.55, 5.5, 2);
-  interiorLight.position.set(0, 2.05, 0.72);
+  // Recessed rear shoji wall: translucent paper + fine wooden kumiko grid.
+  const shojiPaper = new THREE.MeshStandardMaterial({
+    color: 0xf0e5cf,
+    roughness: 0.92,
+    metalness: 0,
+    transparent: true,
+    opacity: 0.78,
+    emissive: 0x6f3b16,
+    emissiveIntensity: 0.18,
+    side: THREE.DoubleSide,
+  });
+  const shojiWood = new THREE.MeshStandardMaterial({
+    color: 0x4a2a18,
+    roughness: 0.9,
+    metalness: 0.02,
+  });
+  const shojiBacking = new THREE.MeshStandardMaterial({
+    color: 0x1a110b,
+    roughness: 0.98,
+    emissive: 0x6c3410,
+    emissiveIntensity: 0.18,
+  });
+  box(3.02, 2.72, 0.10, 0, 2.34, -0.86, shojiBacking);
+
+  const panelCenters = [-1.01, 0, 1.01];
+  panelCenters.forEach((center) => {
+    const paper = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 2.56), shojiPaper);
+    paper.position.set(center, 2.34, -0.79);
+    root.add(paper);
+
+    box(0.055, 2.70, 0.10, center - 0.46, 2.34, -0.70, shojiWood);
+    box(0.055, 2.70, 0.10, center + 0.46, 2.34, -0.70, shojiWood);
+    box(0.92, 0.055, 0.10, center, 3.69, -0.70, shojiWood);
+    box(0.92, 0.055, 0.10, center, 0.99, -0.70, shojiWood);
+
+    // Fine vertical/horizontal kumiko members.
+    [-0.23, 0.23].forEach((x) =>
+      box(0.032, 2.48, 0.075, center + x, 2.34, -0.68, shojiWood)
+    );
+    [-0.86, -0.43, 0, 0.43, 0.86].forEach((y) =>
+      box(0.86, 0.032, 0.075, center, 2.34 + y, -0.68, shojiWood)
+    );
+  });
+
+  // Low tokonoma-like alcove for a small scroll / ornament.
+  box(0.62, 1.45, 0.18, 1.03, 1.72, -0.60, darkWood);
+  box(0.48, 1.18, 0.04, 1.03, 1.82, -0.49, shojiPaper);
+  box(0.34, 0.035, 0.05, 1.03, 2.20, -0.43, gold);
+  box(0.12, 0.32, 0.12, 0.72, 1.20, -0.45, gold);
+  box(0.12, 0.32, 0.12, 1.34, 1.20, -0.45, gold);
+
+  // Subtle ceiling beam/joinery visible through the open entrance.
+  box(3.04, 0.10, 0.16, 0, 3.58, 0.72, shojiWood);
+  box(0.10, 0.08, 2.68, -1.22, 3.49, 0.72, shojiWood);
+  box(0.10, 0.08, 2.68, 1.22, 3.49, 0.72, shojiWood);
+
+  const interiorLight = new THREE.PointLight(0xff9b45, 0.62, 6.2, 2);
+  interiorLight.position.set(0, 2.12, 0.32);
   root.add(interiorLight);
 
-  // Deep rear wall: deliberately kept far behind the doorway so opening the
-  // sliding doors reveals the full interior instead of another flat panel.
-  box(2.95, 2.82, 0.10, 0, 2.25, -0.78, interiorMat);
+  // Deep rear wall stays behind the shoji so the paper keeps its warm silhouette.
+  box(3.02, 2.74, 0.10, 0, 2.34, -1.05, interiorMat);
 
-  // A darker ceiling and a warm rear lantern make the interior read as a
-  // real recessed room when the camera reaches the entrance.
-  box(3.05, 0.10, 3.05, 0, 3.62, 1.02, darkWood);
-  const rearLantern = createLantern(THREE, true, themeParts);
-  rearLantern.position.set(0, 0.18, -0.42);
-  rearLantern.scale.setScalar(0.72);
-  root.add(rearLantern);
+  // Small hanging lantern, intentionally above eye level so it never blocks the view.
+  const hangingCord = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.018, 0.018, 0.48, 6),
+    shojiWood
+  );
+  hangingCord.position.set(0, 3.18, -0.28);
+  root.add(hangingCord);
+  const hangingLantern = new THREE.Mesh(
+    new THREE.BoxGeometry(0.34, 0.42, 0.34),
+    new THREE.MeshStandardMaterial({
+      color: 0xf4d08a,
+      roughness: 0.9,
+      emissive: 0xff8a2c,
+      emissiveIntensity: 0.8,
+    })
+  );
+  hangingLantern.position.set(0, 2.88, -0.28);
+  root.add(hangingLantern);
+  const hangingLight = new THREE.PointLight(0xffa04b, 0.48, 4.8, 2);
+  hangingLight.position.set(0, 2.88, -0.28);
+  root.add(hangingLight);
 
   // Two clearly visible sliding door leaves. Each leaf is grouped so the
   // complete shoji panel (wood + lattice + handles) can slide open naturally.
