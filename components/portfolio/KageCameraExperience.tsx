@@ -242,6 +242,31 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   // can overlap the steps or hide the central approach.
 
 
+  // Temple lanterns: fixed to the facade sides, outside the central staircase/door approach.
+  [-4.05, 4.05].forEach((x) => {
+    const lantern = createLantern(THREE, true, themeParts);
+    lantern.position.set(x, 0.02, 2.78);
+    lantern.scale.setScalar(0.92);
+    root.add(lantern);
+
+    // Small wooden bracket supporting each lantern, so it reads as architectural decoration.
+    box(0.52, 0.12, 0.34, x, 1.22, 2.68, wood);
+    box(0.12, 0.42, 0.16, x, 1.42, 2.67, wood);
+  });
+
+  // Extra facade details: stone side plinths and subtle timber joints.
+  [-4.02, 4.02].forEach((x) => {
+    box(0.58, 1.18, 0.72, x, 1.42, 2.42, stone);
+    box(0.70, 0.10, 0.80, x, 2.05, 2.42, darkWood);
+  });
+
+  // Small roof-end ornaments and layered ridge caps for a more finished silhouette.
+  [-3.55, -1.8, 1.8, 3.55].forEach((x) => {
+    box(0.16, 0.34, 0.20, x, 4.48, 2.62, gold);
+  });
+  box(7.9, 0.10, 0.18, 0, 4.72, 1.92, gold);
+  box(7.55, 0.08, 0.14, 0, 4.84, 0.72, gold);
+
   // Small corner ornaments.
   [-3.82, 3.82].forEach((x) => {
     const cap = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.30, 4), gold);
