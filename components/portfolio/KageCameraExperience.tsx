@@ -326,33 +326,93 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   potSpout.scale.set(1, 1, 0.72);
   root.add(potSpout);
 
-  const teaCupGroup = new THREE.Group();
-  teaCupGroup.position.set(0.13, 1.50, 0.78);
-  const cupBody = new THREE.Mesh(new THREE.CylinderGeometry(0.073, 0.058, 0.075, 14), ceramicLight);
-  teaCupGroup.add(cupBody);
-  const cupTea = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.008, 16), teaMaterial);
-  cupTea.position.y = 0.042;
-  teaCupGroup.add(cupTea);
-  const cupRim = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.010, 8, 20), ceramicLight);
-  cupRim.position.y = 0.042;
-  teaCupGroup.add(cupRim);
-  const cupHandle = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.009, 8, 16, Math.PI), ceramicLight);
-  cupHandle.position.set(0.070, 0.015, 0);
-  cupHandle.rotation.y = Math.PI / 2;
-  teaCupGroup.add(cupHandle);
-  root.add(teaCupGroup);
+  // Chawan japonais : bol large, bas et sans anse, avec profil artisanal
+  // légèrement irrégulier, lèvre arrondie et pied (kodai) sous la base.
+  const chawan = new THREE.Group();
+  chawan.position.set(0.13, 1.445, 0.78);
 
-  const saucer = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.088, 0.018, 16), ceramicLight);
-  saucer.position.set(0.13, 1.452, 0.78);
-  root.add(saucer);
+  const chawanMaterial = new THREE.MeshStandardMaterial({
+    color: 0x75604f,
+    roughness: 0.82,
+    metalness: 0.01,
+  });
 
+  const chawanProfile = [
+    new THREE.Vector2(0.12, 0.00),
+    new THREE.Vector2(0.24, 0.015),
+    new THREE.Vector2(0.34, 0.07),
+    new THREE.Vector2(0.43, 0.15),
+    new THREE.Vector2(0.51, 0.25),
+    new THREE.Vector2(0.56, 0.34),
+    new THREE.Vector2(0.57, 0.40),
+    new THREE.Vector2(0.54, 0.42),
+    new THREE.Vector2(0.47, 0.40),
+    new THREE.Vector2(0.42, 0.34),
+    new THREE.Vector2(0.36, 0.24),
+    new THREE.Vector2(0.28, 0.15),
+    new THREE.Vector2(0.18, 0.09),
+    new THREE.Vector2(0.10, 0.07),
+  ];
+  const chawanBody = new THREE.Mesh(
+    new THREE.LatheGeometry(chawanProfile, 28),
+    chawanMaterial
+  );
+  chawanBody.rotation.z = 0.015;
+  chawan.add(chawanBody);
+
+  // Rounded handmade lip, slightly oversized like a real chawan.
+  const chawanRim = new THREE.Mesh(
+    new THREE.TorusGeometry(0.535, 0.026, 8, 28),
+    chawanMaterial
+  );
+  chawanRim.position.y = 0.405;
+  chawanRim.scale.set(1.01, 0.95, 1);
+  chawan.add(chawanRim);
+
+  // Visible matcha/tea surface sitting inside the bowl, below the lip.
+  const chawanTea = new THREE.Mesh(
+    new THREE.CircleGeometry(0.43, 28),
+    teaMaterial
+  );
+  chawanTea.position.set(0, 0.345, 0);
+  chawanTea.rotation.x = -Math.PI / 2;
+  chawan.add(chawanTea);
+
+  // Small concave center (chadamari) to suggest the traditional inner well.
+  const chadamari = new THREE.Mesh(
+    new THREE.CircleGeometry(0.17, 24),
+    new THREE.MeshStandardMaterial({
+      color: 0x5a2b13,
+      roughness: 0.38,
+      emissive: 0x1d0903,
+      emissiveIntensity: 0.18,
+    })
+  );
+  chadamari.position.set(0, 0.351, 0);
+  chadamari.rotation.x = -Math.PI / 2;
+  chawan.add(chadamari);
+
+  // Carved kodai foot ring instead of a saucer.
+  const kodai = new THREE.Mesh(
+    new THREE.TorusGeometry(0.145, 0.032, 8, 24),
+    chawanMaterial
+  );
+  kodai.position.y = 0.015;
+  chawan.add(kodai);
+
+  // A tiny irregularity in the silhouette gives it a handmade wabi-sabi feel.
+  chawan.scale.set(1.0, 1.0, 0.97);
+  chawan.rotation.y = -0.10;
+  root.add(chawan);
+
+  // Spoon rests beside the chawan instead of inside it.
   const spoonHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.18, 8), ceramicLight);
-  spoonHandle.position.set(0.26, 1.475, 0.80);
+  spoonHandle.position.set(0.29, 1.475, 0.80);
   spoonHandle.rotation.z = Math.PI * 0.5;
   root.add(spoonHandle);
   const spoonBowl = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), ceramicLight);
   spoonBowl.scale.set(1.0, 0.22, 0.62);
-  spoonBowl.position.set(0.35, 1.475, 0.80);
+  spoonBowl.position.set(0.38, 1.475, 0.80);
   root.add(spoonBowl);
 
   const steamTexture = (() => {
@@ -378,7 +438,7 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
       opacity: 0.22 + index * 0.035,
       depthWrite: false,
     }));
-    steam.position.set(0.13 + x, 1.60, 0.78 + (index - 1) * 0.006);
+    steam.position.set(0.13 + x, 1.79, 0.78 + (index - 1) * 0.006);
     steam.scale.set(0.065, 0.18, 1);
     steam.userData = { baseX: steam.position.x, baseY: steam.position.y, phase: index * 1.7 };
     root.add(steam);
