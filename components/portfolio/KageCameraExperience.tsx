@@ -176,7 +176,17 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   interiorLight.position.set(0, 2.05, 0.72);
   root.add(interiorLight);
 
-  box(2.95, 3.0, 0.07, 0, 2.25, 2.56, interiorMat);
+  // Deep rear wall: deliberately kept far behind the doorway so opening the
+  // sliding doors reveals the full interior instead of another flat panel.
+  box(2.95, 2.82, 0.10, 0, 2.25, -0.78, interiorMat);
+
+  // A darker ceiling and a warm rear lantern make the interior read as a
+  // real recessed room when the camera reaches the entrance.
+  box(3.05, 0.10, 3.05, 0, 3.62, 1.02, darkWood);
+  const rearLantern = createLantern(THREE, true, themeParts);
+  rearLantern.position.set(0, 0.18, -0.42);
+  rearLantern.scale.setScalar(0.72);
+  root.add(rearLantern);
 
   // Two clearly visible sliding door leaves. Each leaf is grouped so the
   // complete shoji panel (wood + lattice + handles) can slide open naturally.
