@@ -12,7 +12,7 @@ const chapters = [
 type LeafData = { x: number; y: number; z: number; phase: number; speed: number; drift: number; size: number; rotation: number };
 type CloudData = { group: any; baseX: number; baseY: number; speed: number; phase: number };
 type ThemePart = { material: any; night: number; day: number };
-type ThreeState = { renderer: any; scene: any; camera: any; group: any; leaves: any; leafData: LeafData[]; clouds: CloudData[]; themeParts: ThemePart[]; moonMaterial: any; glowMaterial: any; glow2Material: any; moonLight: any; moonPoint: any; doorLeaves: any[]; doorLight: any; applyTheme: (day: boolean) => void };
+type ThreeState = { renderer: any; scene: any; camera: any; group: any; leaves: any; leafData: LeafData[]; clouds: CloudData[]; themeParts: ThemePart[]; moonMaterial: any; glowMaterial: any; glow2Material: any; moonLight: any; moonPoint: any; doorLeaves: any[]; doorLight: any; teaSteam: any[]; applyTheme: (day: boolean) => void };
 type ThreeWindow = Window & { THREE?: any };
 
 function loadThree(): Promise<any> {
@@ -289,20 +289,101 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   tabletopInset.position.set(-0.02, 1.415, 0.82);
   root.add(tabletopInset);
 
-  // Tiny tea tray, cup and pot to give the room a lived-in scale.
-  box(0.48, 0.035, 0.28, -0.08, 1.445, 0.82, furnitureWood);
-  const teaPot = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.11, 0.14, 0.11, 10),
-    new THREE.MeshStandardMaterial({ color: 0x40352d, roughness: 0.64 })
-  );
-  teaPot.position.set(-0.17, 1.535, 0.82);
+  // Small tea service: separate ceramic pieces, visible tea surface, handles,
+  // lid and spout so the objects read as real rather than simple primitives.
+  box(0.58, 0.035, 0.34, -0.08, 1.445, 0.82, furnitureWood);
+
+  const ceramicDark = new THREE.MeshStandardMaterial({ color: 0x4a4038, roughness: 0.42, metalness: 0.02 });
+  const ceramicLight = new THREE.MeshStandardMaterial({ color: 0xd8c4a5, roughness: 0.46, metalness: 0.01 });
+  const teaMaterial = new THREE.MeshStandardMaterial({ color: 0x7a3518, roughness: 0.28, metalness: 0.01, emissive: 0x2b1005, emissiveIntensity: 0.22 });
+
+  const teaPot = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 10), ceramicDark);
+  teaPot.scale.set(1.08, 0.72, 1.0);
+  teaPot.position.set(-0.20, 1.57, 0.82);
   root.add(teaPot);
-  const teaCup = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.055, 0.065, 0.06, 10),
-    new THREE.MeshStandardMaterial({ color: 0xd9c6a7, roughness: 0.7 })
-  );
-  teaCup.position.set(0.10, 1.50, 0.78);
-  root.add(teaCup);
+
+  const teaPotNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.085, 0.055, 12), ceramicDark);
+  teaPotNeck.position.set(-0.20, 1.665, 0.82);
+  root.add(teaPotNeck);
+
+  const teaPotLid = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 8), ceramicDark);
+  teaPotLid.scale.y = 0.42;
+  teaPotLid.position.set(-0.20, 1.70, 0.82);
+  root.add(teaPotLid);
+
+  const lidKnob = new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 8), ceramicLight);
+  lidKnob.position.set(-0.20, 1.735, 0.82);
+  root.add(lidKnob);
+
+  const potHandle = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.018, 8, 20, Math.PI), ceramicDark);
+  potHandle.position.set(-0.20, 1.62, 0.72);
+  potHandle.rotation.x = Math.PI / 2;
+  root.add(potHandle);
+
+  const potSpout = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.20, 8), ceramicDark);
+  potSpout.position.set(-0.20, 1.58, 0.99);
+  potSpout.rotation.x = Math.PI * 0.5;
+  potSpout.scale.set(1, 1, 0.72);
+  root.add(potSpout);
+
+  const teaCupGroup = new THREE.Group();
+  teaCupGroup.position.set(0.13, 1.50, 0.78);
+  const cupBody = new THREE.Mesh(new THREE.CylinderGeometry(0.073, 0.058, 0.075, 14), ceramicLight);
+  teaCupGroup.add(cupBody);
+  const cupTea = new THREE.Mesh(new THREE.CylinderGeometry(0.052, 0.052, 0.008, 16), teaMaterial);
+  cupTea.position.y = 0.042;
+  teaCupGroup.add(cupTea);
+  const cupRim = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.010, 8, 20), ceramicLight);
+  cupRim.position.y = 0.042;
+  teaCupGroup.add(cupRim);
+  const cupHandle = new THREE.Mesh(new THREE.TorusGeometry(0.032, 0.009, 8, 16, Math.PI), ceramicLight);
+  cupHandle.position.set(0.070, 0.015, 0);
+  cupHandle.rotation.y = Math.PI / 2;
+  teaCupGroup.add(cupHandle);
+  root.add(teaCupGroup);
+
+  const saucer = new THREE.Mesh(new THREE.CylinderGeometry(0.105, 0.088, 0.018, 16), ceramicLight);
+  saucer.position.set(0.13, 1.452, 0.78);
+  root.add(saucer);
+
+  const spoonHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.18, 8), ceramicLight);
+  spoonHandle.position.set(0.26, 1.475, 0.80);
+  spoonHandle.rotation.z = Math.PI * 0.5;
+  root.add(spoonHandle);
+  const spoonBowl = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), ceramicLight);
+  spoonBowl.scale.set(1.0, 0.22, 0.62);
+  spoonBowl.position.set(0.35, 1.475, 0.80);
+  root.add(spoonBowl);
+
+  const steamTexture = (() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 96;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    const gradient = ctx.createRadialGradient(48, 52, 2, 48, 48, 42);
+    gradient.addColorStop(0, 'rgba(255,248,230,0.72)');
+    gradient.addColorStop(0.30, 'rgba(255,242,220,0.28)');
+    gradient.addColorStop(1, 'rgba(255,240,220,0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 96, 96);
+    return new THREE.CanvasTexture(canvas);
+  })();
+
+  const teaSteam: any[] = [];
+  [-0.022, 0, 0.022].forEach((x, index) => {
+    const steam = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: steamTexture || undefined,
+      color: 0xfff3df,
+      transparent: true,
+      opacity: 0.22 + index * 0.035,
+      depthWrite: false,
+    }));
+    steam.position.set(0.13 + x, 1.60, 0.78 + (index - 1) * 0.006);
+    steam.scale.set(0.065, 0.18, 1);
+    steam.userData = { baseX: steam.position.x, baseY: steam.position.y, phase: index * 1.7 };
+    root.add(steam);
+    teaSteam.push(steam);
+  });
 
   // Compact upholstered armchair with real seat/back padding and wooden arms.
   const chairX = 1.00;
@@ -413,6 +494,7 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   root.add(doorLight);
   root.userData.doorLeaves = doorLeaves;
   root.userData.doorLight = doorLight;
+  root.userData.teaSteam = teaSteam;
 
   // Door threshold + small gold handles.
   box(3.15, 0.14, 0.16, 0, 0.82, 2.58, wood);
@@ -562,11 +644,11 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   const mountainSpecs: [number, number, number, number][] = [[-16, -124, 2.25, 0x0b1018], [-5, -136, 3.15, 0x070b12], [8, -130, 2.65, 0x0a0e16], [18, -146, 3.25, 0x080b11]]; mountainSpecs.forEach(([x, z, scale, color]) => group.add(createMountain(THREE, x, z, scale, color, themeParts))); const clouds: CloudData[] = []; const cloudSpecs: [number, number, number, number, number][] = [[-8, 8.5, -42, 1.6, 0.9], [6, 10.2, -50, 1.9, 0.7], [-3, 12.2, -62, 2.2, 0.5], [11, 9.2, -70, 1.7, 0.35]]; cloudSpecs.forEach(([x, y, z, scale, speed], index) => { const cloud = createCloud(THREE, x, y, z, scale, mobile, themeParts); group.add(cloud); clouds.push({ group: cloud, baseX: x, baseY: y, speed, phase: index * 1.8 }); }); const leafSet = createLeaves(THREE, mobile, depth, themeParts); group.add(leafSet.mesh);
   const particleCount = mobile ? 120 : 260, positions = new Float32Array(particleCount * 3); for (let i = 0; i < particleCount; i += 1) { positions[i * 3] = (Math.random() - 0.5) * 28; positions[i * 3 + 1] = Math.random() * 10; positions[i * 3 + 2] = -Math.random() * depth - 4; } const particleGeometry = new THREE.BufferGeometry(); particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); group.add(new THREE.Points(particleGeometry, themeMaterial(new THREE.PointsMaterial({ color: 0xc8a875, size: mobile ? 0.045 : 0.04, transparent: true, opacity: 0.32, depthWrite: false }), 0xc8a875, 0xffffff, themeParts)));
   const applyTheme = (day: boolean) => { renderer.setClearColor(day ? 0x8fc4e9 : 0x030508, 1); if (skyTexture) skyTexture.dispose(); skyTexture = createSkyTexture(THREE, day, mobile); if (skyTexture) scene.background = skyTexture; scene.fog.color.setHex(day ? 0x8fc4e9 : 0x080a0d); scene.fog.density = day ? (mobile ? 0.018 : 0.014) : (mobile ? 0.038 : 0.03); hemisphere.color.setHex(day ? 0xbfe4ff : 0x9eabc5); hemisphere.groundColor.setHex(day ? 0x304d2c : 0x080604); hemisphere.intensity = day ? 1.55 : 1.05; moonMaterial.map = day ? undefined : moonTexture || undefined; moonMaterial.bumpMap = day ? undefined : moonTexture || undefined; moonMaterial.emissiveMap = day ? undefined : moonTexture || undefined; moonMaterial.color.setHex(day ? 0xffd85a : 0xffffff); moonMaterial.emissive.setHex(day ? 0xff9d1a : 0xfff3d6); moonMaterial.emissiveIntensity = day ? 2.2 : 0.72; moonMaterial.bumpScale = day ? 0 : 0.075; moonMaterial.needsUpdate = true; glowMaterial.color.setHex(day ? 0xffb62e : 0xfff1ce); glowMaterial.opacity = mobile ? (day ? 0.7 : 0.62) : (day ? 0.82 : 0.72); glow2Material.color.setHex(day ? 0xffd36a : 0xdde9ff); glow2Material.opacity = mobile ? (day ? 0.18 : 0.28) : (day ? 0.22 : 0.34); moonLight.color.setHex(day ? 0xffe4b0 : 0xdce8ff); moonLight.intensity = day ? (mobile ? 2.6 : 3.2) : (mobile ? 1.55 : 2.0); moonPoint.color.setHex(day ? 0xffb52e : 0xfff2d0); moonPoint.intensity = day ? 0.7 : (mobile ? 0.45 : 0.65); themeParts.forEach(({ material, night, day: dayColor }) => material.color.setHex(day ? dayColor : night)); const cloudMaterials = clouds.map((cloud) => cloud.group.children[0]?.material).filter(Boolean); cloudMaterials.forEach((material: any) => { material.opacity = mobile ? (day ? 0.3 : 0.07) : (day ? 0.42 : 0.09); material.needsUpdate = true; }); };
-  const resize = () => { const width = Math.max(1, canvas.clientWidth || window.innerWidth), height = Math.max(1, canvas.clientHeight || window.innerHeight); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }; resize(); const observer = new ResizeObserver(resize); observer.observe(canvas); stateRef.current = { renderer, scene, camera, group, leaves: leafSet.mesh, leafData: leafSet.data, clouds, themeParts, moonMaterial, glowMaterial, glow2Material, moonLight, moonPoint, doorLeaves: temple.userData.doorLeaves || [], doorLight: temple.userData.doorLight, applyTheme }; return () => { observer.disconnect(); disposeObject(scene); renderer.dispose(); stateRef.current = null; };
+  const resize = () => { const width = Math.max(1, canvas.clientWidth || window.innerWidth), height = Math.max(1, canvas.clientHeight || window.innerHeight); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }; resize(); const observer = new ResizeObserver(resize); observer.observe(canvas); stateRef.current = { renderer, scene, camera, group, leaves: leafSet.mesh, leafData: leafSet.data, clouds, themeParts, moonMaterial, glowMaterial, glow2Material, moonLight, moonPoint, doorLeaves: temple.userData.doorLeaves || [], doorLight: temple.userData.doorLight, teaSteam: temple.userData.teaSteam || [], applyTheme }; return () => { observer.disconnect(); disposeObject(scene); renderer.dispose(); stateRef.current = null; };
 }
 
 export default function KageCameraExperience() {
   const canvasRef = useRef<HTMLCanvasElement>(null); const stateRef = useRef<ThreeState | null>(null); const progressRef = useRef(0); const pointerRef = useRef({ x: 0, y: 0 }); const [chapter, setChapter] = useState(0); const [ready, setReady] = useState(false);
-  useEffect(() => { const canvas = canvasRef.current, section = document.getElementById('kage-experience'); if (!canvas || !section) return; let disposed = false, cleanup: (() => void) | undefined, raf = 0, visible = true; const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches, mobile = window.matchMedia('(max-width: 767px)').matches; const isDay = () => !document.documentElement.classList.contains('dark'); let dayTheme = isDay(); const updateProgress = () => { const rect = section.getBoundingClientRect(), travel = Math.max(section.offsetHeight - window.innerHeight, 1); progressRef.current = Math.min(1, Math.max(0, -rect.top / travel)); const next = Math.min(chapters.length - 1, Math.floor(progressRef.current * chapters.length)); setChapter((current) => current === next ? current : next); }; let scrollRaf = 0; const onScroll = () => { if (scrollRaf) return; scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; updateProgress(); }); }; updateProgress(); const pointerMove = (event: PointerEvent) => { pointerRef.current.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5; pointerRef.current.y = event.clientY / Math.max(window.innerHeight, 1) - 0.5; }; const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.01 }); visibilityObserver.observe(section); const themeObserver = new MutationObserver(() => { const next = isDay(); if (next !== dayTheme) { dayTheme = next; stateRef.current?.applyTheme(dayTheme); } }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] }); const init = async () => { try { const THREE = await loadThree(); if (disposed) return; cleanup = createScene(THREE, canvas, mobile, stateRef); stateRef.current?.applyTheme(dayTheme); setReady(true); const clock = new THREE.Clock(), dummy = new THREE.Object3D(); const animate = () => { if (disposed) return; const state = stateRef.current; if (state && visible) { const elapsed = clock.getElapsedTime(), p = progressRef.current; const approachT = Math.min(1, Math.max(0, (p - 0.66) / 0.34)); const approach = approachT * approachT * (3 - 2 * approachT); const cruiseZ = 8.5 - p * (mobile ? 72 : 90); const stairStartZ = mobile ? -65.8 : -65.5; const stairEndZ = mobile ? -69.15 : -69.35; const stairBlend = Math.min(1, Math.max(0, approach / 0.22)); const stairBlendSmooth = stairBlend * stairBlend * (3 - 2 * stairBlend); const stairT = Math.min(1, Math.max(0, (approach - 0.22) / 0.78)); const stairProgress = stairT * stairT * (3 - 2 * stairT); const stairZ = stairStartZ + (stairEndZ - stairStartZ) * stairProgress; const targetZ = cruiseZ + (stairZ - cruiseZ) * stairBlendSmooth; const stairRise = mobile ? 1.18 : 1.34; const targetY = 1.70 + Math.sin(p * Math.PI) * 0.10 + stairRise * stairProgress * stairBlendSmooth; const targetX = pointerRef.current.x * (mobile ? 0.16 : 0.36); const stairPitch = mobile ? 0.28 : 0.32; const targetPitch = -0.045 - stairPitch * stairProgress * stairBlendSmooth + pointerRef.current.y * -0.006; const doorT = Math.min(1, Math.max(0, (p - 0.84) / 0.16)); const doorOpen = doorT * doorT * (3 - 2 * doorT); state.camera.position.x += (targetX - state.camera.position.x) * 0.055; state.camera.position.y += (targetY - state.camera.position.y) * 0.05; state.camera.position.z += (targetZ - state.camera.position.z) * 0.08; state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035; state.camera.rotation.x += (targetPitch - state.camera.rotation.x) * 0.035; state.doorLeaves.forEach((leaf: any) => { const side = leaf.userData.side || 1; leaf.position.x = side * (0.72 + doorOpen * 1.58); }); if (state.doorLight) state.doorLight.intensity = 0.18 + doorOpen * 2.0; if (!reduced) { state.clouds.forEach((cloud) => { cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5; cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035; }); state.leafData.forEach((leaf, index) => { const wind = elapsed * leaf.speed + leaf.phase, x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed, y = leaf.y + Math.sin(wind * 1.35) * 0.28, z = leaf.z + Math.cos(wind * 0.7) * 0.55; dummy.position.set(x > 8 ? x - 16 : x, y, z); dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7); dummy.scale.set(leaf.size, leaf.size, leaf.size); dummy.updateMatrix(); state.leaves.setMatrixAt(index, dummy.matrix); }); state.leaves.instanceMatrix.needsUpdate = true; } state.renderer.render(state.scene, state.camera); } raf = requestAnimationFrame(animate); }; raf = requestAnimationFrame(animate); } catch { if (!disposed) setReady(false); } }; window.addEventListener('scroll', onScroll, { passive: true }); if (!mobile) window.addEventListener('pointermove', pointerMove, { passive: true }); init(); return () => { disposed = true; cancelAnimationFrame(raf); cancelAnimationFrame(scrollRaf); window.removeEventListener('scroll', onScroll); if (!mobile) window.removeEventListener('pointermove', pointerMove); visibilityObserver.disconnect(); themeObserver.disconnect(); cleanup?.(); }; }, []);
+  useEffect(() => { const canvas = canvasRef.current, section = document.getElementById('kage-experience'); if (!canvas || !section) return; let disposed = false, cleanup: (() => void) | undefined, raf = 0, visible = true; const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches, mobile = window.matchMedia('(max-width: 767px)').matches; const isDay = () => !document.documentElement.classList.contains('dark'); let dayTheme = isDay(); const updateProgress = () => { const rect = section.getBoundingClientRect(), travel = Math.max(section.offsetHeight - window.innerHeight, 1); progressRef.current = Math.min(1, Math.max(0, -rect.top / travel)); const next = Math.min(chapters.length - 1, Math.floor(progressRef.current * chapters.length)); setChapter((current) => current === next ? current : next); }; let scrollRaf = 0; const onScroll = () => { if (scrollRaf) return; scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; updateProgress(); }); }; updateProgress(); const pointerMove = (event: PointerEvent) => { pointerRef.current.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5; pointerRef.current.y = event.clientY / Math.max(window.innerHeight, 1) - 0.5; }; const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.01 }); visibilityObserver.observe(section); const themeObserver = new MutationObserver(() => { const next = isDay(); if (next !== dayTheme) { dayTheme = next; stateRef.current?.applyTheme(dayTheme); } }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] }); const init = async () => { try { const THREE = await loadThree(); if (disposed) return; cleanup = createScene(THREE, canvas, mobile, stateRef); stateRef.current?.applyTheme(dayTheme); setReady(true); const clock = new THREE.Clock(), dummy = new THREE.Object3D(); const animate = () => { if (disposed) return; const state = stateRef.current; if (state && visible) { state.teaSteam.forEach((steam: any, index: number) => { const phase = steam.userData.phase || 0; const rise = (Math.sin(elapsed * 0.9 + phase) + 1) * 0.5; steam.position.x = steam.userData.baseX + Math.sin(elapsed * 0.75 + phase) * 0.035; steam.position.y = steam.userData.baseY + rise * 0.34; steam.material.opacity = (0.20 + index * 0.035) * (1 - rise); steam.scale.x = 0.055 + rise * 0.018; steam.scale.y = 0.14 + rise * 0.10; }); const elapsed = clock.getElapsedTime(), p = progressRef.current; const approachT = Math.min(1, Math.max(0, (p - 0.66) / 0.34)); const approach = approachT * approachT * (3 - 2 * approachT); const cruiseZ = 8.5 - p * (mobile ? 72 : 90); const stairStartZ = mobile ? -65.8 : -65.5; const stairEndZ = mobile ? -69.15 : -69.35; const stairBlend = Math.min(1, Math.max(0, approach / 0.22)); const stairBlendSmooth = stairBlend * stairBlend * (3 - 2 * stairBlend); const stairT = Math.min(1, Math.max(0, (approach - 0.22) / 0.78)); const stairProgress = stairT * stairT * (3 - 2 * stairT); const stairZ = stairStartZ + (stairEndZ - stairStartZ) * stairProgress; const targetZ = cruiseZ + (stairZ - cruiseZ) * stairBlendSmooth; const stairRise = mobile ? 1.18 : 1.34; const targetY = 1.70 + Math.sin(p * Math.PI) * 0.10 + stairRise * stairProgress * stairBlendSmooth; const targetX = pointerRef.current.x * (mobile ? 0.16 : 0.36); const stairPitch = mobile ? 0.28 : 0.32; const targetPitch = -0.045 - stairPitch * stairProgress * stairBlendSmooth + pointerRef.current.y * -0.006; const doorT = Math.min(1, Math.max(0, (p - 0.84) / 0.16)); const doorOpen = doorT * doorT * (3 - 2 * doorT); state.camera.position.x += (targetX - state.camera.position.x) * 0.055; state.camera.position.y += (targetY - state.camera.position.y) * 0.05; state.camera.position.z += (targetZ - state.camera.position.z) * 0.08; state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035; state.camera.rotation.x += (targetPitch - state.camera.rotation.x) * 0.035; state.doorLeaves.forEach((leaf: any) => { const side = leaf.userData.side || 1; leaf.position.x = side * (0.72 + doorOpen * 1.58); }); if (state.doorLight) state.doorLight.intensity = 0.18 + doorOpen * 2.0; if (!reduced) { state.clouds.forEach((cloud) => { cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5; cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035; }); state.leafData.forEach((leaf, index) => { const wind = elapsed * leaf.speed + leaf.phase, x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed, y = leaf.y + Math.sin(wind * 1.35) * 0.28, z = leaf.z + Math.cos(wind * 0.7) * 0.55; dummy.position.set(x > 8 ? x - 16 : x, y, z); dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7); dummy.scale.set(leaf.size, leaf.size, leaf.size); dummy.updateMatrix(); state.leaves.setMatrixAt(index, dummy.matrix); }); state.leaves.instanceMatrix.needsUpdate = true; } state.renderer.render(state.scene, state.camera); } raf = requestAnimationFrame(animate); }; raf = requestAnimationFrame(animate); } catch { if (!disposed) setReady(false); } }; window.addEventListener('scroll', onScroll, { passive: true }); if (!mobile) window.addEventListener('pointermove', pointerMove, { passive: true }); init(); return () => { disposed = true; cancelAnimationFrame(raf); cancelAnimationFrame(scrollRaf); window.removeEventListener('scroll', onScroll); if (!mobile) window.removeEventListener('pointermove', pointerMove); visibilityObserver.disconnect(); themeObserver.disconnect(); cleanup?.(); }; }, []);
   const current = chapters[chapter]; return (<section id="kage-experience" className="relative z-0 isolate h-[360vh] bg-[#040608] text-white"><div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /><div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(38,104,168,0.02),rgba(255,219,170,0.12)_72%,rgba(255,237,208,0.22))] dark:bg-[radial-gradient(circle_at_50%_45%,transparent_0%,rgba(3,5,8,0.08)_45%,rgba(3,5,8,0.68)_100%)]" /><div className="relative z-10 flex h-full items-end px-5 pb-20 sm:px-8 sm:pb-24 lg:px-16 lg:pb-28"><div className="w-full max-w-3xl"><div className="mb-5 flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.38em] text-amber-200/75 sm:text-xs"><span className="h-px w-12 bg-amber-200/60" /><span>{current.kicker}</span></div><h2 className="max-w-3xl whitespace-pre-line font-black uppercase leading-[0.82] tracking-[-0.075em] text-[clamp(3.05rem,12.5vw,8.2rem)] text-white drop-shadow-2xl sm:text-[clamp(4.8rem,10vw,8.5rem)]">{current.title}</h2><p className="mt-7 max-w-2xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:text-xl">{current.body}</p></div></div><div className="absolute bottom-5 right-5 z-20 flex items-center gap-3 sm:bottom-8 sm:right-8"><div className="h-1 w-20 overflow-hidden rounded-full bg-white/15 sm:w-28"><div className="h-full rounded-full bg-amber-200/80 transition-[width] duration-150" style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} /></div><span className="text-[10px] tracking-[0.3em] text-white/55">SCROLL</span></div>{!ready && <div className="pointer-events-none absolute inset-0 z-30 bg-[#040608]" />}</div></section>);
 }
