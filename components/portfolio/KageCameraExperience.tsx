@@ -54,125 +54,211 @@ function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: 
 
 function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   const root = new THREE.Group();
-  const wood = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x3b2115, roughness: 0.9 }), 0x3b2115, 0x70402a, themeParts);
-  const darkWood = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x17100c, roughness: 0.96 }), 0x17100c, 0x382218, themeParts);
-  const plaster = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x827866, roughness: 0.94 }), 0x827866, 0xc8bda7, themeParts);
-  const roofMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x111416, roughness: 0.84 }), 0x111416, 0x34393a, themeParts);
-  const red = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x70291c, roughness: 0.84 }), 0x70291c, 0x9f3b27, themeParts);
-  const stone = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x4b4943, roughness: 0.98 }), 0x4b4943, 0x81796a, themeParts);
-  const gold = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x927033, roughness: 0.58, metalness: 0.18 }), 0x927033, 0xc69b4a, themeParts);
 
-  const box = (sx: number, sy: number, sz: number, x: number, y: number, z: number, material: any) => {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
-    m.position.set(x, y, z);
-    root.add(m);
-    return m;
+  const wood = themeMaterial(
+    new THREE.MeshStandardMaterial({ color: 0x4a2819, roughness: 0.88 }),
+    0x4a2819,
+    0x7d4930,
+    themeParts
+  );
+  const darkWood = themeMaterial(
+    new THREE.MeshStandardMaterial({ color: 0x18110d, roughness: 0.94 }),
+    0x18110d,
+    0x35231a,
+    themeParts
+  );
+  const plaster = themeMaterial(
+    new THREE.MeshStandardMaterial({ color: 0x817c70, roughness: 0.96 }),
+    0x817c70,
+    0xc9c0ad,
+    themeParts
+  );
+  const roofMat = themeMaterial(
+    new THREE.MeshStandardMaterial({ color: 0x15191a, roughness: 0.82 }),
+    0x15191a,
+    0x3c4242,
+    themeParts
+  );
+  const red = themeMaterial(
+    new THREE.MeshStandardMaterial({ color: 0x6e2e20, roughness: 0.82 }),
+    0x6e2e20,
+    0xa34b31,
+    themeParts
+  );
+  const stone = themeMaterial(
+    new THREE.MeshStandardMaterial({ color: 0x5a554b, roughness: 0.98 }),
+    0x5a554b,
+    0x8b8475,
+    themeParts
+  );
+  const gold = themeMaterial(
+    new THREE.MeshStandardMaterial({ color: 0x9b7835, roughness: 0.56, metalness: 0.22 }),
+    0x9b7835,
+    0xd1aa58,
+    themeParts
+  );
+
+  const box = (
+    sx: number,
+    sy: number,
+    sz: number,
+    x: number,
+    y: number,
+    z: number,
+    material: any
+  ) => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
+    mesh.position.set(x, y, z);
+    root.add(mesh);
+    return mesh;
   };
 
-  // Raised wooden platform and compact main hall.
-  box(9.4, 0.42, 5.8, 0, 0.48, 0.15, darkWood);
-  box(8.4, 3.25, 4.5, 0, 2.35, 0.15, plaster);
+  // Main raised building: the camera approaches the POSITIVE-Z facade.
+  box(9.6, 0.46, 6.0, 0, 0.48, 0.15, darkWood);
+  box(8.5, 3.3, 4.55, 0, 2.35, 0.15, plaster);
 
-  // Strong visible front timber frame.
-  [-3.45, -2.25, -1.05, 0, 1.05, 2.25, 3.45].forEach((x) => {
-    box(0.16, 3.0, 0.22, x, 2.25, -2.06, wood);
+  // Front foundation / veranda so the facade never looks like a flat floating wall.
+  box(8.8, 0.22, 0.55, 0, 0.72, 2.38, darkWood);
+  box(8.15, 0.16, 0.34, 0, 0.92, 2.5, wood);
+
+  // Real timber frame on the visible front facade.
+  [-3.55, -2.35, -1.15, 0, 1.15, 2.35, 3.55].forEach((x) => {
+    box(0.18, 3.05, 0.26, x, 2.28, 2.32, wood);
   });
-  box(7.25, 0.2, 0.24, 0, 3.62, -2.08, wood);
-  box(7.25, 0.2, 0.24, 0, 0.88, -2.08, wood);
+  box(7.5, 0.24, 0.28, 0, 3.68, 2.34, wood);
+  box(7.5, 0.20, 0.26, 0, 0.98, 2.34, wood);
 
-  // Large central entrance: deep opening + two real sliding door leaves.
-  box(3.5, 3.5, 0.32, 0, 2.28, -1.80, darkWood);
-  box(1.42, 2.92, 0.12, -0.72, 2.25, -1.98, wood);
-  box(1.42, 2.92, 0.12, 0.72, 2.25, -1.98, wood);
-  for (let side of [-1, 1]) {
-    for (let i = -4; i <= 4; i += 1) {
-      box(0.055, 2.58, 0.09, side * (0.72 + i * 0.16), 2.25, -1.90, darkWood);
+  // Large central entrance, pushed clearly OUT from the plaster wall.
+  const doorway = new THREE.Mesh(
+    new THREE.BoxGeometry(3.7, 3.45, 0.10),
+    darkWood
+  );
+  doorway.position.set(0, 2.25, 2.48);
+  root.add(doorway);
+
+  const interiorMat = new THREE.MeshStandardMaterial({
+    color: 0x24170f,
+    roughness: 0.82,
+    emissive: 0x8d4e1c,
+    emissiveIntensity: 0.34,
+  });
+  box(2.95, 3.0, 0.07, 0, 2.25, 2.56, interiorMat);
+
+  // Two clearly visible sliding door leaves.
+  [-1, 1].forEach((side) => {
+    box(1.38, 2.86, 0.10, side * 0.72, 2.25, 2.62, wood);
+    for (let i = -3; i <= 3; i += 1) {
+      box(0.045, 2.58, 0.07, side * (0.72 + i * 0.16), 2.25, 2.70, darkWood);
     }
     for (let i = -2; i <= 2; i += 1) {
-      box(1.25, 0.055, 0.09, side * 0.72, 1.4 + i * 0.42, -1.88, darkWood);
+      box(1.20, 0.045, 0.07, side * 0.72, 1.42 + i * 0.42, 2.71, darkWood);
     }
-  }
-  // Warm interior strip makes the doorway read as an actual opening.
-  const interiorMat = new THREE.MeshStandardMaterial({
-    color: 0x26170d,
-    roughness: 0.8,
-    emissive: 0x8a4d18,
-    emissiveIntensity: 0.28,
   });
-  const interior = new THREE.Mesh(new THREE.BoxGeometry(2.45, 2.7, 0.05), interiorMat);
-  interior.position.set(0, 2.25, -2.42);
-  root.add(interior);
-  box(2.95, 0.12, 0.12, 0, 0.78, -1.84, wood);
-  box(2.95, 0.12, 0.12, 0, 3.78, -1.84, wood);
-  box(0.12, 0.42, 0.12, -0.18, 2.25, -1.78, gold);
-  box(0.12, 0.42, 0.12, 0.18, 2.25, -1.78, gold);
 
-  // Side windows: dark openings with warm shoji-like panels and timber mullions.
+  // Door threshold + small gold handles.
+  box(3.15, 0.14, 0.16, 0, 0.82, 2.58, wood);
+  box(3.15, 0.12, 0.14, 0, 3.74, 2.58, wood);
+  box(0.10, 0.34, 0.10, -0.18, 2.25, 2.76, gold);
+  box(0.10, 0.34, 0.10, 0.18, 2.25, 2.76, gold);
+
+  // Side windows remain on the same visible facade.
   [-2.72, 2.72].forEach((x) => {
-    box(1.62, 1.82, 0.18, x, 2.6, -1.86, darkWood);
+    box(1.62, 1.86, 0.16, x, 2.55, 2.48, darkWood);
+
     const windowMat = new THREE.MeshStandardMaterial({
       color: 0x6b5036,
-      roughness: 0.8,
-      emissive: 0xa45a1d,
-      emissiveIntensity: 0.22,
+      roughness: 0.78,
+      emissive: 0x9b5a22,
+      emissiveIntensity: 0.20,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.94,
     });
-    box(1.3, 1.48, 0.05, x, 2.6, -1.90, windowMat);
-    for (let i = -1; i <= 1; i += 1) box(0.075, 1.42, 0.09, x + i * 0.37, 2.6, -1.82, wood);
-    box(1.14, 0.075, 0.09, x, 2.6, -1.82, wood);
+
+    box(1.30, 1.50, 0.055, x, 2.55, 2.57, windowMat);
+    for (let i = -1; i <= 1; i += 1) {
+      box(0.075, 1.46, 0.07, x + i * 0.37, 2.55, 2.66, wood);
+    }
+    box(1.18, 0.075, 0.07, x, 2.55, 2.66, wood);
+    box(1.18, 0.075, 0.07, x, 2.05, 2.66, wood);
+    box(1.18, 0.075, 0.07, x, 3.05, 2.66, wood);
   });
 
-  // Raised landing directly in front of the entrance.
-  box(5.7, 0.28, 1.05, 0, 0.78, -1.45, stone);
+  // Japanese-style upper beam and decorative brackets.
+  box(8.25, 0.34, 0.34, 0, 3.58, 2.70, red);
+  box(7.65, 0.16, 0.24, 0, 3.88, 2.58, wood);
+  [-3.75, 3.75].forEach((x) => {
+    box(0.48, 0.22, 0.58, x, 3.42, 2.62, wood);
+    box(0.28, 0.18, 0.42, x, 3.20, 2.70, red);
+  });
 
-  // Broad staircase that clearly descends toward the camera.
-  const steps = mobile ? 5 : 6;
-  for (let i = 0; i < steps; i += 1) {
-    const y = 0.22 + (steps - 1 - i) * 0.20;
-    const z = -0.70 + i * 0.88;
-    const width = 6.0 + i * 0.06;
-    box(width, 0.26, 0.82, 0, y, z, stone);
-  }
+  // Central decorative plaque, clearly above the door.
+  box(1.60, 0.48, 0.10, 0, 3.22, 2.76, red);
+  box(1.08, 0.07, 0.05, 0, 3.22, 2.84, gold);
 
-  // Low side cheek walls/rail-like edges frame the staircase without hiding it.
-  box(0.28, 0.62, 5.0, -3.18, 0.42, 1.0, darkWood);
-  box(0.28, 0.62, 5.0, 3.18, 0.42, 1.0, darkWood);
+  // Roof: layered Japanese eaves, with the front edge moved toward the camera.
+  box(9.65, 0.26, 5.8, 0, 4.02, 0.15, darkWood);
 
-  box(7.8, 0.18, 0.55, 0, 0.1, 2.0, darkWood);
-
-  // Traditional layered roof with broad eaves.
-  box(9.5, 0.25, 5.7, 0, 4.0, 0.15, darkWood);
-  const roofFront = new THREE.Mesh(new THREE.BoxGeometry(9.7, 0.24, 3.0), roofMat);
-  roofFront.position.set(0, 4.62, -0.75);
-  roofFront.rotation.x = -0.30;
+  const roofFront = new THREE.Mesh(
+    new THREE.BoxGeometry(9.9, 0.26, 3.15),
+    roofMat
+  );
+  roofFront.position.set(0, 4.62, 1.18);
+  roofFront.rotation.x = 0.30;
   root.add(roofFront);
-  const roofBack = new THREE.Mesh(new THREE.BoxGeometry(9.7, 0.24, 3.0), roofMat);
-  roofBack.position.set(0, 4.62, 1.05);
-  roofBack.rotation.x = 0.30;
-  root.add(roofBack);
-  box(10.2, 0.22, 0.28, 0, 5.28, 0.08, darkWood);
-  box(10.8, 0.18, 0.28, 0, 4.35, -2.2, roofMat);
-  box(10.8, 0.18, 0.28, 0, 4.35, 2.35, roofMat);
 
-  const finial = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.58, 6), gold);
-  finial.position.set(0, 5.65, 0.08);
+  const roofBack = new THREE.Mesh(
+    new THREE.BoxGeometry(9.9, 0.26, 3.15),
+    roofMat
+  );
+  roofBack.position.set(0, 4.62, -0.78);
+  roofBack.rotation.x = -0.30;
+  root.add(roofBack);
+
+  box(10.6, 0.22, 0.30, 0, 4.34, 2.62, roofMat);
+  box(10.2, 0.20, 0.28, 0, 4.34, -2.28, roofMat);
+  box(10.3, 0.22, 0.28, 0, 5.26, 0.10, darkWood);
+
+  // Gold roof finial.
+  const finial = new THREE.Mesh(new THREE.ConeGeometry(0.20, 0.62, 6), gold);
+  finial.position.set(0, 5.65, 0.10);
   root.add(finial);
 
-  // Front red beam and simple plaque above the entrance.
-  box(8.2, 0.3, 0.32, 0, 3.55, -2.45, red);
-  box(1.55, 0.5, 0.08, 0, 3.18, -2.62, red);
-  box(1.05, 0.07, 0.05, 0, 3.18, -2.69, gold);
+  // Raised landing directly in front of the central door.
+  box(5.7, 0.28, 1.0, 0, 0.82, 2.95, stone);
+  box(5.25, 0.10, 0.90, 0, 0.99, 3.02, wood);
 
-  // Lanterns sit beside the stair landing.
-  [-4.55, 4.55].forEach((x) => {
+  // Wide staircase: each step descends toward the camera (+Z).
+  const steps = mobile ? 5 : 7;
+  const rise = mobile ? 0.17 : 0.14;
+  const run = mobile ? 0.82 : 0.74;
+  for (let i = 0; i < steps; i += 1) {
+    const topY = 0.82 - i * rise;
+    const z = 3.55 + i * run;
+    const width = 5.8 + i * 0.16;
+    box(width, 0.22, run + 0.08, 0, topY - 0.11, z, stone);
+  }
+
+  // Low side edges frame the stairs but do not block the entrance.
+  box(0.24, 0.42, 5.2, -3.05, 0.28, 4.95, darkWood);
+  box(0.24, 0.42, 5.2, 3.05, 0.28, 4.95, darkWood);
+
+  // Lanterns are now on the visible front terrace.
+  [-4.45, 4.45].forEach((x) => {
     const lantern = createLantern(THREE, true, themeParts);
-    lantern.position.set(x, 0, -2.85);
-    lantern.scale.setScalar(1.15);
+    lantern.position.set(x, 0.74, 2.98);
+    lantern.scale.setScalar(1.18);
     root.add(lantern);
   });
 
-  root.scale.setScalar(mobile ? 0.92 : 1.0);
+  // Small corner ornaments.
+  [-3.82, 3.82].forEach((x) => {
+    const cap = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.30, 4), gold);
+    cap.position.set(x, 4.02, 2.68);
+    cap.rotation.y = Math.PI / 4;
+    root.add(cap);
+  });
+
+  root.scale.setScalar(mobile ? 0.96 : 1.0);
   return root;
 }
 
