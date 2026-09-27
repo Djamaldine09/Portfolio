@@ -375,11 +375,6 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   saucer.position.set(0.13, 1.445, 0.78);
   root.add(saucer);
 
-  const spoonBowl = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), ceramicLight);
-  spoonBowl.scale.set(1.0, 0.22, 0.62);
-  spoonBowl.position.set(0.38, 1.475, 0.80);
-  root.add(spoonBowl);
-
   const steamTexture = (() => {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 96;
