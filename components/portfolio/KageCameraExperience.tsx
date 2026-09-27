@@ -262,13 +262,13 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   const doorLeaves: any[] = [];
   [-1, 1].forEach((side) => {
     const leaf = new THREE.Group();
-    leaf.position.set(side * 0.72, 2.25, 2.62);
+    leaf.position.set(side * 0.68, 2.25, 2.62);
     leaf.userData.side = side;
-    const panel = new THREE.Mesh(new THREE.BoxGeometry(1.38, 2.86, 0.10), wood);
+    const panel = new THREE.Mesh(new THREE.BoxGeometry(1.44, 2.86, 0.10), wood);
     leaf.add(panel);
     for (let i = -3; i <= 3; i += 1) {
       const rail = new THREE.Mesh(new THREE.BoxGeometry(0.045, 2.58, 0.07), darkWood);
-      rail.position.set(side * i * 0.16, 0, 0.08);
+      rail.position.set(side * i * 0.145, 0, 0.08);
       leaf.add(rail);
     }
     for (let i = -2; i <= 2; i += 1) {
