@@ -315,11 +315,6 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   lidKnob.position.set(-0.20, 1.735, 0.82);
   root.add(lidKnob);
 
-  const potHandle = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.018, 8, 20, Math.PI), ceramicDark);
-  potHandle.position.set(-0.20, 1.62, 0.72);
-  potHandle.rotation.x = Math.PI / 2;
-  root.add(potHandle);
-
   const potSpout = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.20, 8), ceramicDark);
   potSpout.position.set(-0.20, 1.58, 0.99);
   potSpout.rotation.x = Math.PI * 0.5;
