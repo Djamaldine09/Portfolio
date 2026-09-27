@@ -142,6 +142,40 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
     emissive: 0x8d4e1c,
     emissiveIntensity: 0.34,
   });
+  // Deep interior backdrop: once the portal opens, the viewer sees a real
+  // recessed space instead of a flat dark panel.
+  box(3.08, 3.04, 0.08, 0, 2.25, 0.20, interiorMat);
+  box(3.10, 0.10, 3.55, 0, 0.88, 1.42, darkWood);
+  box(0.12, 2.72, 3.30, -1.55, 2.25, 1.38, darkWood);
+  box(0.12, 2.72, 3.30, 1.55, 2.25, 1.38, darkWood);
+
+  const interiorFloor = new THREE.Mesh(
+    new THREE.BoxGeometry(3.02, 0.12, 3.55),
+    new THREE.MeshStandardMaterial({
+      color: 0x6b4a2d,
+      roughness: 0.92,
+      emissive: 0x6b3212,
+      emissiveIntensity: 0.12,
+    })
+  );
+  interiorFloor.position.set(0, 0.96, 1.38);
+  root.add(interiorFloor);
+
+  // Warm inner wall with subtle shoji-like framing for depth.
+  const innerGlow = new THREE.MeshStandardMaterial({
+    color: 0x5b321b,
+    roughness: 0.88,
+    emissive: 0xd06b24,
+    emissiveIntensity: 0.22,
+  });
+  box(2.48, 2.18, 0.06, 0, 2.22, 0.28, innerGlow);
+  [-0.82, 0, 0.82].forEach((x) => box(0.055, 1.98, 0.08, x, 2.22, 0.34, wood));
+  [-0.72, 0, 0.72].forEach((y) => box(2.35, 0.055, 0.08, 0, 2.22 + y, 0.34, wood));
+
+  const interiorLight = new THREE.PointLight(0xff9b45, 0.55, 5.5, 2);
+  interiorLight.position.set(0, 2.05, 0.72);
+  root.add(interiorLight);
+
   box(2.95, 3.0, 0.07, 0, 2.25, 2.56, interiorMat);
 
   // Two clearly visible sliding door leaves. Each leaf is grouped so the
