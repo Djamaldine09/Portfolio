@@ -216,13 +216,6 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
     );
   });
 
-  // Low tokonoma-like alcove for a small scroll / ornament.
-  box(0.62, 1.45, 0.18, 1.03, 1.72, -0.60, darkWood);
-  box(0.48, 1.18, 0.04, 1.03, 1.82, -0.49, shojiPaper);
-  box(0.34, 0.035, 0.05, 1.03, 2.20, -0.43, gold);
-  box(0.12, 0.32, 0.12, 0.72, 1.20, -0.45, gold);
-  box(0.12, 0.32, 0.12, 1.34, 1.20, -0.45, gold);
-
   // Subtle ceiling beam/joinery visible through the open entrance.
   box(3.04, 0.10, 0.16, 0, 3.58, 0.72, shojiWood);
   box(0.10, 0.08, 2.68, -1.22, 3.49, 0.72, shojiWood);
