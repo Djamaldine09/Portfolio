@@ -80,42 +80,62 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   box(7.25, 0.2, 0.24, 0, 3.62, -2.08, wood);
   box(7.25, 0.2, 0.24, 0, 0.88, -2.08, wood);
 
-  // Large central entrance: dark interior + sliding wooden doors.
-  box(3.2, 3.15, 0.22, 0, 2.18, -2.48, darkWood);
-  box(1.48, 2.72, 0.08, -0.76, 2.18, -2.62, wood);
-  box(1.48, 2.72, 0.08, 0.76, 2.18, -2.62, wood);
-  for (let i = -4; i <= 4; i += 1) {
-    box(0.06, 2.42, 0.08, i * 0.27, 2.22, -2.7, darkWood);
+  // Large central entrance: deep opening + two real sliding door leaves.
+  box(3.35, 3.35, 0.28, 0, 2.28, -2.48, darkWood);
+  box(1.42, 2.92, 0.12, -0.72, 2.25, -2.68, wood);
+  box(1.42, 2.92, 0.12, 0.72, 2.25, -2.68, wood);
+  for (let side of [-1, 1]) {
+    for (let i = -4; i <= 4; i += 1) {
+      box(0.055, 2.58, 0.09, side * (0.72 + i * 0.16), 2.25, -2.76, darkWood);
+    }
+    for (let i = -2; i <= 2; i += 1) {
+      box(1.25, 0.055, 0.09, side * 0.72, 1.4 + i * 0.42, -2.78, darkWood);
+    }
   }
-  for (let i = -2; i <= 2; i += 1) {
-    box(1.25, 0.06, 0.08, 0, 1.35 + i * 0.43, -2.72, darkWood);
-  }
-  box(2.72, 0.1, 0.1, 0, 0.72, -2.72, wood);
-  box(2.72, 0.1, 0.1, 0, 3.72, -2.72, wood);
-  box(0.12, 0.42, 0.12, -0.12, 2.18, -2.78, gold);
-  box(0.12, 0.42, 0.12, 0.12, 2.18, -2.78, gold);
+  // Warm interior strip makes the doorway read as an actual opening.
+  const interiorMat = new THREE.MeshStandardMaterial({
+    color: 0x26170d,
+    roughness: 0.8,
+    emissive: 0x8a4d18,
+    emissiveIntensity: 0.28,
+  });
+  const interior = new THREE.Mesh(new THREE.BoxGeometry(2.45, 2.7, 0.05), interiorMat);
+  interior.position.set(0, 2.25, -2.42);
+  root.add(interior);
+  box(2.95, 0.12, 0.12, 0, 0.78, -2.82, wood);
+  box(2.95, 0.12, 0.12, 0, 3.78, -2.82, wood);
+  box(0.12, 0.42, 0.12, -0.18, 2.25, -2.86, gold);
+  box(0.12, 0.42, 0.12, 0.18, 2.25, -2.86, gold);
 
-  // Side windows: clearly separated from the wall.
-  [-2.7, 2.7].forEach((x) => {
-    box(1.55, 1.8, 0.14, x, 2.55, -2.25, darkWood);
-    box(1.28, 1.56, 0.05, x, 2.55, -2.5, darkWood);
-    for (let i = -1; i <= 1; i += 1) box(0.07, 1.38, 0.08, x + i * 0.36, 2.55, -2.58, wood);
-    box(1.08, 0.07, 0.08, x, 2.55, -2.58, wood);
+  // Side windows: dark openings with warm shoji-like panels and timber mullions.
+  [-2.72, 2.72].forEach((x) => {
+    box(1.62, 1.82, 0.18, x, 2.6, -2.22, darkWood);
+    const windowMat = new THREE.MeshStandardMaterial({
+      color: 0x6b5036,
+      roughness: 0.8,
+      emissive: 0xa45a1d,
+      emissiveIntensity: 0.22,
+      transparent: true,
+      opacity: 0.92,
+    });
+    box(1.3, 1.48, 0.05, x, 2.6, -2.43, windowMat);
+    for (let i = -1; i <= 1; i += 1) box(0.075, 1.42, 0.09, x + i * 0.37, 2.6, -2.52, wood);
+    box(1.14, 0.075, 0.09, x, 2.6, -2.52, wood);
   });
 
   // Raised landing directly under the entrance.
-  box(5.4, 0.28, 1.15, 0, 0.78, -3.05, stone);
+  box(5.6, 0.3, 1.2, 0, 0.78, -3.05, stone);
 
-  // Five stone steps leading toward the camera, not hidden inside the building.
-  const steps = mobile ? 5 : 6;
+  // Broad stone staircase descending onto the main path.
+  const steps = mobile ? 6 : 7;
   for (let i = 0; i < steps; i += 1) {
-    const y = 0.14 + i * 0.28;
-    const z = -3.65 - i * 0.78;
-    box(6.0 - i * 0.14, 0.30, 0.92, 0, y, z, stone);
+    const y = 0.12 + i * 0.22;
+    const z = -3.65 - i * 0.82;
+    box(6.1 - i * 0.06, 0.28, 0.95, 0, y, z, stone);
   }
-  // Side cheek walls make the staircase readable even under the typography overlay.
-  box(0.32, 1.15, 4.8, -3.15, 0.72, -5.55, darkWood);
-  box(0.32, 1.15, 4.8, 3.15, 0.72, -5.55, darkWood);
+  // Low side walls frame the staircase and make its silhouette visible.
+  box(0.38, 1.35, 5.8, -3.18, 0.73, -5.85, darkWood);
+  box(0.38, 1.35, 5.8, 3.18, 0.73, -5.85, darkWood);
   box(7.8, 0.18, 0.55, 0, 0.1, 2.0, darkWood);
 
   // Traditional layered roof with broad eaves.
@@ -165,7 +185,7 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: false, powerPreference: 'high-performance' }); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.35)); renderer.setClearColor(0x030508, 1); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2;
   const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x080a0d, mobile ? 0.038 : 0.03); const camera = new THREE.PerspectiveCamera(54, 1, 0.1, 150); camera.position.set(0, 2.15, 8.5); const group = new THREE.Group(); scene.add(group); const hemisphere = new THREE.HemisphereLight(0x9eabc5, 0x080604, 1.05); scene.add(hemisphere); const themeParts: ThemePart[] = [];
   let skyTexture = createSkyTexture(THREE, false, mobile); if (skyTexture) scene.background = skyTexture; const moonPosition = new THREE.Vector3(7.0, 20.8, -44); const moonTexture = createMoonTexture(THREE, mobile); const moonMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, map: moonTexture || undefined, bumpMap: moonTexture || undefined, bumpScale: 0.075, roughness: 0.98, metalness: 0, emissive: 0xfff3d6, emissiveMap: moonTexture || undefined, emissiveIntensity: 0.72 }); const moon = new THREE.Mesh(new THREE.SphereGeometry(2.65, mobile ? 32 : 56, mobile ? 32 : 56), moonMaterial); moon.position.copy(moonPosition); moon.rotation.y = -0.55; scene.add(moon); const glowTexture = createMoonGlowTexture(THREE); const glowMaterial = new THREE.SpriteMaterial({ map: glowTexture || undefined, color: 0xfff1ce, transparent: true, opacity: mobile ? 0.62 : 0.72, depthWrite: false, blending: THREE.AdditiveBlending }); const glow = new THREE.Sprite(glowMaterial); glow.position.copy(moonPosition); glow.scale.set(15, 15, 1); scene.add(glow); const glow2Material = new THREE.SpriteMaterial({ map: glowTexture || undefined, color: 0xdde9ff, transparent: true, opacity: mobile ? 0.28 : 0.34, depthWrite: false, blending: THREE.AdditiveBlending }); const glow2 = new THREE.Sprite(glow2Material); glow2.position.copy(moonPosition); glow2.scale.set(25, 25, 1); scene.add(glow2); const moonLight = new THREE.DirectionalLight(0xdce8ff, mobile ? 1.55 : 2.0); moonLight.position.copy(moonPosition); moonLight.target.position.set(0, 0, -45); scene.add(moonLight); scene.add(moonLight.target); const moonPoint = new THREE.PointLight(0xfff2d0, mobile ? 0.45 : 0.65, 42, 2); moonPoint.position.copy(moonPosition); scene.add(moonPoint);
-  const depth = mobile ? 82 : 102; const ground = new THREE.Mesh(new THREE.PlaneGeometry(34, depth, 1, 12), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x11100f, roughness: 1 }), 0x11100f, 0x4e633d, themeParts)); ground.rotation.x = -Math.PI / 2; ground.position.z = -depth / 2 + 10; group.add(ground);
+  const depth = mobile ? 104 : 122; const ground = new THREE.Mesh(new THREE.PlaneGeometry(34, depth, 1, 12), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x11100f, roughness: 1 }), 0x11100f, 0x4e633d, themeParts)); ground.rotation.x = -Math.PI / 2; ground.position.z = -depth / 2 + 10; group.add(ground);
   const pathWidth = mobile ? 5.4 : 5.8; const pathBase = new THREE.Mesh(new THREE.PlaneGeometry(pathWidth, depth), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x29211b, roughness: 1 }), 0x29211b, 0x6f654f, themeParts)); pathBase.rotation.x = -Math.PI / 2; pathBase.position.set(0, 0.01, ground.position.z); group.add(pathBase);
   const stoneMaterials = [themeMaterial(new THREE.MeshStandardMaterial({ color: 0x45423d, roughness: 0.92, metalness: 0 }), 0x45423d, 0x827d70, themeParts), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x57534a, roughness: 0.95, metalness: 0 }), 0x57534a, 0x918b7d, themeParts), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x3c3a36, roughness: 0.98, metalness: 0 }), 0x3c3a36, 0x777267, themeParts)];
   const pavingRows = mobile ? 34 : 48, rowDepth = depth / pavingRows, slabGap = mobile ? 0.045 : 0.065;
@@ -179,6 +199,6 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
 
 export default function KageCameraExperience() {
   const canvasRef = useRef<HTMLCanvasElement>(null); const stateRef = useRef<ThreeState | null>(null); const progressRef = useRef(0); const pointerRef = useRef({ x: 0, y: 0 }); const [chapter, setChapter] = useState(0); const [ready, setReady] = useState(false);
-  useEffect(() => { const canvas = canvasRef.current, section = document.getElementById('kage-experience'); if (!canvas || !section) return; let disposed = false, cleanup: (() => void) | undefined, raf = 0, visible = true; const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches, mobile = window.matchMedia('(max-width: 767px)').matches; const isDay = () => !document.documentElement.classList.contains('dark'); let dayTheme = isDay(); const updateProgress = () => { const rect = section.getBoundingClientRect(), travel = Math.max(section.offsetHeight - window.innerHeight, 1); progressRef.current = Math.min(1, Math.max(0, -rect.top / travel)); const next = Math.min(chapters.length - 1, Math.floor(progressRef.current * chapters.length)); setChapter((current) => current === next ? current : next); }; let scrollRaf = 0; const onScroll = () => { if (scrollRaf) return; scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; updateProgress(); }); }; updateProgress(); const pointerMove = (event: PointerEvent) => { pointerRef.current.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5; pointerRef.current.y = event.clientY / Math.max(window.innerHeight, 1) - 0.5; }; const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.01 }); visibilityObserver.observe(section); const themeObserver = new MutationObserver(() => { const next = isDay(); if (next !== dayTheme) { dayTheme = next; stateRef.current?.applyTheme(dayTheme); } }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] }); const init = async () => { try { const THREE = await loadThree(); if (disposed) return; cleanup = createScene(THREE, canvas, mobile, stateRef); stateRef.current?.applyTheme(dayTheme); setReady(true); const clock = new THREE.Clock(), dummy = new THREE.Object3D(); const animate = () => { if (disposed) return; const state = stateRef.current; if (state && visible) { const elapsed = clock.getElapsedTime(), p = progressRef.current, targetZ = 8.5 - p * (mobile ? 74 : 94), targetY = 1.25 + Math.sin(p * Math.PI) * 0.18, targetX = pointerRef.current.x * (mobile ? 0.18 : 0.45); state.camera.position.x += (targetX - state.camera.position.x) * 0.055; state.camera.position.y += (targetY - state.camera.position.y) * 0.05; state.camera.position.z += (targetZ - state.camera.position.z) * 0.08; state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035; state.camera.rotation.x += (pointerRef.current.y * -0.008 - state.camera.rotation.x) * 0.035; if (!reduced) { state.clouds.forEach((cloud) => { cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5; cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035; }); state.leafData.forEach((leaf, index) => { const wind = elapsed * leaf.speed + leaf.phase, x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed, y = leaf.y + Math.sin(wind * 1.35) * 0.28, z = leaf.z + Math.cos(wind * 0.7) * 0.55; dummy.position.set(x > 8 ? x - 16 : x, y, z); dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7); dummy.scale.set(leaf.size, leaf.size, leaf.size); dummy.updateMatrix(); state.leaves.setMatrixAt(index, dummy.matrix); }); state.leaves.instanceMatrix.needsUpdate = true; } state.renderer.render(state.scene, state.camera); } raf = requestAnimationFrame(animate); }; raf = requestAnimationFrame(animate); } catch { if (!disposed) setReady(false); } }; window.addEventListener('scroll', onScroll, { passive: true }); if (!mobile) window.addEventListener('pointermove', pointerMove, { passive: true }); init(); return () => { disposed = true; cancelAnimationFrame(raf); cancelAnimationFrame(scrollRaf); window.removeEventListener('scroll', onScroll); if (!mobile) window.removeEventListener('pointermove', pointerMove); visibilityObserver.disconnect(); themeObserver.disconnect(); cleanup?.(); }; }, []);
-  const current = chapters[chapter]; return (<section id="kage-experience" className="relative z-0 isolate h-[360vh] bg-[#040608] text-white"><div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /><div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(38,104,168,0.02),rgba(255,219,170,0.12)_72%,rgba(255,237,208,0.22))] dark:bg-[radial-gradient(circle_at_50%_45%,transparent_0%,rgba(3,5,8,0.08)_45%,rgba(3,5,8,0.68)_100%)]" /><div className="relative z-10 flex h-full items-end px-5 pb-20 sm:px-8 sm:pb-24 lg:px-16 lg:pb-28"><div className="w-full max-w-3xl"><div className="mb-5 flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.38em] text-amber-200/75 sm:text-xs"><span className="h-px w-12 bg-amber-200/60" /><span>{current.kicker}</span></div><h2 className="max-w-3xl whitespace-pre-line font-black uppercase leading-[0.82] tracking-[-0.075em] text-[clamp(3.5rem,14vw,8.5rem)] text-white drop-shadow-2xl sm:text-[clamp(4.8rem,10vw,8.5rem)]">{current.title}</h2><p className="mt-7 max-w-2xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:text-xl">{current.body}</p></div></div><div className="absolute bottom-5 right-5 z-20 flex items-center gap-3 sm:bottom-8 sm:right-8"><div className="h-1 w-20 overflow-hidden rounded-full bg-white/15 sm:w-28"><div className="h-full rounded-full bg-amber-200/80 transition-[width] duration-150" style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} /></div><span className="text-[10px] tracking-[0.3em] text-white/55">SCROLL</span></div>{!ready && <div className="pointer-events-none absolute inset-0 z-30 bg-[#040608]" />}</div></section>);
+  useEffect(() => { const canvas = canvasRef.current, section = document.getElementById('kage-experience'); if (!canvas || !section) return; let disposed = false, cleanup: (() => void) | undefined, raf = 0, visible = true; const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches, mobile = window.matchMedia('(max-width: 767px)').matches; const isDay = () => !document.documentElement.classList.contains('dark'); let dayTheme = isDay(); const updateProgress = () => { const rect = section.getBoundingClientRect(), travel = Math.max(section.offsetHeight - window.innerHeight, 1); progressRef.current = Math.min(1, Math.max(0, -rect.top / travel)); const next = Math.min(chapters.length - 1, Math.floor(progressRef.current * chapters.length)); setChapter((current) => current === next ? current : next); }; let scrollRaf = 0; const onScroll = () => { if (scrollRaf) return; scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; updateProgress(); }); }; updateProgress(); const pointerMove = (event: PointerEvent) => { pointerRef.current.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5; pointerRef.current.y = event.clientY / Math.max(window.innerHeight, 1) - 0.5; }; const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.01 }); visibilityObserver.observe(section); const themeObserver = new MutationObserver(() => { const next = isDay(); if (next !== dayTheme) { dayTheme = next; stateRef.current?.applyTheme(dayTheme); } }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] }); const init = async () => { try { const THREE = await loadThree(); if (disposed) return; cleanup = createScene(THREE, canvas, mobile, stateRef); stateRef.current?.applyTheme(dayTheme); setReady(true); const clock = new THREE.Clock(), dummy = new THREE.Object3D(); const animate = () => { if (disposed) return; const state = stateRef.current; if (state && visible) { const elapsed = clock.getElapsedTime(), p = progressRef.current, targetZ = 8.5 - p * (mobile ? 80 : 98), targetY = 1.55 + Math.sin(p * Math.PI) * 0.18, targetX = pointerRef.current.x * (mobile ? 0.18 : 0.45); state.camera.position.x += (targetX - state.camera.position.x) * 0.055; state.camera.position.y += (targetY - state.camera.position.y) * 0.05; state.camera.position.z += (targetZ - state.camera.position.z) * 0.08; state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035; state.camera.rotation.x += ((-0.045 + pointerRef.current.y * -0.008) - state.camera.rotation.x) * 0.035; if (!reduced) { state.clouds.forEach((cloud) => { cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5; cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035; }); state.leafData.forEach((leaf, index) => { const wind = elapsed * leaf.speed + leaf.phase, x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed, y = leaf.y + Math.sin(wind * 1.35) * 0.28, z = leaf.z + Math.cos(wind * 0.7) * 0.55; dummy.position.set(x > 8 ? x - 16 : x, y, z); dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7); dummy.scale.set(leaf.size, leaf.size, leaf.size); dummy.updateMatrix(); state.leaves.setMatrixAt(index, dummy.matrix); }); state.leaves.instanceMatrix.needsUpdate = true; } state.renderer.render(state.scene, state.camera); } raf = requestAnimationFrame(animate); }; raf = requestAnimationFrame(animate); } catch { if (!disposed) setReady(false); } }; window.addEventListener('scroll', onScroll, { passive: true }); if (!mobile) window.addEventListener('pointermove', pointerMove, { passive: true }); init(); return () => { disposed = true; cancelAnimationFrame(raf); cancelAnimationFrame(scrollRaf); window.removeEventListener('scroll', onScroll); if (!mobile) window.removeEventListener('pointermove', pointerMove); visibilityObserver.disconnect(); themeObserver.disconnect(); cleanup?.(); }; }, []);
+  const current = chapters[chapter]; return (<section id="kage-experience" className="relative z-0 isolate h-[360vh] bg-[#040608] text-white"><div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /><div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(38,104,168,0.02),rgba(255,219,170,0.12)_72%,rgba(255,237,208,0.22))] dark:bg-[radial-gradient(circle_at_50%_45%,transparent_0%,rgba(3,5,8,0.08)_45%,rgba(3,5,8,0.68)_100%)]" /><div className="relative z-10 flex h-full items-end px-5 pb-20 sm:px-8 sm:pb-24 lg:px-16 lg:pb-28"><div className="w-full max-w-3xl"><div className="mb-5 flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.38em] text-amber-200/75 sm:text-xs"><span className="h-px w-12 bg-amber-200/60" /><span>{current.kicker}</span></div><h2 className="max-w-3xl whitespace-pre-line font-black uppercase leading-[0.82] tracking-[-0.075em] text-[clamp(3.05rem,12.5vw,8.2rem)] text-white drop-shadow-2xl sm:text-[clamp(4.8rem,10vw,8.5rem)]">{current.title}</h2><p className="mt-7 max-w-2xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:text-xl">{current.body}</p></div></div><div className="absolute bottom-5 right-5 z-20 flex items-center gap-3 sm:bottom-8 sm:right-8"><div className="h-1 w-20 overflow-hidden rounded-full bg-white/15 sm:w-28"><div className="h-full rounded-full bg-amber-200/80 transition-[width] duration-150" style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} /></div><span className="text-[10px] tracking-[0.3em] text-white/55">SCROLL</span></div>{!ready && <div className="pointer-events-none absolute inset-0 z-30 bg-[#040608]" />}</div></section>);
 }
