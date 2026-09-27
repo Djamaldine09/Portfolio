@@ -470,123 +470,160 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   photoFrame.add(frameTop, frameBottom, frameLeft, frameRight);
   root.add(photoFrame);
 
-  // Decorative ikebana-style flower vase: hollow ceramic body, water and
-  // several natural stems with blossoms. The silhouette is intentionally
-  // detailed so it reads as a real flower arrangement rather than primitives.
+  // Realistic decorative flower vase: glazed ceramic, visible water,
+  // natural curved stems, layered petals and leaves for a fuller floral arrangement.
   const vaseGroup = new THREE.Group();
   vaseGroup.position.set(-0.53, 1.455, 0.82);
 
-  const vaseCeramic = new THREE.MeshStandardMaterial({
+  const vaseCeramic = new THREE.MeshPhysicalMaterial({
     color: 0x9a8d7a,
-    roughness: 0.34,
+    roughness: 0.24,
     metalness: 0.02,
+    clearcoat: 0.38,
+    clearcoatRoughness: 0.20,
   });
   const vaseProfile = [
-    new THREE.Vector2(0.055, 0.00),
-    new THREE.Vector2(0.072, 0.012),
-    new THREE.Vector2(0.082, 0.045),
-    new THREE.Vector2(0.090, 0.095),
-    new THREE.Vector2(0.105, 0.16),
-    new THREE.Vector2(0.112, 0.22),
-    new THREE.Vector2(0.105, 0.28),
-    new THREE.Vector2(0.086, 0.32),
-    new THREE.Vector2(0.070, 0.335),
-    new THREE.Vector2(0.062, 0.328),
-    new THREE.Vector2(0.060, 0.315),
-    new THREE.Vector2(0.064, 0.295),
-    new THREE.Vector2(0.073, 0.26),
-    new THREE.Vector2(0.080, 0.21),
-    new THREE.Vector2(0.076, 0.15),
-    new THREE.Vector2(0.066, 0.085),
-    new THREE.Vector2(0.048, 0.035),
-    new THREE.Vector2(0.040, 0.015),
+    new THREE.Vector2(0.048, 0.00),
+    new THREE.Vector2(0.078, 0.012),
+    new THREE.Vector2(0.098, 0.050),
+    new THREE.Vector2(0.112, 0.115),
+    new THREE.Vector2(0.122, 0.185),
+    new THREE.Vector2(0.118, 0.255),
+    new THREE.Vector2(0.104, 0.305),
+    new THREE.Vector2(0.078, 0.335),
+    new THREE.Vector2(0.066, 0.345),
+    new THREE.Vector2(0.062, 0.330),
+    new THREE.Vector2(0.064, 0.306),
+    new THREE.Vector2(0.073, 0.270),
+    new THREE.Vector2(0.078, 0.220),
+    new THREE.Vector2(0.074, 0.155),
+    new THREE.Vector2(0.063, 0.092),
+    new THREE.Vector2(0.051, 0.045),
+    new THREE.Vector2(0.040, 0.016),
     new THREE.Vector2(0.040, 0.00),
   ];
-  const vaseBody = new THREE.Mesh(new THREE.LatheGeometry(vaseProfile, 20), vaseCeramic);
+  const vaseBody = new THREE.Mesh(new THREE.LatheGeometry(vaseProfile, 28), vaseCeramic);
   vaseGroup.add(vaseBody);
 
   const vaseWater = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.068, 0.068, 0.008, 20),
-    new THREE.MeshStandardMaterial({
+    new THREE.CylinderGeometry(0.070, 0.070, 0.009, 24),
+    new THREE.MeshPhysicalMaterial({
       color: 0x9ec8c2,
       transparent: true,
-      opacity: 0.48,
-      roughness: 0.08,
-      metalness: 0.02,
+      opacity: 0.42,
+      roughness: 0.04,
+      metalness: 0.01,
+      transmission: 0.25,
     })
   );
-  vaseWater.position.y = 0.285;
+  vaseWater.position.y = 0.292;
   vaseGroup.add(vaseWater);
 
   const stemMat = new THREE.MeshStandardMaterial({ color: 0x30482b, roughness: 0.82 });
-  const flowerCenters = [
-    { x: -0.10, y: 0.78, z: 0.00, scale: 0.92, hue: 0xf0b8a8 },
-    { x: 0.08, y: 0.70, z: 0.01, scale: 0.82, hue: 0xf3d4a2 },
-    { x: -0.01, y: 0.93, z: -0.01, scale: 0.72, hue: 0xd98b7d },
-    { x: 0.19, y: 0.52, z: 0.02, scale: 0.68, hue: 0xe8c6a7 },
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x355b32, roughness: 0.78 });
+  const innerLeafMat = new THREE.MeshStandardMaterial({ color: 0x4b7040, roughness: 0.76 });
+
+  const flowers = [
+    { x: -0.13, y: 0.76, z: 0.00, scale: 1.00, hue: 0xe8a79b },
+    { x: 0.09, y: 0.70, z: 0.015, scale: 0.88, hue: 0xf0c7a2 },
+    { x: -0.015, y: 0.94, z: -0.012, scale: 0.82, hue: 0xd9837b },
+    { x: 0.20, y: 0.55, z: 0.025, scale: 0.76, hue: 0xe5b7a5 },
+    { x: -0.25, y: 0.57, z: -0.015, scale: 0.70, hue: 0xf1d6aa },
   ];
 
-  flowerCenters.forEach((flower, index) => {
-    const start = new THREE.Vector3(0, 0.285, 0);
+  flowers.forEach((flower, index) => {
+    const start = new THREE.Vector3((index - 2) * 0.006, 0.285, 0);
     const end = new THREE.Vector3(flower.x, flower.y, flower.z);
     const mid = start.clone().lerp(end, 0.52);
-    mid.x += (index % 2 ? -0.035 : 0.035);
-    mid.z += (index % 2 ? 0.018 : -0.018);
+    mid.x += index % 2 ? -0.035 : 0.035;
+    mid.z += index % 2 ? 0.020 : -0.018;
     const curve = new THREE.CatmullRomCurve3([start, mid, end]);
-    vaseGroup.add(new THREE.Mesh(
-      new THREE.TubeGeometry(curve, 7, 0.010, 5, false),
-      stemMat
-    ));
+    vaseGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 10, 0.009, 6, false), stemMat));
 
     const flowerGroup = new THREE.Group();
     flowerGroup.position.copy(end);
-    flowerGroup.rotation.y = index * 0.7;
-    const petalMat = new THREE.MeshStandardMaterial({
+    flowerGroup.rotation.set(0.08 * Math.sin(index), index * 0.85, 0.05 * Math.cos(index));
+
+    const outerPetalMat = new THREE.MeshStandardMaterial({ color: flower.hue, roughness: 0.70 });
+    const innerPetalMat = new THREE.MeshStandardMaterial({
       color: flower.hue,
-      roughness: 0.72,
+      roughness: 0.62,
+      emissive: flower.hue,
+      emissiveIntensity: 0.035,
     });
-    const centerMat = new THREE.MeshStandardMaterial({
-      color: index % 2 ? 0xc58a48 : 0xb86b45,
-      roughness: 0.68,
-    });
-    const petalCount = 5;
+    const petalCount = 6;
     for (let p = 0; p < petalCount; p += 1) {
       const angle = (p / petalCount) * Math.PI * 2;
-      const petal = new THREE.Mesh(
-        new THREE.SphereGeometry(0.055 * flower.scale, 9, 6),
-        petalMat
-      );
-      petal.scale.set(1.18, 0.42, 0.76);
+      const petal = new THREE.Mesh(new THREE.SphereGeometry(0.058 * flower.scale, 12, 8), outerPetalMat);
+      petal.scale.set(1.05, 0.38, 0.72);
       petal.position.set(
-        Math.cos(angle) * 0.045 * flower.scale,
-        Math.sin(angle) * 0.018 * flower.scale,
-        Math.sin(angle) * 0.045 * flower.scale
+        Math.cos(angle) * 0.043 * flower.scale,
+        0.002 + Math.sin(angle * 2) * 0.006,
+        Math.sin(angle) * 0.043 * flower.scale
       );
-      petal.rotation.y = angle;
+      petal.rotation.set(0.16 * Math.cos(angle), -angle, 0.12 * Math.sin(angle));
       flowerGroup.add(petal);
     }
+
+    for (let p = 0; p < 5; p += 1) {
+      const angle = (p / 5) * Math.PI * 2 + 0.25;
+      const petal = new THREE.Mesh(new THREE.SphereGeometry(0.040 * flower.scale, 10, 7), innerPetalMat);
+      petal.scale.set(0.92, 0.50, 0.68);
+      petal.position.set(
+        Math.cos(angle) * 0.022 * flower.scale,
+        0.022,
+        Math.sin(angle) * 0.022 * flower.scale
+      );
+      petal.rotation.set(0.18, -angle, 0.10);
+      flowerGroup.add(petal);
+    }
+
     const center = new THREE.Mesh(
-      new THREE.SphereGeometry(0.026 * flower.scale, 9, 7),
-      centerMat
+      new THREE.SphereGeometry(0.018 * flower.scale, 10, 8),
+      new THREE.MeshStandardMaterial({ color: 0xd69b48, roughness: 0.62 })
     );
+    center.position.y = 0.030;
     flowerGroup.add(center);
+
+    for (let s = 0; s < 5; s += 1) {
+      const angle = (s / 5) * Math.PI * 2;
+      const stamen = new THREE.Mesh(
+        new THREE.SphereGeometry(0.006 * flower.scale, 6, 5),
+        new THREE.MeshStandardMaterial({ color: 0xe5b75f, roughness: 0.55 })
+      );
+      stamen.position.set(Math.cos(angle) * 0.024 * flower.scale, 0.036, Math.sin(angle) * 0.024 * flower.scale);
+      flowerGroup.add(stamen);
+    }
+
     vaseGroup.add(flowerGroup);
   });
 
-  // A few fine leaves break the symmetry and give the arrangement a natural shape.
+  // Long leaves and smaller side leaves keep the bouquet organic instead of symmetrical.
   [
-    { x: -0.13, y: 0.48, z: 0.00, r: -0.55 },
-    { x: 0.11, y: 0.57, z: 0.00, r: 0.50 },
-    { x: -0.09, y: 0.68, z: 0.01, r: -0.30 },
-  ].forEach((leaf) => {
-    const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(0.075, 8, 5),
-      new THREE.MeshStandardMaterial({ color: 0x3f6336, roughness: 0.9 })
-    );
-    mesh.scale.set(1.35, 0.28, 0.62);
+    { x: -0.17, y: 0.49, z: 0.01, sx: 1.55, sy: 0.22, r: -0.62 },
+    { x: 0.13, y: 0.50, z: 0.01, sx: 1.45, sy: 0.20, r: 0.58 },
+    { x: -0.09, y: 0.64, z: -0.01, sx: 1.35, sy: 0.18, r: -0.35 },
+    { x: 0.19, y: 0.63, z: 0.015, sx: 1.30, sy: 0.18, r: 0.36 },
+  ].forEach((leaf, index) => {
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.082, 12, 7), index % 2 ? leafMat : innerLeafMat);
+    mesh.scale.set(leaf.sx, leaf.sy, 0.52);
     mesh.position.set(leaf.x, leaf.y, leaf.z);
     mesh.rotation.z = leaf.r;
+    mesh.rotation.y = index * 0.45 - 0.5;
     vaseGroup.add(mesh);
+  });
+
+  // A few thin side stems add the irregular silhouette of a hand-arranged bouquet.
+  [
+    { x: -0.30, y: 0.70, z: 0.01, bend: -0.08 },
+    { x: 0.27, y: 0.74, z: -0.01, bend: 0.08 },
+  ].forEach((twig) => {
+    const start = new THREE.Vector3(0, 0.29, 0);
+    const end = new THREE.Vector3(twig.x, twig.y, twig.z);
+    const mid = start.clone().lerp(end, 0.5);
+    mid.x += twig.bend;
+    const curve = new THREE.CatmullRomCurve3([start, mid, end]);
+    vaseGroup.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 8, 0.006, 5, false), stemMat));
   });
 
   root.add(vaseGroup);
