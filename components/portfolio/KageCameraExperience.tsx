@@ -252,6 +252,138 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   hangingLight.position.set(0, 2.88, -0.28);
   root.add(hangingLight);
 
+  // Furnishing: a restrained, lived-in Japanese interior. Everything stays
+  // below the sightline so the open portal still reads clearly.
+  const furnitureWood = new THREE.MeshStandardMaterial({
+    color: 0x3a2115,
+    roughness: 0.78,
+    metalness: 0.04,
+  });
+  const polishedWood = new THREE.MeshStandardMaterial({
+    color: 0x6c3c22,
+    roughness: 0.52,
+    metalness: 0.02,
+  });
+  const fabric = new THREE.MeshStandardMaterial({
+    color: 0x725143,
+    roughness: 0.98,
+    metalness: 0,
+  });
+  const cushionFabric = new THREE.MeshStandardMaterial({
+    color: 0x9a6e50,
+    roughness: 1,
+    metalness: 0,
+  });
+
+  // Low solid-wood table with four tapered legs and a small tea set.
+  box(1.42, 0.12, 0.82, -0.02, 1.34, 0.82, polishedWood);
+  [[-0.58, 0.46], [0.58, 0.46], [-0.58, 1.18], [0.58, 1.18]].forEach(([x, z]) => {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.075, 0.34, 8), furnitureWood);
+    leg.position.set(x, 1.17, z);
+    root.add(leg);
+  });
+  const tabletopInset = new THREE.Mesh(
+    new THREE.BoxGeometry(1.16, 0.025, 0.56),
+    new THREE.MeshStandardMaterial({ color: 0x2d190f, roughness: 0.94 })
+  );
+  tabletopInset.position.set(-0.02, 1.415, 0.82);
+  root.add(tabletopInset);
+
+  // Tiny tea tray, cup and pot to give the room a lived-in scale.
+  box(0.48, 0.035, 0.28, -0.08, 1.445, 0.82, furnitureWood);
+  const teaPot = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.11, 0.14, 0.11, 10),
+    new THREE.MeshStandardMaterial({ color: 0x40352d, roughness: 0.64 })
+  );
+  teaPot.position.set(-0.17, 1.535, 0.82);
+  root.add(teaPot);
+  const teaCup = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.055, 0.065, 0.06, 10),
+    new THREE.MeshStandardMaterial({ color: 0xd9c6a7, roughness: 0.7 })
+  );
+  teaCup.position.set(0.10, 1.50, 0.78);
+  root.add(teaCup);
+
+  // Compact upholstered armchair with real seat/back padding and wooden arms.
+  const chairX = 1.00;
+  box(0.72, 0.14, 0.62, chairX, 1.15, 1.76, furnitureWood);
+  box(0.58, 0.20, 0.54, chairX, 1.34, 1.76, fabric);
+  box(0.58, 0.48, 0.16, chairX, 1.66, 1.96, fabric);
+  box(0.64, 0.09, 0.10, chairX - 0.35, 1.48, 1.76, furnitureWood);
+  box(0.64, 0.09, 0.10, chairX + 0.35, 1.48, 1.76, furnitureWood);
+  box(0.08, 0.54, 0.08, chairX - 0.30, 1.03, 1.57, furnitureWood);
+  box(0.08, 0.54, 0.08, chairX + 0.30, 1.03, 1.57, furnitureWood);
+  box(0.08, 0.54, 0.08, chairX - 0.30, 1.03, 1.95, furnitureWood);
+  box(0.08, 0.54, 0.08, chairX + 0.30, 1.03, 1.95, furnitureWood);
+
+  // Soft cushion with a slightly different fabric tone.
+  const cushion = new THREE.Mesh(
+    new THREE.BoxGeometry(0.40, 0.075, 0.34),
+    cushionFabric
+  );
+  cushion.position.set(chairX, 1.47, 1.76);
+  cushion.rotation.x = -0.03;
+  root.add(cushion);
+
+  // Wall-mounted photo frame: wood frame, glass, backing and a warm photograph.
+  const frameOuter = 0.74;
+  const photoFrame = new THREE.Group();
+  photoFrame.position.set(-0.86, 2.58, -0.63);
+  const frameBack = new THREE.Mesh(
+    new THREE.BoxGeometry(frameOuter, 0.86, 0.05),
+    furnitureWood
+  );
+  photoFrame.add(frameBack);
+  const photoMat = new THREE.MeshStandardMaterial({
+    color: 0xb88962,
+    roughness: 0.86,
+    emissive: 0x2f160b,
+    emissiveIntensity: 0.10,
+  });
+  const photo = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.68), photoMat);
+  photo.position.z = 0.035;
+  photoFrame.add(photo);
+  const glass = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.61, 0.73),
+    new THREE.MeshStandardMaterial({
+      color: 0xe6d8c5,
+      transparent: true,
+      opacity: 0.16,
+      roughness: 0.18,
+      metalness: 0.08,
+    })
+  );
+  glass.position.z = 0.065;
+  photoFrame.add(glass);
+  const frameTop = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.055, 0.09), furnitureWood);
+  frameTop.position.y = 0.43;
+  frameTop.position.z = 0.04;
+  const frameBottom = frameTop.clone();
+  frameBottom.position.y = -0.43;
+  const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.86, 0.09), furnitureWood);
+  frameLeft.position.x = -0.37;
+  frameLeft.position.z = 0.04;
+  const frameRight = frameLeft.clone();
+  frameRight.position.x = 0.37;
+  frameTop.geometry.computeBoundingBox();
+  photoFrame.add(frameTop, frameBottom, frameLeft, frameRight);
+  root.add(photoFrame);
+
+  // Small ceramic vase beside the table.
+  const vase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.075, 0.11, 0.22, 10),
+    new THREE.MeshStandardMaterial({ color: 0x7f786c, roughness: 0.84 })
+  );
+  vase.position.set(-0.53, 1.50, 0.82);
+  root.add(vase);
+  const branch = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.012, 0.018, 0.40, 6),
+    furnitureWood
+  );
+  branch.position.set(-0.53, 1.76, 0.82);
+  branch.rotation.z = -0.20;
+  root.add(branch);
+
   // Two clearly visible sliding door leaves. Each leaf is grouped so the
   // complete shoji panel (wood + lattice + handles) can slide open naturally.
   const doorLeaves: any[] = [];
