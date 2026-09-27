@@ -330,10 +330,23 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   const teaCupGroup = new THREE.Group();
   teaCupGroup.position.set(0.13, 1.455, 0.78);
 
+  // Handmade Japanese tea cup profile: gently rounded body, slightly flared lip,
+  // narrow base and a small foot. The silhouette is intentionally compact.
+  const cupProfile = [
+    new THREE.Vector2(0.037, -0.036),
+    new THREE.Vector2(0.047, -0.030),
+    new THREE.Vector2(0.052, -0.014),
+    new THREE.Vector2(0.056, 0.010),
+    new THREE.Vector2(0.060, 0.038),
+    new THREE.Vector2(0.064, 0.064),
+    new THREE.Vector2(0.067, 0.075),
+    new THREE.Vector2(0.063, 0.082),
+  ];
   const teaCupBody = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.062, 0.052, 0.078, 16),
+    new THREE.LatheGeometry(cupProfile, 20),
     ceramicLight
   );
+  teaCupBody.rotation.y = 0.08;
   teaCupGroup.add(teaCupBody);
 
   const teaSurface = new THREE.Mesh(
