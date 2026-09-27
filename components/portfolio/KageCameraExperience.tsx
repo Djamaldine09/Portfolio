@@ -364,13 +364,6 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   teaSurface.position.y = 0.042;
   teaCupGroup.add(teaSurface);
 
-  const teaCupRim = new THREE.Mesh(
-    new THREE.TorusGeometry(0.053, 0.007, 8, 20),
-    ceramicLight
-  );
-  teaCupRim.position.y = 0.042;
-  teaCupGroup.add(teaCupRim);
-
   // Tasse sans poignée ni anneau courbe.
 
   root.add(teaCupGroup);
