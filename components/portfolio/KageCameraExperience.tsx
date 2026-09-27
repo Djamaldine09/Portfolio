@@ -122,19 +122,18 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   box(8.15, 0.16, 0.34, 0, 0.92, 2.5, wood);
 
   // Real timber frame on the visible front facade.
-  [-3.55, -2.35, -1.15, 0, 1.15, 2.35, 3.55].forEach((x) => {
+  // Keep the central axis completely clear: it is the real visual corridor
+  // into the temple. The facade timber frame stops around the entrance.
+  [-3.55, -2.35, -1.15, 1.15, 2.35, 3.55].forEach((x) => {
     box(0.18, 3.05, 0.26, x, 2.28, 2.32, wood);
   });
   box(7.5, 0.24, 0.28, 0, 3.68, 2.34, wood);
   box(7.5, 0.20, 0.26, 0, 0.98, 2.34, wood);
 
-  // Large central entrance, pushed clearly OUT from the plaster wall.
-  const doorway = new THREE.Mesh(
-    new THREE.BoxGeometry(3.7, 3.45, 0.10),
-    darkWood
-  );
-  doorway.position.set(0, 2.25, 2.48);
-  root.add(doorway);
+  // Real entrance frame: no solid panel behind the sliding doors.
+  box(0.20, 3.45, 0.30, -1.88, 2.25, 2.48, darkWood);
+  box(0.20, 3.45, 0.30, 1.88, 2.25, 2.48, darkWood);
+  box(3.96, 0.20, 0.30, 0, 3.96, 2.48, darkWood);
 
   const interiorMat = new THREE.MeshStandardMaterial({
     color: 0x24170f,
@@ -144,7 +143,8 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   });
   // Deep interior backdrop: once the portal opens, the viewer sees a real
   // recessed space instead of a flat dark panel.
-  box(3.08, 3.04, 0.08, 0, 2.25, 0.20, interiorMat);
+  // Nothing solid sits behind the doors at the entrance plane. The first
+  // visible wall is the recessed rear wall, so the opening has real depth.
   box(3.10, 0.10, 3.55, 0, 0.88, 1.42, darkWood);
   box(0.12, 2.72, 3.30, -1.55, 2.25, 1.38, darkWood);
   box(0.12, 2.72, 3.30, 1.55, 2.25, 1.38, darkWood);
@@ -168,9 +168,11 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
     emissive: 0xd06b24,
     emissiveIntensity: 0.22,
   });
-  box(2.48, 2.18, 0.06, 0, 2.22, 0.28, innerGlow);
-  [-0.82, 0, 0.82].forEach((x) => box(0.055, 1.98, 0.08, x, 2.22, 0.34, wood));
-  [-0.72, 0, 0.72].forEach((y) => box(2.35, 0.055, 0.08, 0, 2.22 + y, 0.34, wood));
+  // Decorative inner shoji wall is recessed with the rear wall, not at the
+  // doorway, so it cannot hide the interior when the doors slide open.
+  box(2.48, 2.18, 0.06, 0, 2.22, -0.70, innerGlow);
+  [-0.82, 0, 0.82].forEach((x) => box(0.055, 1.98, 0.08, x, 2.22, -0.64, wood));
+  [-0.72, 0, 0.72].forEach((y) => box(2.35, 0.055, 0.08, 0, 2.22 + y, -0.64, wood));
 
   const interiorLight = new THREE.PointLight(0xff9b45, 0.55, 5.5, 2);
   interiorLight.position.set(0, 2.05, 0.72);
