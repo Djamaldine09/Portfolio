@@ -52,6 +52,74 @@ function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: 
   root.rotation.y = Math.random() * Math.PI * 2; root.rotation.z = (Math.random() - 0.5) * 0.035; root.scale.setScalar(scale); return root;
 }
 
+function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
+  const root = new THREE.Group();
+  const wood = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x2a1710, roughness: 0.9 }), 0x2a1710, 0x5a3020, themeParts);
+  const darkWood = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x120b08, roughness: 0.96 }), 0x120b08, 0x321a12, themeParts);
+  const plaster = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x8b7660, roughness: 0.92 }), 0x8b7660, 0xc9bda7, themeParts);
+  const roofMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x17191b, roughness: 0.86 }), 0x17191b, 0x34383a, themeParts);
+  const red = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x6e281b, roughness: 0.82 }), 0x6e281b, 0x9b3b25, themeParts);
+  const gold = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x8f6a2e, roughness: 0.6, metalness: 0.15 }), 0x8f6a2e, 0xc39a45, themeParts);
+
+  const box = (sx: number, sy: number, sz: number, x: number, y: number, z: number, material: any) => {
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
+    mesh.position.set(x, y, z);
+    root.add(mesh);
+    return mesh;
+  };
+
+  box(6.8, 3.8, 4.6, 0, 2.0, 0, plaster);
+  box(7.5, 0.32, 5.2, 0, 4.0, 0, wood);
+  box(0.55, 4.1, 0.55, -2.85, 2.0, -2.35, red);
+  box(0.55, 4.1, 0.55, 2.85, 2.0, -2.35, red);
+  box(5.9, 0.38, 0.48, 0, 3.55, -2.42, red);
+
+  const door = box(2.15, 2.8, 0.16, 0, 1.75, -2.34, darkWood);
+  box(0.08, 2.55, 0.12, -0.68, 1.75, -2.43, gold);
+  box(0.08, 2.55, 0.12, 0.68, 1.75, -2.43, gold);
+  box(2.0, 0.1, 0.1, 0, 1.78, -2.44, gold);
+
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(5.4, 2.25, 4), roofMat);
+  roof.position.set(0, 5.0, 0);
+  roof.rotation.y = Math.PI / 4;
+  roof.scale.z = 0.72;
+  root.add(roof);
+  const roofCap = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.42, 0.45, 8), gold);
+  roofCap.position.set(0, 6.15, 0);
+  root.add(roofCap);
+
+  const eaves = box(8.7, 0.24, 5.9, 0, 4.35, 0, darkWood);
+  eaves.rotation.z = 0.01;
+  const stepCount = mobile ? 3 : 4;
+  for (let i = 0; i < stepCount; i += 1) {
+    box(5.1 - i * 0.55, 0.22, 1.0, 0, 0.2 + i * 0.22, -2.9 - i * 0.42, i % 2 ? wood : darkWood);
+  }
+  box(8.0, 0.22, 0.55, 0, 0.12, 2.0, darkWood);
+
+  if (!mobile) {
+    for (let i = -2; i <= 2; i += 1) {
+      box(0.18, 2.8, 0.18, i * 1.25, 2.0, -2.5, wood);
+    }
+  }
+
+  const plaque = box(1.25, 0.55, 0.08, 0, 3.05, -2.56, red);
+  plaque.rotation.x = -0.05;
+  box(0.08, 0.08, 0.08, 0, 3.08, -2.62, gold);
+
+  const templeLantern = createLantern(THREE, true, themeParts);
+  templeLantern.position.set(4.7, 0, -2.5);
+  templeLantern.scale.setScalar(1.15);
+  root.add(templeLantern);
+  const templeLantern2 = createLantern(THREE, true, themeParts);
+  templeLantern2.position.set(-4.7, 0, -2.5);
+  templeLantern2.scale.setScalar(1.15);
+  root.add(templeLantern2);
+
+  root.scale.setScalar(mobile ? 0.9 : 1.0);
+  root.position.set(0, 0, 0);
+  return root;
+}
+
 function createMountain(THREE: any, x: number, z: number, scale: number, color: number, themeParts: ThemePart[]) { const root = new THREE.Group(); const mountainMat = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true }), color, 0x5f7891, themeParts); const ridgeMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x111722, roughness: 1, flatShading: true }), 0x111722, 0x7892a8, themeParts); const mountain = new THREE.Mesh(new THREE.ConeGeometry(7 * scale, 11 * scale, 32, 3), mountainMat); mountain.position.y = 5.5 * scale; mountain.rotation.y = 0.35; root.add(mountain); const ridge = new THREE.Mesh(new THREE.ConeGeometry(3.2 * scale, 5.4 * scale, 16, 2), ridgeMat); ridge.position.set(-1.7 * scale, 2.6 * scale, 1.5 * scale); ridge.rotation.z = -0.08; root.add(ridge); root.position.set(x, 0, z); return root; }
 function createCloud(THREE: any, x: number, y: number, z: number, scale: number, mobile: boolean, themeParts: ThemePart[]) { const root = new THREE.Group(); const material = themeMaterial(new THREE.MeshBasicMaterial({ color: 0xb9c3cf, transparent: true, opacity: mobile ? 0.07 : 0.09, depthWrite: false }), 0x7e8794, 0xffffff, themeParts); const parts = mobile ? 3 : 5; for (let i = 0; i < parts; i += 1) { const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.5 + (i % 2) * 0.45, mobile ? 10 : 14, mobile ? 8 : 10), material); sphere.position.set((i - (parts - 1) / 2) * 1.25, Math.sin(i * 1.7) * 0.35, Math.cos(i * 1.2) * 0.35); sphere.scale.y = 0.42 + (i % 2) * 0.08; root.add(sphere); } root.position.set(x, y, z); root.scale.setScalar(scale); return root; }
 function createLeaves(THREE: any, mobile: boolean, depth: number, themeParts: ThemePart[]) { const count = mobile ? 28 : 65; const material = themeMaterial(new THREE.MeshBasicMaterial({ color: 0x7e6b4b, transparent: true, opacity: 0.88, side: THREE.DoubleSide, depthWrite: false }), 0x7e6b4b, 0x3f7b3e, themeParts); const mesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.32, 0.16), material, count); const data: LeafData[] = []; const dummy = new THREE.Object3D(); for (let i = 0; i < count; i += 1) { const item: LeafData = { x: (Math.random() - 0.5) * 11, y: 0.8 + Math.random() * 7.5, z: -8 - Math.random() * (depth - 8), phase: Math.random() * Math.PI * 2, speed: 0.55 + Math.random() * 0.8, drift: 0.7 + Math.random() * 1.3, size: 0.55 + Math.random() * 0.8, rotation: Math.random() * Math.PI }; data.push(item); dummy.position.set(item.x, item.y, item.z); dummy.rotation.set(Math.random(), item.rotation, Math.random()); dummy.scale.set(item.size, item.size, item.size); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); } mesh.instanceMatrix.needsUpdate = true; return { mesh, data }; }
@@ -69,7 +137,7 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   const stoneMaterials = [themeMaterial(new THREE.MeshStandardMaterial({ color: 0x45423d, roughness: 0.92, metalness: 0 }), 0x45423d, 0x827d70, themeParts), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x57534a, roughness: 0.95, metalness: 0 }), 0x57534a, 0x918b7d, themeParts), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x3c3a36, roughness: 0.98, metalness: 0 }), 0x3c3a36, 0x777267, themeParts)];
   const pavingRows = mobile ? 34 : 48, rowDepth = depth / pavingRows, slabGap = mobile ? 0.045 : 0.065;
   for (let row = 0; row < pavingRows; row += 1) { const z = ground.position.z + depth * 0.5 - (row + 0.5) * rowDepth, columns = mobile ? 2 : 3, usableWidth = pathWidth - 0.12, slabWidth = usableWidth / columns, offset = row % 2 === 0 ? 0.06 : -0.08; for (let col = 0; col < columns; col += 1) { const material = stoneMaterials[(row + col) % stoneMaterials.length], width = slabWidth - slabGap - Math.random() * 0.08, depthSize = rowDepth - slabGap - Math.random() * 0.06, stone = new THREE.Mesh(new THREE.BoxGeometry(width, 0.075 + Math.random() * 0.035, depthSize), material); stone.position.set(-pathWidth * 0.5 + slabWidth * (col + 0.5) + offset + (Math.random() - 0.5) * 0.08, 0.055 + Math.random() * 0.018, z + (Math.random() - 0.5) * 0.035); stone.rotation.y = (Math.random() - 0.5) * 0.025; stone.rotation.x = (Math.random() - 0.5) * 0.018; group.add(stone); } }
-  const count = mobile ? 10 : 13; for (let i = 0; i < count; i += 1) { const z = -7 - i * 7.2, scale = Math.max(mobile ? 0.68 : 0.72, 1 - i * 0.018); const gate = createTorii(THREE, i % 3 === 0 ? 0xb45c36 : 0x8f4329, themeParts); gate.position.z = z; gate.scale.setScalar(scale); group.add(gate); const left = createLantern(THREE, i < 6, themeParts); left.position.set(-2.75, 0, z - 0.8); left.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(left); const right = createLantern(THREE, i < 6, themeParts); right.position.set(2.75, 0, z - 0.8); right.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(right); if (i % 2 === 0) { const treeScale = mobile ? 1.05 : 1.25; const lt = createTree(THREE, treeScale - i * 0.02, themeParts, mobile); lt.position.set(-5.1, 0, z - 1.8); group.add(lt); const rt = createTree(THREE, treeScale + 0.08 - i * 0.02, themeParts, mobile); rt.position.set(5.1, 0, z - 2.2); group.add(rt); } }
+  const temple = createTemple(THREE, themeParts, mobile); temple.position.set(0, 0, -94); temple.scale.setScalar(mobile ? 0.82 : 1.0); group.add(temple); const count = mobile ? 10 : 13; for (let i = 0; i < count; i += 1) { const z = -7 - i * 7.2, scale = Math.max(mobile ? 0.68 : 0.72, 1 - i * 0.018); const gate = createTorii(THREE, i % 3 === 0 ? 0xb45c36 : 0x8f4329, themeParts); gate.position.z = z; gate.scale.setScalar(scale); group.add(gate); const left = createLantern(THREE, i < 6, themeParts); left.position.set(-2.75, 0, z - 0.8); left.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(left); const right = createLantern(THREE, i < 6, themeParts); right.position.set(2.75, 0, z - 0.8); right.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(right); if (i % 2 === 0) { const treeScale = mobile ? 1.05 : 1.25; const lt = createTree(THREE, treeScale - i * 0.02, themeParts, mobile); lt.position.set(-5.1, 0, z - 1.8); group.add(lt); const rt = createTree(THREE, treeScale + 0.08 - i * 0.02, themeParts, mobile); rt.position.set(5.1, 0, z - 2.2); group.add(rt); } }
   const mountainSpecs: [number, number, number, number][] = [[-13, -49, 1.55, 0x0b1018], [-3, -58, 2.25, 0x070b12], [9, -53, 1.85, 0x0a0e16], [17, -68, 2.3, 0x080b11]]; mountainSpecs.forEach(([x, z, scale, color]) => group.add(createMountain(THREE, x, z, scale, color, themeParts))); const clouds: CloudData[] = []; const cloudSpecs: [number, number, number, number, number][] = [[-8, 8.5, -42, 1.6, 0.9], [6, 10.2, -50, 1.9, 0.7], [-3, 12.2, -62, 2.2, 0.5], [11, 9.2, -70, 1.7, 0.35]]; cloudSpecs.forEach(([x, y, z, scale, speed], index) => { const cloud = createCloud(THREE, x, y, z, scale, mobile, themeParts); group.add(cloud); clouds.push({ group: cloud, baseX: x, baseY: y, speed, phase: index * 1.8 }); }); const leafSet = createLeaves(THREE, mobile, depth, themeParts); group.add(leafSet.mesh);
   const particleCount = mobile ? 120 : 260, positions = new Float32Array(particleCount * 3); for (let i = 0; i < particleCount; i += 1) { positions[i * 3] = (Math.random() - 0.5) * 28; positions[i * 3 + 1] = Math.random() * 10; positions[i * 3 + 2] = -Math.random() * depth - 4; } const particleGeometry = new THREE.BufferGeometry(); particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); group.add(new THREE.Points(particleGeometry, themeMaterial(new THREE.PointsMaterial({ color: 0xc8a875, size: mobile ? 0.045 : 0.04, transparent: true, opacity: 0.32, depthWrite: false }), 0xc8a875, 0xffffff, themeParts)));
   const applyTheme = (day: boolean) => { renderer.setClearColor(day ? 0x8fc4e9 : 0x030508, 1); if (skyTexture) skyTexture.dispose(); skyTexture = createSkyTexture(THREE, day, mobile); if (skyTexture) scene.background = skyTexture; scene.fog.color.setHex(day ? 0x8fc4e9 : 0x080a0d); scene.fog.density = day ? (mobile ? 0.018 : 0.014) : (mobile ? 0.038 : 0.03); hemisphere.color.setHex(day ? 0xbfe4ff : 0x9eabc5); hemisphere.groundColor.setHex(day ? 0x304d2c : 0x080604); hemisphere.intensity = day ? 1.55 : 1.05; moonMaterial.map = day ? undefined : moonTexture || undefined; moonMaterial.bumpMap = day ? undefined : moonTexture || undefined; moonMaterial.emissiveMap = day ? undefined : moonTexture || undefined; moonMaterial.color.setHex(day ? 0xffd85a : 0xffffff); moonMaterial.emissive.setHex(day ? 0xff9d1a : 0xfff3d6); moonMaterial.emissiveIntensity = day ? 2.2 : 0.72; moonMaterial.bumpScale = day ? 0 : 0.075; moonMaterial.needsUpdate = true; glowMaterial.color.setHex(day ? 0xffb62e : 0xfff1ce); glowMaterial.opacity = mobile ? (day ? 0.7 : 0.62) : (day ? 0.82 : 0.72); glow2Material.color.setHex(day ? 0xffd36a : 0xdde9ff); glow2Material.opacity = mobile ? (day ? 0.18 : 0.28) : (day ? 0.22 : 0.34); moonLight.color.setHex(day ? 0xffe4b0 : 0xdce8ff); moonLight.intensity = day ? (mobile ? 2.6 : 3.2) : (mobile ? 1.55 : 2.0); moonPoint.color.setHex(day ? 0xffb52e : 0xfff2d0); moonPoint.intensity = day ? 0.7 : (mobile ? 0.45 : 0.65); themeParts.forEach(({ material, night, day: dayColor }) => material.color.setHex(day ? dayColor : night)); const cloudMaterials = clouds.map((cloud) => cloud.group.children[0]?.material).filter(Boolean); cloudMaterials.forEach((material: any) => { material.opacity = mobile ? (day ? 0.3 : 0.07) : (day ? 0.42 : 0.09); material.needsUpdate = true; }); };
