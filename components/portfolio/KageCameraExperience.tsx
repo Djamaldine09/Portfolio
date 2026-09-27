@@ -326,86 +326,48 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   potSpout.scale.set(1, 1, 0.72);
   root.add(potSpout);
 
-  // Chawan japonais : bol large, bas et sans anse, avec profil artisanal
-  // légèrement irrégulier, lèvre arrondie et pied (kodai) sous la base.
-  const chawan = new THREE.Group();
-  chawan.position.set(0.13, 1.445, 0.78);
+  // Small Japanese tea cup: compact proportions, no handle, with visible tea.
+  const teaCupGroup = new THREE.Group();
+  teaCupGroup.position.set(0.13, 1.455, 0.78);
 
-  const chawanMaterial = new THREE.MeshStandardMaterial({
-    color: 0x75604f,
-    roughness: 0.82,
-    metalness: 0.01,
-  });
-
-  const chawanProfile = [
-    new THREE.Vector2(0.12, 0.00),
-    new THREE.Vector2(0.24, 0.015),
-    new THREE.Vector2(0.34, 0.07),
-    new THREE.Vector2(0.43, 0.15),
-    new THREE.Vector2(0.51, 0.25),
-    new THREE.Vector2(0.56, 0.34),
-    new THREE.Vector2(0.57, 0.40),
-    new THREE.Vector2(0.54, 0.42),
-    new THREE.Vector2(0.47, 0.40),
-    new THREE.Vector2(0.42, 0.34),
-    new THREE.Vector2(0.36, 0.24),
-    new THREE.Vector2(0.28, 0.15),
-    new THREE.Vector2(0.18, 0.09),
-    new THREE.Vector2(0.10, 0.07),
-  ];
-  const chawanBody = new THREE.Mesh(
-    new THREE.LatheGeometry(chawanProfile, 28),
-    chawanMaterial
+  const teaCupBody = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.062, 0.052, 0.078, 16),
+    ceramicLight
   );
-  chawanBody.rotation.z = 0.015;
-  chawan.add(chawanBody);
+  teaCupGroup.add(teaCupBody);
 
-  // Rounded handmade lip, slightly oversized like a real chawan.
-  const chawanRim = new THREE.Mesh(
-    new THREE.TorusGeometry(0.535, 0.026, 8, 28),
-    chawanMaterial
-  );
-  chawanRim.position.y = 0.405;
-  chawanRim.scale.set(1.01, 0.95, 1);
-  chawan.add(chawanRim);
-
-  // Visible matcha/tea surface sitting inside the bowl, below the lip.
-  const chawanTea = new THREE.Mesh(
-    new THREE.CircleGeometry(0.43, 28),
+  const teaSurface = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.045, 0.045, 0.006, 16),
     teaMaterial
   );
-  chawanTea.position.set(0, 0.345, 0);
-  chawanTea.rotation.x = -Math.PI / 2;
-  chawan.add(chawanTea);
+  teaSurface.position.y = 0.042;
+  teaCupGroup.add(teaSurface);
 
-  // Small concave center (chadamari) to suggest the traditional inner well.
-  const chadamari = new THREE.Mesh(
-    new THREE.CircleGeometry(0.17, 24),
-    new THREE.MeshStandardMaterial({
-      color: 0x5a2b13,
-      roughness: 0.38,
-      emissive: 0x1d0903,
-      emissiveIntensity: 0.18,
-    })
+  const teaCupRim = new THREE.Mesh(
+    new THREE.TorusGeometry(0.053, 0.007, 8, 20),
+    ceramicLight
   );
-  chadamari.position.set(0, 0.351, 0);
-  chadamari.rotation.x = -Math.PI / 2;
-  chawan.add(chadamari);
+  teaCupRim.position.y = 0.042;
+  teaCupGroup.add(teaCupRim);
 
-  // Carved kodai foot ring instead of a saucer.
-  const kodai = new THREE.Mesh(
-    new THREE.TorusGeometry(0.145, 0.032, 8, 24),
-    chawanMaterial
+  // Small raised foot, keeping the cup visually compact.
+  const teaCupFoot = new THREE.Mesh(
+    new THREE.TorusGeometry(0.035, 0.006, 6, 16),
+    ceramicLight
   );
-  kodai.position.y = 0.015;
-  chawan.add(kodai);
+  teaCupFoot.position.y = -0.042;
+  teaCupGroup.add(teaCupFoot);
 
-  // A tiny irregularity in the silhouette gives it a handmade wabi-sabi feel.
-  chawan.scale.set(1.0, 1.0, 0.97);
-  chawan.rotation.y = -0.10;
-  root.add(chawan);
+  root.add(teaCupGroup);
 
-  // Spoon rests beside the chawan instead of inside it.
+  const saucer = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.085, 0.072, 0.014, 16),
+    ceramicLight
+  );
+  saucer.position.set(0.13, 1.445, 0.78);
+  root.add(saucer);
+
+  // Small spoon rests beside the tea cup.
   const spoonHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.18, 8), ceramicLight);
   spoonHandle.position.set(0.29, 1.475, 0.80);
   spoonHandle.rotation.z = Math.PI * 0.5;
