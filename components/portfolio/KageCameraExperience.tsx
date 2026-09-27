@@ -371,13 +371,7 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   teaCupRim.position.y = 0.042;
   teaCupGroup.add(teaCupRim);
 
-  // Small raised foot, keeping the cup visually compact.
-  const teaCupFoot = new THREE.Mesh(
-    new THREE.TorusGeometry(0.035, 0.006, 6, 16),
-    ceramicLight
-  );
-  teaCupFoot.position.y = -0.042;
-  teaCupGroup.add(teaCupFoot);
+  // Tasse sans poignée ni anneau courbe.
 
   root.add(teaCupGroup);
 
