@@ -435,52 +435,56 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
     furnitureWood
   );
   photoFrame.add(frameBack);
-  // The photo is a small printed typography card: “I really like 3D animations.”
-  // It is generated as a texture so the sentence is actually visible inside the frame.
+  // High-resolution printed typography card so the sentence stays sharp in 3D.
   const photoCanvas = document.createElement('canvas');
-  photoCanvas.width = 560;
-  photoCanvas.height = 680;
+  photoCanvas.width = 1120;
+  photoCanvas.height = 1360;
   const photoCtx = photoCanvas.getContext('2d');
   let photoTexture: any = null;
   if (photoCtx) {
-    const gradient = photoCtx.createLinearGradient(0, 0, 0, photoCanvas.height);
-    gradient.addColorStop(0, '#f4ead8');
-    gradient.addColorStop(1, '#d9c3a4');
+    photoCtx.scale(2, 2);
+
+    const gradient = photoCtx.createLinearGradient(0, 0, 0, 680);
+    gradient.addColorStop(0, '#f7eedf');
+    gradient.addColorStop(1, '#e4cfaf');
     photoCtx.fillStyle = gradient;
-    photoCtx.fillRect(0, 0, photoCanvas.width, photoCanvas.height);
+    photoCtx.fillRect(0, 0, 560, 680);
 
-    photoCtx.strokeStyle = 'rgba(87,57,35,0.30)';
-    photoCtx.lineWidth = 8;
-    photoCtx.strokeRect(18, 18, photoCanvas.width - 36, photoCanvas.height - 36);
+    photoCtx.strokeStyle = 'rgba(77,53,36,0.28)';
+    photoCtx.lineWidth = 7;
+    photoCtx.strokeRect(18, 18, 524, 644);
 
-    photoCtx.fillStyle = '#5b4030';
+    photoCtx.fillStyle = '#3f2a1c';
     photoCtx.textAlign = 'center';
     photoCtx.textBaseline = 'middle';
-    photoCtx.font = 'bold 46px Georgia, serif';
-    photoCtx.fillText('I really like', photoCanvas.width / 2, 250);
-    photoCtx.fillText('3D animations.', photoCanvas.width / 2, 330);
+    photoCtx.font = '700 52px Arial, Helvetica, sans-serif';
+    photoCtx.fillText('I really like', 280, 245);
+    photoCtx.fillText('3D animations.', 280, 330);
 
-    photoCtx.strokeStyle = 'rgba(91,64,48,0.35)';
-    photoCtx.lineWidth = 3;
+    photoCtx.strokeStyle = 'rgba(63,42,28,0.25)';
+    photoCtx.lineWidth = 2;
     photoCtx.beginPath();
-    photoCtx.moveTo(125, 405);
-    photoCtx.lineTo(435, 405);
+    photoCtx.moveTo(130, 410);
+    photoCtx.lineTo(430, 410);
     photoCtx.stroke();
 
-    photoCtx.font = 'italic 26px Georgia, serif';
-    photoCtx.fillStyle = '#80634d';
-    photoCtx.fillText('creative • digital • 3D', photoCanvas.width / 2, 465);
+    photoCtx.font = 'italic 24px Arial, Helvetica, sans-serif';
+    photoCtx.fillStyle = '#725741';
+    photoCtx.fillText('creative • digital • 3D', 280, 465);
 
     photoTexture = new THREE.CanvasTexture(photoCanvas);
     photoTexture.colorSpace = THREE.SRGBColorSpace;
+    photoTexture.minFilter = THREE.LinearFilter;
+    photoTexture.magFilter = THREE.LinearFilter;
+    photoTexture.generateMipmaps = false;
     photoTexture.needsUpdate = true;
   }
   const photoMat = new THREE.MeshStandardMaterial({
     color: 0xffffff,
     map: photoTexture || undefined,
-    roughness: 0.78,
-    emissive: 0x21160d,
-    emissiveIntensity: 0.06,
+    roughness: 0.92,
+    emissive: 0x000000,
+    emissiveIntensity: 0,
   });
   const photo = new THREE.Mesh(new THREE.PlaneGeometry(0.56, 0.68), photoMat);
   photo.position.z = 0.035;
@@ -488,11 +492,12 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   const glass = new THREE.Mesh(
     new THREE.PlaneGeometry(0.61, 0.73),
     new THREE.MeshStandardMaterial({
-      color: 0xe6d8c5,
+      color: 0xf5eadb,
       transparent: true,
-      opacity: 0.16,
-      roughness: 0.18,
-      metalness: 0.08,
+      opacity: 0.07,
+      roughness: 0.12,
+      metalness: 0.02,
+      depthWrite: false,
     })
   );
   glass.position.z = 0.065;
