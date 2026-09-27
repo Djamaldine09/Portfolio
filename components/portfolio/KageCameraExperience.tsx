@@ -470,20 +470,126 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   photoFrame.add(frameTop, frameBottom, frameLeft, frameRight);
   root.add(photoFrame);
 
-  // Small ceramic vase beside the table.
-  const vase = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.075, 0.11, 0.22, 10),
-    new THREE.MeshStandardMaterial({ color: 0x7f786c, roughness: 0.84 })
+  // Decorative ikebana-style flower vase: hollow ceramic body, water and
+  // several natural stems with blossoms. The silhouette is intentionally
+  // detailed so it reads as a real flower arrangement rather than primitives.
+  const vaseGroup = new THREE.Group();
+  vaseGroup.position.set(-0.53, 1.455, 0.82);
+
+  const vaseCeramic = new THREE.MeshStandardMaterial({
+    color: 0x9a8d7a,
+    roughness: 0.34,
+    metalness: 0.02,
+  });
+  const vaseProfile = [
+    new THREE.Vector2(0.055, 0.00),
+    new THREE.Vector2(0.072, 0.012),
+    new THREE.Vector2(0.082, 0.045),
+    new THREE.Vector2(0.090, 0.095),
+    new THREE.Vector2(0.105, 0.16),
+    new THREE.Vector2(0.112, 0.22),
+    new THREE.Vector2(0.105, 0.28),
+    new THREE.Vector2(0.086, 0.32),
+    new THREE.Vector2(0.070, 0.335),
+    new THREE.Vector2(0.062, 0.328),
+    new THREE.Vector2(0.060, 0.315),
+    new THREE.Vector2(0.064, 0.295),
+    new THREE.Vector2(0.073, 0.26),
+    new THREE.Vector2(0.080, 0.21),
+    new THREE.Vector2(0.076, 0.15),
+    new THREE.Vector2(0.066, 0.085),
+    new THREE.Vector2(0.048, 0.035),
+    new THREE.Vector2(0.040, 0.015),
+    new THREE.Vector2(0.040, 0.00),
+  ];
+  const vaseBody = new THREE.Mesh(new THREE.LatheGeometry(vaseProfile, 20), vaseCeramic);
+  vaseGroup.add(vaseBody);
+
+  const vaseWater = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.068, 0.068, 0.008, 20),
+    new THREE.MeshStandardMaterial({
+      color: 0x9ec8c2,
+      transparent: true,
+      opacity: 0.48,
+      roughness: 0.08,
+      metalness: 0.02,
+    })
   );
-  vase.position.set(-0.53, 1.50, 0.82);
-  root.add(vase);
-  const branch = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.012, 0.018, 0.40, 6),
-    furnitureWood
-  );
-  branch.position.set(-0.53, 1.76, 0.82);
-  branch.rotation.z = -0.20;
-  root.add(branch);
+  vaseWater.position.y = 0.285;
+  vaseGroup.add(vaseWater);
+
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0x30482b, roughness: 0.82 });
+  const flowerCenters = [
+    { x: -0.10, y: 0.78, z: 0.00, scale: 0.92, hue: 0xf0b8a8 },
+    { x: 0.08, y: 0.70, z: 0.01, scale: 0.82, hue: 0xf3d4a2 },
+    { x: -0.01, y: 0.93, z: -0.01, scale: 0.72, hue: 0xd98b7d },
+    { x: 0.19, y: 0.52, z: 0.02, scale: 0.68, hue: 0xe8c6a7 },
+  ];
+
+  flowerCenters.forEach((flower, index) => {
+    const start = new THREE.Vector3(0, 0.285, 0);
+    const end = new THREE.Vector3(flower.x, flower.y, flower.z);
+    const mid = start.clone().lerp(end, 0.52);
+    mid.x += (index % 2 ? -0.035 : 0.035);
+    mid.z += (index % 2 ? 0.018 : -0.018);
+    const curve = new THREE.CatmullRomCurve3([start, mid, end]);
+    vaseGroup.add(new THREE.Mesh(
+      new THREE.TubeGeometry(curve, 7, 0.010, 5, false),
+      stemMat
+    ));
+
+    const flowerGroup = new THREE.Group();
+    flowerGroup.position.copy(end);
+    flowerGroup.rotation.y = index * 0.7;
+    const petalMat = new THREE.MeshStandardMaterial({
+      color: flower.hue,
+      roughness: 0.72,
+    });
+    const centerMat = new THREE.MeshStandardMaterial({
+      color: index % 2 ? 0xc58a48 : 0xb86b45,
+      roughness: 0.68,
+    });
+    const petalCount = 5;
+    for (let p = 0; p < petalCount; p += 1) {
+      const angle = (p / petalCount) * Math.PI * 2;
+      const petal = new THREE.Mesh(
+        new THREE.SphereGeometry(0.055 * flower.scale, 9, 6),
+        petalMat
+      );
+      petal.scale.set(1.18, 0.42, 0.76);
+      petal.position.set(
+        Math.cos(angle) * 0.045 * flower.scale,
+        Math.sin(angle) * 0.018 * flower.scale,
+        Math.sin(angle) * 0.045 * flower.scale
+      );
+      petal.rotation.y = angle;
+      flowerGroup.add(petal);
+    }
+    const center = new THREE.Mesh(
+      new THREE.SphereGeometry(0.026 * flower.scale, 9, 7),
+      centerMat
+    );
+    flowerGroup.add(center);
+    vaseGroup.add(flowerGroup);
+  });
+
+  // A few fine leaves break the symmetry and give the arrangement a natural shape.
+  [
+    { x: -0.13, y: 0.48, z: 0.00, r: -0.55 },
+    { x: 0.11, y: 0.57, z: 0.00, r: 0.50 },
+    { x: -0.09, y: 0.68, z: 0.01, r: -0.30 },
+  ].forEach((leaf) => {
+    const mesh = new THREE.Mesh(
+      new THREE.SphereGeometry(0.075, 8, 5),
+      new THREE.MeshStandardMaterial({ color: 0x3f6336, roughness: 0.9 })
+    );
+    mesh.scale.set(1.35, 0.28, 0.62);
+    mesh.position.set(leaf.x, leaf.y, leaf.z);
+    mesh.rotation.z = leaf.r;
+    vaseGroup.add(mesh);
+  });
+
+  root.add(vaseGroup);
 
   // Two clearly visible sliding door leaves. Each leaf is grouped so the
   // complete shoji panel (wood + lattice + handles) can slide open naturally.
