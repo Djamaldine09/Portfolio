@@ -311,7 +311,9 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   teaPotLid.position.set(-0.20, 1.70, 0.82);
   root.add(teaPotLid);
 
-  // No top handle/knob: keep the tea pot silhouette clean.
+  const lidKnob = new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 8), ceramicLight);
+  lidKnob.position.set(-0.20, 1.735, 0.82);
+  root.add(lidKnob);
 
   const potSpout = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.20, 8), ceramicDark);
   potSpout.position.set(-0.20, 1.58, 0.99);
@@ -386,11 +388,6 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   saucer.position.set(0.13, 1.445, 0.78);
   root.add(saucer);
 
-  // Small spoon rests beside the tea cup.
-  const spoonHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.18, 8), ceramicLight);
-  spoonHandle.position.set(0.29, 1.475, 0.80);
-  spoonHandle.rotation.z = Math.PI * 0.5;
-  root.add(spoonHandle);
   const spoonBowl = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), ceramicLight);
   spoonBowl.scale.set(1.0, 0.22, 0.62);
   spoonBowl.position.set(0.38, 1.475, 0.80);
