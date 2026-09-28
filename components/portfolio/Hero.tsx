@@ -8,6 +8,7 @@ import {
   useReducedMotion,
   useSpring,
   useTransform,
+  useMotionTemplate,
 } from 'framer-motion';
 import { ArrowDown, ArrowUpRight, Github, Linkedin, Sparkles } from 'lucide-react';
 
@@ -23,6 +24,7 @@ export default function Hero() {
   const smoothY = useSpring(mouseY, { stiffness: 120, damping: 20, mass: 0.55 });
   const maskX = useTransform(smoothX, (value) => `calc(${value}% - ${MASK_SIZE / 2}px)`);
   const maskY = useTransform(smoothY, (value) => `calc(${value}% - ${MASK_SIZE / 2}px)`);
+  const revealClipPath = useMotionTemplate`circle(${MASK_SIZE / 2}px at ${smoothX}% ${smoothY}%)`;
   const [heroPhoto, setHeroPhoto] = useState(0);
 
   useEffect(() => {
