@@ -83,6 +83,17 @@ export default function Hero() {
             transition={{ duration: 1.2, ease: 'easeInOut' }}
           />
         ))}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-[-1.5%] bg-no-repeat"
+          style={{
+            backgroundImage: `url('${HERO_PHOTOS[heroPhoto === 0 ? 1 : 0]}')`,
+            backgroundPosition: 'center center',
+            backgroundSize: 'cover',
+            transform: 'scale(1.01)',
+            clipPath: revealClipPath,
+          }}
+        />
         <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-emerald-400/5 to-black/20" />
         <div className="absolute inset-0 bg-black/20" />
       </motion.div>
