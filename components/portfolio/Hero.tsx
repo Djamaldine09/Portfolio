@@ -12,7 +12,7 @@ import {
 import { ArrowDown, ArrowUpRight, Github, Linkedin, Sparkles } from 'lucide-react';
 
 const MASK_SIZE = 270;
-const HERO_PHOTOS = ['/1719.png', '/1721.png'];
+const HERO_PHOTOS = ['/1719.jpg', '/1721.jpg'];
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
