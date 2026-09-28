@@ -81,7 +81,7 @@ export default function Hero() {
         <img
           src={PORTRAIT}
           alt=""
-          className="absolute inset-[-1.5%] h-[103%] w-[103%] max-w-none origin-center object-cover object-center drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] scale-[0.99] sm:scale-[0.99]"
+          className="absolute bottom-0 left-1/2 h-[86svh] w-auto max-w-none -translate-x-1/2 object-contain object-bottom drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] sm:h-[90svh]"
         />
       </div>
 
@@ -93,7 +93,7 @@ export default function Hero() {
         <img
           src={HOVER_BACKGROUND}
           alt=""
-          className="absolute inset-[-1.5%] h-[103%] w-[103%] max-w-none origin-center object-cover object-center scale-[0.92] sm:scale-[0.95]"
+          className="absolute bottom-0 left-1/2 h-[86svh] w-auto max-w-none -translate-x-1/2 object-contain object-bottom sm:h-[90svh]"
         />
       </motion.div>
 
@@ -107,7 +107,7 @@ export default function Hero() {
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-[23%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12 sm:top-[22%]"
+        className="pointer-events-none absolute inset-x-0 top-[27%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12 sm:top-[24%]"
       >
         <h1 className="w-full max-w-6xl overflow-hidden font-black uppercase leading-[0.82] tracking-[-0.075em]">
           <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
