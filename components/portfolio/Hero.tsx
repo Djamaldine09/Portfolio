@@ -81,7 +81,7 @@ export default function Hero() {
         <img
           src={PORTRAIT}
           alt=""
-          className="absolute bottom-0 left-1/2 h-[78svh] w-auto max-w-[88vw] -translate-x-1/2 object-contain object-bottom drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] sm:h-[84svh] sm:max-w-[80vw]"
+          className="absolute inset-[-1.5%] h-[103%] w-[103%] max-w-none object-cover object-center drop-shadow-[0_18px_35px_rgba(0,0,0,.32)]"
         />
       </div>
 
@@ -93,7 +93,7 @@ export default function Hero() {
         <img
           src={HOVER_BACKGROUND}
           alt=""
-          className="absolute bottom-0 left-1/2 h-[78svh] w-auto max-w-[88vw] -translate-x-1/2 object-contain object-bottom sm:h-[84svh] sm:max-w-[80vw]"
+          className="absolute inset-[-1.5%] h-[103%] w-[103%] max-w-none object-cover object-center"
         />
       </motion.div>
 
