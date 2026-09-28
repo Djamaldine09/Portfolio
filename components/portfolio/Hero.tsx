@@ -98,7 +98,7 @@ export default function Hero() {
 
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:56px_56px]" />
 
-      <div className="relative z-30 flex min-h-screen" flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
+      <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
             <p className="mb-5 text-sm font-medium uppercase tracking-[0.24em] text-white/50 sm:text-base">Full Stack Developer · Madagascar</p>
