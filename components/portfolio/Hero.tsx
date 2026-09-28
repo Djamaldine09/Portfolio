@@ -65,19 +65,20 @@ export default function Hero() {
         animate={undefined}
         transition={reducedMotion ? undefined : { duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       >
-        {HERO_PHOTOS.map((index) => (
+        {HERO_PHOTOS.map((src, index) => (
           <motion.div
-            key={index}
+            key={src}
             aria-hidden="true"
-            className="absolute inset-0 bg-no-repeat"
+            className="absolute inset-[-6%] bg-no-repeat"
             style={{
-              backgroundImage: "url('/hero-photos.jpg')",
-              backgroundPosition: index === 0 ? '0% center' : '100% center',
-              backgroundSize: '200% auto',
+              backgroundImage: `url('${src}')`,
+              backgroundPosition: 'center center',
+              backgroundSize: 'cover',
+              transform: 'scale(1.04)',
             }}
             initial={false}
-            animate={{ opacity: index === heroPhoto ? 0.96 : 0 }}
-            transition={{ duration: 1.35, ease: 'easeInOut' }}
+            animate={{ opacity: index === heroPhoto ? 1 : 0 }}
+            transition={{ duration: 1.2, ease: 'easeInOut' }}
           />
         ))}
         <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-emerald-400/5 to-black/20" />
