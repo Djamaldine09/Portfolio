@@ -27,14 +27,6 @@ export default function Hero() {
   const revealClipPath = useMotionTemplate`circle(${MASK_SIZE / 2}px at ${smoothX}% ${smoothY}%)`;
   const [heroPhoto, setHeroPhoto] = useState(0);
 
-  useEffect(() => {
-    if (reducedMotion) return;
-    const interval = window.setInterval(() => {
-      setHeroPhoto((current) => (current + 1) % HERO_PHOTOS.length);
-    }, 5200);
-    return () => window.clearInterval(interval);
-  }, [reducedMotion]);
-
   const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
     const bounds = containerRef.current?.getBoundingClientRect();
     if (!bounds) return;
