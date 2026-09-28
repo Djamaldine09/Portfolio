@@ -69,12 +69,12 @@ export default function Hero() {
           <motion.div
             key={src}
             aria-hidden="true"
-            className="absolute inset-[-6%] bg-no-repeat"
+            className="absolute inset-[-1.5%] bg-no-repeat"
             style={{
               backgroundImage: `url('${src}')`,
               backgroundPosition: 'center center',
               backgroundSize: 'cover',
-              transform: 'scale(1.04)',
+              transform: 'scale(1.01)',
             }}
             initial={false}
             animate={{ opacity: index === heroPhoto ? 1 : 0 }}
