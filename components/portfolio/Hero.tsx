@@ -13,7 +13,7 @@ import { ArrowDown, ArrowUpRight, Github, Linkedin, Sparkles } from 'lucide-reac
 
 const MASK_SIZE = 270;
 const HERO_BACKGROUND = '/1719.png';
-const HOVER_BACKGROUND = '/1721.png';
+const HOVER_BACKGROUND = '/portrait2.png';
 const PORTRAIT = '/portrait.png';
 
 export default function Hero() {
@@ -69,17 +69,17 @@ export default function Hero() {
             transform: 'scale(1.01)',
           }}
         />
-        <motion.div
+        <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-[-1.5%] bg-no-repeat"
-          style={{
-            backgroundImage: `url('${HOVER_BACKGROUND}')`,
-            backgroundPosition: 'center center',
-            backgroundSize: 'cover',
-            transform: 'scale(1.01)',
-            clipPath: revealClipPath,
-          }}
-        />
+          className="pointer-events-none absolute inset-0 flex items-end justify-center overflow-hidden"
+          style={{ clipPath: revealClipPath }}
+        >
+          <img
+            src={HOVER_BACKGROUND}
+            alt=""
+            className="h-[78svh] w-auto max-w-[88vw] object-contain object-bottom sm:h-[84svh] sm:max-w-[80vw]"
+          />
+        </div>
         <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-emerald-400/5 to-black/20" />
 <div className="absolute inset-0 bg-black/20" />
       </motion.div>
@@ -91,7 +91,7 @@ export default function Hero() {
         <img
           src={PORTRAIT}
           alt=""
-          className="max-h-[88vh] w-auto max-w-[92vw] object-contain object-bottom drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] sm:max-h-[92vh]"
+          className="h-[78svh] w-auto max-w-[88vw] object-contain object-bottom drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] sm:h-[84svh] sm:max-w-[80vw]"
         />
       </div>
 
