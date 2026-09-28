@@ -76,12 +76,12 @@ export default function Hero() {
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center overflow-visible"
+        className="pointer-events-none absolute inset-0 z-30 overflow-visible"
       >
         <img
           src={PORTRAIT}
           alt=""
-          className="h-[78svh] w-auto max-w-[88vw] object-contain object-bottom drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] sm:h-[84svh] sm:max-w-[80vw]"
+          className="absolute bottom-0 left-1/2 h-[78svh] w-auto max-w-[88vw] -translate-x-1/2 object-contain object-bottom drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] sm:h-[84svh] sm:max-w-[80vw]"
         />
       </div>
 
@@ -107,7 +107,7 @@ export default function Hero() {
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-[22%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12"
+        className="pointer-events-none absolute inset-x-0 top-[31%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12 sm:top-[28%]"
       >
         <h1 className="w-full max-w-6xl overflow-hidden font-black uppercase leading-[0.82] tracking-[-0.075em]">
           <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
