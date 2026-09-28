@@ -62,7 +62,7 @@ export default function Hero() {
       <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"
-        animate={reducedMotion ? undefined : { scale: [1, 1.035, 1] }}
+        animate={undefined}
         transition={reducedMotion ? undefined : { duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       >
         {HERO_PHOTOS.map((index) => (
