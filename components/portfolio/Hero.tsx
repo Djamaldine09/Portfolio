@@ -76,7 +76,7 @@ export default function Hero() {
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-30 overflow-visible"
+        className="pointer-events-none absolute inset-0 z-20 overflow-visible"
       >
         <img
           src={PORTRAIT}
@@ -87,13 +87,13 @@ export default function Hero() {
 
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-[25] flex items-end justify-center overflow-hidden"
+        className="pointer-events-none absolute inset-0 z-[25] overflow-hidden"
         style={{ clipPath: revealClipPath }}
       >
         <img
           src={HOVER_BACKGROUND}
           alt=""
-          className="h-[78svh] w-auto max-w-[88vw] object-contain object-bottom sm:h-[84svh] sm:max-w-[80vw]"
+          className="absolute bottom-0 left-1/2 h-[78svh] w-auto max-w-[88vw] -translate-x-1/2 object-contain object-bottom sm:h-[84svh] sm:max-w-[80vw]"
         />
       </motion.div>
 
