@@ -92,13 +92,23 @@ export default function Hero() {
 
       <motion.div
         aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[25] bg-no-repeat bg-cover [clip-path:ellipse(38%_35%_at_50%_43%)] sm:[clip-path:ellipse(32%_38%_at_50%_45%)]"
+        style={{
+          backgroundImage: `url('${HERO_PHOTOS[heroPhoto]}')`,
+          backgroundPosition: 'center center',
+          backgroundSize: 'cover',
+        }}
+      />
+
+      <motion.div
+        aria-hidden="true"
         className="pointer-events-none absolute z-10 rounded-full border border-white/40 bg-black/5 shadow-[0_0_0_1px_rgba(255,255,255,.08),0_25px_80px_rgba(0,0,0,.28)]"
         style={{ left: maskX, top: maskY, width: MASK_SIZE, height: MASK_SIZE }}
       />
 
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:56px_56px]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-40 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:56px_56px]" />
 
-      <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
+      <div className="relative z-20 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
             <p className="mb-5 text-sm font-medium uppercase tracking-[0.24em] text-white/50 sm:text-base">Full Stack Developer · Madagascar</p>
@@ -143,7 +153,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute bottom-24 left-1/2 z-30 -translate-x-1/2 text-center text-[9px] font-medium uppercase tracking-[0.24em] text-white/35 md:hidden">
+      <div className="pointer-events-none absolute bottom-24 left-1/2 z-50 -translate-x-1/2 text-center text-[9px] font-medium uppercase tracking-[0.24em] text-white/35 md:hidden">
         Touchez l&apos;écran et déplacez votre doigt
       </div>
     </section>
