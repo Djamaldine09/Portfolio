@@ -80,7 +80,7 @@ export default function Hero() {
             transition={{ duration: 1.35, ease: 'easeInOut' }}
           />
         ))}
-        <div className="absolute inset-0 bg-gradient-to-br from-lime-300/35 via-emerald-400/10 to-cyan-400/35 mix-blend-screen" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-emerald-400/5 to-black/20" />
         <div className="absolute inset-0 bg-black/20" />
       </motion.div>
 
