@@ -69,17 +69,7 @@ export default function Hero() {
             transform: 'scale(1.01)',
           }}
         />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 flex items-end justify-center overflow-hidden"
-          style={{ clipPath: revealClipPath }}
-        >
-          <img
-            src={HOVER_BACKGROUND}
-            alt=""
-            className="h-[78svh] w-auto max-w-[88vw] object-contain object-bottom sm:h-[84svh] sm:max-w-[80vw]"
-          />
-        </div>
+
         <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-emerald-400/5 to-black/20" />
 <div className="absolute inset-0 bg-black/20" />
       </motion.div>
@@ -92,6 +82,18 @@ export default function Hero() {
           src={PORTRAIT}
           alt=""
           className="h-[78svh] w-auto max-w-[88vw] object-contain object-bottom drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] sm:h-[84svh] sm:max-w-[80vw]"
+        />
+      </div>
+
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[25] flex items-end justify-center overflow-hidden"
+        style={{ clipPath: revealClipPath }}
+      >
+        <img
+          src={HOVER_BACKGROUND}
+          alt=""
+          className="h-[78svh] w-auto max-w-[88vw] object-contain object-bottom sm:h-[84svh] sm:max-w-[80vw]"
         />
       </div>
 
