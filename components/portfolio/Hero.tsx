@@ -92,7 +92,7 @@ export default function Hero() {
 
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute z-10 rounded-full border border-white/40 bg-black/5 shadow-[0_0_0_1px_rgba(255,255,255,.08),0_25px_80px_rgba(0,0,0,.28)] backdrop-blur-[2px]"
+        className="pointer-events-none absolute z-10 rounded-full border border-white/40 bg-black/5 shadow-[0_0_0_1px_rgba(255,255,255,.08),0_25px_80px_rgba(0,0,0,.28)]"
         style={{ left: maskX, top: maskY, width: MASK_SIZE, height: MASK_SIZE }}
       />
 
