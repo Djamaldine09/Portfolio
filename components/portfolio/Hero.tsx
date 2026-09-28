@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import {
   motion,
@@ -12,6 +12,7 @@ import {
 import { ArrowDown, ArrowUpRight, Github, Linkedin, Sparkles } from 'lucide-react';
 
 const MASK_SIZE = 270;
+const HERO_PHOTOS = ['/1719.png', '/1721.png'];
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -22,6 +23,15 @@ export default function Hero() {
   const smoothY = useSpring(mouseY, { stiffness: 120, damping: 20, mass: 0.55 });
   const maskX = useTransform(smoothX, (value) => `calc(${value}% - ${MASK_SIZE / 2}px)`);
   const maskY = useTransform(smoothY, (value) => `calc(${value}% - ${MASK_SIZE / 2}px)`);
+  const [heroPhoto, setHeroPhoto] = useState(0);
+
+  useEffect(() => {
+    if (reducedMotion) return;
+    const interval = window.setInterval(() => {
+      setHeroPhoto((current) => (current + 1) % HERO_PHOTOS.length);
+    }, 5200);
+    return () => window.clearInterval(interval);
+  }, [reducedMotion]);
 
   const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
     const bounds = containerRef.current?.getBoundingClientRect();
@@ -55,8 +65,22 @@ export default function Hero() {
         animate={reducedMotion ? undefined : { scale: [1, 1.035, 1] }}
         transition={reducedMotion ? undefined : { duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       >
-        <Image src="/avatar.png" alt="" fill priority sizes="100vw" className="object-cover object-center opacity-95" />
-        <div className="absolute inset-0 bg-gradient-to-br from-lime-300/55 via-emerald-400/20 to-cyan-400/55 mix-blend-screen" />
+        {HERO_PHOTOS.map((src, index) => (
+          <motion.img
+            key={src}
+            src={src}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover object-center"
+            initial={false}
+            animate={{ opacity: index === heroPhoto ? 0.96 : 0 }}
+            transition={{ duration: 1.35, ease: 'easeInOut' }}
+            onError={(event) => {
+              event.currentTarget.src = '/avatar.png';
+            }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-br from-lime-300/35 via-emerald-400/10 to-cyan-400/35 mix-blend-screen" />
         <div className="absolute inset-0 bg-black/20" />
       </motion.div>
 
