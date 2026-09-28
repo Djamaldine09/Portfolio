@@ -1,11 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import {
   motion,
   useMotionValue,
-  useReducedMotion,
   useSpring,
   useTransform,
   useMotionTemplate,
@@ -13,7 +11,9 @@ import {
 import { ArrowDown, ArrowUpRight, Github, Linkedin, Sparkles } from 'lucide-react';
 
 const MASK_SIZE = 270;
-const HERO_PHOTOS = ['/1719.png', '/1721.png'];
+const HERO_BACKGROUND = '/1719.png';
+const HOVER_BACKGROUND = '/1721.png';
+const PORTRAIT = '/portrait.png';
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -25,7 +25,6 @@ export default function Hero() {
   const maskX = useTransform(smoothX, (value) => `calc(${value}% - ${MASK_SIZE / 2}px)`);
   const maskY = useTransform(smoothY, (value) => `calc(${value}% - ${MASK_SIZE / 2}px)`);
   const revealClipPath = useMotionTemplate`circle(${MASK_SIZE / 2}px at ${smoothX}% ${smoothY}%)`;
-  const [heroPhoto, setHeroPhoto] = useState(0);
 
   const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
     const bounds = containerRef.current?.getBoundingClientRect();
@@ -59,27 +58,21 @@ export default function Hero() {
         animate={undefined}
         transition={reducedMotion ? undefined : { duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       >
-        {HERO_PHOTOS.map((src, index) => (
-          <motion.div
-            key={src}
-            aria-hidden="true"
-            className="absolute inset-[-1.5%] bg-no-repeat"
-            style={{
-              backgroundImage: `url('${src}')`,
-              backgroundPosition: 'center center',
-              backgroundSize: 'cover',
-              transform: 'scale(1.01)',
-            }}
-            initial={false}
-            animate={{ opacity: index === heroPhoto ? 1 : 0 }}
-            transition={{ duration: 1.2, ease: 'easeInOut' }}
-          />
-        ))}
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-[-1.5%] bg-no-repeat"
+          style={{
+            backgroundImage: `url('${HERO_BACKGROUND}')`,
+            backgroundPosition: 'center center',
+            backgroundSize: 'cover',
+            transform: 'scale(1.01)',
+          }}
+        />
         <motion.div
           aria-hidden="true"
           className="pointer-events-none absolute inset-[-1.5%] bg-no-repeat"
           style={{
-            backgroundImage: `url('${HERO_PHOTOS[heroPhoto === 0 ? 1 : 0]}')`,
+            backgroundImage: `url('${HOVER_BACKGROUND}')`,
             backgroundPosition: 'center center',
             backgroundSize: 'cover',
             transform: 'scale(1.01)',
@@ -87,6 +80,17 @@ export default function Hero() {
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-emerald-400/5 to-black/20" />
+<div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-20 flex items-end justify-center overflow-visible"
+        >
+          <img
+            src={PORTRAIT}
+            alt=""
+            className="max-h-[88vh] w-auto max-w-[92vw] object-contain object-bottom drop-shadow-[0_18px_35px_rgba(0,0,0,.32)] sm:max-h-[92vh]"
+          />
+        </div>
+
         <div className="absolute inset-0 bg-black/20" />
       </motion.div>
 
@@ -102,7 +106,7 @@ export default function Hero() {
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
             <p className="mb-5 text-sm font-medium uppercase tracking-[0.24em] text-white/50 sm:text-base">Full Stack Developer · Madagascar</p>
-            <h1 className="w-full max-w-full overflow-hidden font-black uppercase leading-[0.82] tracking-[-0.075em]">
+            <h1 className="relative z-10 w-full max-w-full overflow-hidden font-black uppercase leading-[0.82] tracking-[-0.075em]">
               <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
               <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] text-white/12 [-webkit-text-stroke:1px_rgba(255,255,255,.32)]">Moustafa</span>
             </h1>
