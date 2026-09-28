@@ -85,7 +85,7 @@ export default function Hero() {
         />
       </div>
 
-      <div
+      <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[25] flex items-end justify-center overflow-hidden"
         style={{ clipPath: revealClipPath }}
@@ -95,7 +95,7 @@ export default function Hero() {
           alt=""
           className="h-[78svh] w-auto max-w-[88vw] object-contain object-bottom sm:h-[84svh] sm:max-w-[80vw]"
         />
-      </div>
+      </motion.div>
 
       <motion.div
         aria-hidden="true"
