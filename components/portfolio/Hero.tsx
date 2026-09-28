@@ -12,7 +12,7 @@ import {
 import { ArrowDown, ArrowUpRight, Github, Linkedin, Sparkles } from 'lucide-react';
 
 const MASK_SIZE = 270;
-const HERO_PHOTOS = ['/1719.jpg', '/1721.jpg'];
+const HERO_PHOTOS = [0, 1];
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -65,19 +65,19 @@ export default function Hero() {
         animate={reducedMotion ? undefined : { scale: [1, 1.035, 1] }}
         transition={reducedMotion ? undefined : { duration: 8, repeat: Infinity, ease: 'easeInOut' }}
       >
-        {HERO_PHOTOS.map((src, index) => (
-          <motion.img
-            key={src}
-            src={src}
-            alt=""
+        {HERO_PHOTOS.map((index) => (
+          <motion.div
+            key={index}
             aria-hidden="true"
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="absolute inset-0 bg-no-repeat"
+            style={{
+              backgroundImage: "url('/hero-photos.jpg')",
+              backgroundPosition: index === 0 ? '0% center' : '100% center',
+              backgroundSize: '200% auto',
+            }}
             initial={false}
             animate={{ opacity: index === heroPhoto ? 0.96 : 0 }}
             transition={{ duration: 1.35, ease: 'easeInOut' }}
-            onError={(event) => {
-              event.currentTarget.src = '/avatar.png';
-            }}
           />
         ))}
         <div className="absolute inset-0 bg-gradient-to-br from-lime-300/35 via-emerald-400/10 to-cyan-400/35 mix-blend-screen" />
