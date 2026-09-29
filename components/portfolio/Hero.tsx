@@ -219,23 +219,6 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="absolute left-5 top-[8.5%] flex flex-col gap-1 text-[9px] font-semibold uppercase tracking-[0.28em] text-white/45 sm:left-8 sm:top-[7%] lg:left-12">
-          <span>Full Stack Developer</span>
-          <span>Antananarivo · Madagascar</span>
-        </div>
-
-        <div className="absolute right-5 top-[8.5%] flex items-end gap-3 text-[9px] font-semibold uppercase tracking-[0.28em] text-white/35 sm:right-8 sm:top-[7%] lg:right-12">
-          <span>Portfolio</span>
-          <span className="h-px w-9 bg-white/25" />
-          <span>01 / 06</span>
-        </div>
-
-        <div className="absolute bottom-[16%] left-5 flex items-center gap-3 sm:left-8 lg:left-12">
-          <span className="h-px w-12 bg-white/25 sm:w-16" />
-          <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-white/35">
-            Digital experiences
-          </span>
-        </div>
       </div>
 
       <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
