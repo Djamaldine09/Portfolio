@@ -7,7 +7,6 @@ import {
   MapPin,
   Phone,
   Send,
-  Sparkles,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -101,54 +100,37 @@ export default function Contact() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[.72fr_1.28fr]">
+        <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-14">
           <div
-            className={`space-y-4 transition-all duration-1000 ${isVisible ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'}`}
+            className={`space-y-7 transition-all duration-1000 ${isVisible ? 'translate-x-0 opacity-100' : '-translate-x-8 opacity-0'}`}
           >
-            <div className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-6 shadow-[0_20px_80px_rgba(0,0,0,.24)] backdrop-blur-xl sm:p-7">
-              <div className="mb-7 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/35">
-                    Disponibilité
-                  </p>
-                  <p className="mt-2 text-lg font-semibold">Ouvert aux collaborations</p>
-                </div>
-                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-200">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_14px_rgba(110,231,183,.9)]" />
-                  Disponible
-                </span>
-              </div>
+            <div className="space-y-1 border-y border-white/10 py-2">
+              {contactInfo.map((info, index) => {
+                const Icon = info.icon;
 
-              <div className="space-y-3">
-                {contactInfo.map((info, index) => {
-                  const Icon = info.icon;
-
-                  return (
-                    <a
-                      key={info.label}
-                      href={info.href}
-                      className={`group flex items-center gap-4 rounded-2xl border border-white/8 bg-black/10 p-4 transition-all duration-500 hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.06] ${isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'}`}
-                      style={{ transitionDelay: `${index * 90 + 180}ms` }}
-                    >
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.05] transition-transform duration-500 group-hover:rotate-3 group-hover:scale-105">
-                        <Icon className="h-5 w-5 text-white/80 transition-colors group-hover:text-lime-200" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
-                          {info.label}
-                        </p>
-                        <p className="mt-1 truncate text-sm font-medium text-white/78 sm:text-[15px]">
-                          {info.value}
-                        </p>
-                      </div>
-                      <ArrowUpRight className="h-4 w-4 text-white/20 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-lime-200" />
-                    </a>
-                  );
-                })}
-              </div>
+                return (
+                  <a
+                    key={info.label}
+                    href={info.href}
+                    className={`group flex items-center gap-4 border-b border-white/8 py-5 last:border-b-0 transition-all duration-500 hover:pl-2 ${isVisible ? 'translate-x-0 opacity-100' : '-translate-x-4 opacity-0'}`}
+                    style={{ transitionDelay: `${index * 90 + 180}ms` }}
+                  >
+                    <Icon className="h-5 w-5 shrink-0 text-white/45 transition-colors duration-300 group-hover:text-lime-200" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/30">
+                        {info.label}
+                      </p>
+                      <p className="mt-1 truncate text-sm font-medium text-white/80 sm:text-[15px]">
+                        {info.value}
+                      </p>
+                    </div>
+                    <ArrowUpRight className="h-4 w-4 text-white/20 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-lime-200" />
+                  </a>
+                );
+              })}
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-lime-300/[0.08] via-white/[0.025] to-cyan-300/[0.06] p-6 sm:p-7">
+            <div className="pt-2">
               <p className="text-xs font-medium uppercase tracking-[0.22em] text-white/30">
                 Réponse
               </p>
