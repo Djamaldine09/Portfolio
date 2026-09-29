@@ -95,7 +95,7 @@ export default function Skills() {
     <section
       id="skills"
       ref={sectionRef}
-      className={`relative overflow-hidden py-24 transition-colors duration-500 sm:py-32 ${
+      className={`relative py-24 transition-colors duration-500 sm:py-32 ${
         isDarkMode ? 'bg-[#0a0f0d] text-white' : 'bg-[#f4f6f2] text-[#101311]'
       }`}
     >
