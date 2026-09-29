@@ -207,8 +207,8 @@ export default function Hero() {
         className="pointer-events-none absolute inset-x-0 top-[18%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12 sm:top-[15%]"
       >
         <h1 className="w-full max-w-6xl overflow-hidden font-[family-name:var(--font-space-grotesk)] font-extrabold uppercase leading-[0.78] tracking-[-0.105em]">
-          <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
-          <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] text-white/10 [-webkit-text-stroke:1.4px_rgba(255,255,255,.38)]">Moustafa</span>
+          <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] [-webkit-text-stroke:0.8px_currentColor]">Djamaldine</span>
+          <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] text-white/10 [-webkit-text-stroke:1.8px_rgba(255,255,255,.42)]">Moustafa</span>
         </h1>
       </div>
 
