@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   motion,
   useMotionValue,
@@ -15,6 +15,95 @@ const MASK_SIZE = 270;
 const HERO_BACKGROUND = '/1719.png';
 const HOVER_BACKGROUND = '/portrait2.png';
 const PORTRAIT = '/portrait.png';
+
+const HERO_DESCRIPTION =
+  "Je conçois des applications web et mobiles modernes, robustes et interactives avec une attention particulière portée au design, à l'expérience utilisateur et aux performances.";
+
+const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
+
+function randomChar() {
+  return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+}
+
+function HeroTextMotion() {
+  const reducedMotion = useReducedMotion();
+  const words = HERO_DESCRIPTION.split(' ');
+  const [displayWords, setDisplayWords] = useState(() =>
+    words.map((word) => [...word].map(() => randomChar())),
+  );
+
+  useEffect(() => {
+    if (reducedMotion) {
+      setDisplayWords(words.map((word) => [...word]));
+      return;
+    }
+
+    let raf = 0;
+    const startedAt = performance.now();
+    const settleDuration = 720;
+    const stagger = 8;
+    const totalCharacters = HERO_DESCRIPTION.length;
+    const totalDuration = settleDuration + totalCharacters * stagger;
+
+    const tick = (now: number) => {
+      const elapsed = now - startedAt;
+      let characterIndex = 0;
+
+      const nextWords = words.map((word) => {
+        return [...word].map((target) => {
+          const localProgress = Math.max(
+            0,
+            Math.min(1, (elapsed - characterIndex * stagger) / settleDuration),
+          );
+          characterIndex += 1;
+
+          if (localProgress >= 1) return target;
+
+          const revealProgress = Math.pow(localProgress, 2.6);
+          return revealProgress > 0.55 ? target : randomChar();
+        });
+      });
+
+      setDisplayWords(nextWords);
+
+      if (elapsed < totalDuration) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        setDisplayWords(words.map((word) => [...word]));
+      }
+    };
+
+    raf = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(raf);
+  }, [reducedMotion]);
+
+  return (
+    <motion.p
+      initial={reducedMotion ? false : { opacity: 0, y: 12, filter: 'blur(8px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: reducedMotion ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] }}
+      aria-label={HERO_DESCRIPTION}
+      className="max-w-2xl text-lg leading-7 text-white/65 sm:text-xl sm:leading-8"
+    >
+      <span aria-hidden="true">
+        {displayWords.map((word, wordIndex) => (
+          <span key={wordIndex} className="whitespace-nowrap">
+            {word.map((character, characterIndex) => (
+              <span
+                key={characterIndex}
+                className="inline-block min-w-[0.52em]"
+              >
+                {character}
+              </span>
+            ))}
+            {wordIndex < displayWords.length - 1 ? ' ' : ''}
+          </span>
+        ))}
+      </span>
+    </motion.p>
+  );
+}
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -122,9 +211,7 @@ export default function Hero() {
             </h1>
 
             <div className="mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-[1.3fr_.7fr] md:items-end">
-              <p className="max-w-2xl text-lg leading-7 text-white/65 sm:text-xl sm:leading-8">
-                Je conçois des applications web et mobiles modernes, robustes et interactives avec une attention particulière portée au design, à l&apos;expérience utilisateur et aux performances.
-              </p>
+              <HeroTextMotion />
               <div className="flex flex-wrap gap-3 md:justify-end">
                 <motion.a
                   whileHover={{ y: -3, scale: 1.02 }}
