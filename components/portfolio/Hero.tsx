@@ -206,18 +206,18 @@ export default function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-[18%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12 sm:top-[15%]"
       >
-        <h1 className="w-full max-w-6xl overflow-hidden font-[family-name:var(--font-inter)] font-black uppercase leading-[0.76] tracking-[-0.11em]">
-          <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] [-webkit-text-stroke:1.5px_currentColor]">Djamaldine</span>
-          <span className="block whitespace-nowrap font-[family-name:var(--font-sora)] font-bold text-[clamp(3.15rem,13.5vw,12.6rem)] leading-[0.8] tracking-[-0.085em] text-white/14 [-webkit-text-stroke:0.9px_rgba(255,255,255,.34)] sm:text-[clamp(4.7rem,14.5vw,12.6rem)]">Moustoifa</span>
+        <h1 className="w-full max-w-[1500px] overflow-visible font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.73] tracking-[-0.07em]">
+          <span className="block whitespace-nowrap text-[clamp(4.2rem,15vw,14rem)] leading-[0.72] tracking-[-0.065em] text-white [-webkit-text-stroke:1px_currentColor] sm:text-[clamp(5.8rem,15.8vw,14rem)]">Djamaldine</span>
+          <span className="block whitespace-nowrap font-[family-name:var(--font-inter-tight)] font-black text-[clamp(4.4rem,16.5vw,15.2rem)] leading-[0.72] tracking-[-0.078em] text-white/12 [-webkit-text-stroke:1.15px_rgba(255,255,255,.5)] sm:text-[clamp(6rem,17vw,15.2rem)]">Moustoifa</span>
         </h1>
       </div>
 
       <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
-            <h1 className="relative z-10 w-full max-w-full overflow-hidden font-[family-name:var(--font-space-grotesk)] font-extrabold uppercase leading-[0.78] tracking-[-0.105em] opacity-0">
-              <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
-              <span className="block whitespace-nowrap font-[family-name:var(--font-sora)] font-bold text-[clamp(3.15rem,13.5vw,12.6rem)] leading-[0.8] tracking-[-0.085em] text-white/14 [-webkit-text-stroke:0.9px_rgba(255,255,255,.34)] sm:text-[clamp(4.7rem,14.5vw,12.6rem)]">Moustoifa</span>
+            <h1 className="relative z-10 w-full max-w-full overflow-hidden font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.73] tracking-[-0.07em] opacity-0">
+              <span className="block whitespace-nowrap text-[clamp(4.2rem,15vw,14rem)] leading-[0.72] tracking-[-0.065em]">Djamaldine</span>
+              <span className="block whitespace-nowrap font-[family-name:var(--font-inter-tight)] font-black text-[clamp(4.4rem,16.5vw,15.2rem)] leading-[0.72] tracking-[-0.078em] text-white/12 [-webkit-text-stroke:1.15px_rgba(255,255,255,.5)] sm:text-[clamp(6rem,17vw,15.2rem)]">Moustoifa</span>
             </h1>
 
             <div className="mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-[1.3fr_.7fr] md:items-end">
