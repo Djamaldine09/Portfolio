@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import {
   motion,
   useMotionValue,
@@ -17,100 +17,56 @@ const HOVER_BACKGROUND = '/portrait2.png';
 const PORTRAIT = '/portrait.png';
 
 const HERO_DESCRIPTION =
-  "Je conçois des applications web et mobiles modernes, robustes et interactives avec une attention particulière portée au design, à l'expérience utilisateur et aux performances.";
-
-const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
-
-function randomChar() {
-  return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
-}
+  "Introduction. In this tutorial, we'll explore how to create a staggered text animation using the splitText utility from Motion+. This technique breaks text into individual words or characters that can be animated independently, creating elegant text reveal effects. We'll learn how to use: splitText to separate text into animatable elements, animate to control the animation of those elements, stagger to create sequential timing effects.";
 
 function HeroTextMotion() {
   const reducedMotion = useReducedMotion();
-  const segments = HERO_DESCRIPTION.split(/(\s+)/);
-  const [progress, setProgress] = useState(reducedMotion ? 1 : 0);
 
-  useEffect(() => {
-    if (reducedMotion) {
-      setProgress(1);
-      return;
-    }
-
-    let raf = 0;
-    const startedAt = performance.now();
-    const duration = 1250;
-
-    const tick = (now: number) => {
-      const next = Math.min(1, (now - startedAt) / duration);
-      setProgress(next);
-
-      if (next < 1) {
-        raf = requestAnimationFrame(tick);
-      }
-    };
-
-    raf = requestAnimationFrame(tick);
-
-    return () => cancelAnimationFrame(raf);
-  }, [reducedMotion]);
-
-  let characterIndex = 0;
+  const words = HERO_DESCRIPTION.split(' ');
+  const totalWords = words.length;
 
   return (
     <motion.p
-      initial={reducedMotion ? false : { opacity: 0, y: 12, filter: 'blur(6px)' }}
-      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      transition={{ duration: reducedMotion ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] }}
       aria-label={HERO_DESCRIPTION}
+      initial={reducedMotion ? false : 'hidden'}
+      animate="visible"
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: 0.035,
+            delayChildren: 0.12,
+          },
+        },
+      }}
       className="w-full max-w-2xl whitespace-normal break-words font-[family-name:var(--font-manrope)] text-[1.05rem] font-medium leading-7 tracking-[-0.01em] text-white/65 sm:text-xl sm:leading-8"
     >
-      {segments.map((segment, segmentIndex) => {
-        if (/^\s+$/.test(segment)) {
-          characterIndex += segment.length;
-          return segment;
-        }
-
-        const chars = [...segment];
-        return (
-          <span key={`word-${segmentIndex}`} className="inline">
-            {chars.map((character, indexInWord) => {
-              const index = characterIndex + indexInWord;
-              const revealPoint =
-                index / Math.max(1, HERO_DESCRIPTION.length - 1);
-              const characterProgress = Math.min(
-                1,
-                Math.max(0, (progress - revealPoint * 0.72) / 0.28),
-              );
-              const settled = reducedMotion || progress >= 0.98 || characterProgress > 0.7;
-              const value =
-                settled
-                  ? character
-                  : characterProgress > 0.35
-                    ? character
-                    : randomChar();
-
-              return (
-                <motion.span
-                  key={`char-${segmentIndex}-${indexInWord}`}
-                  aria-hidden="true"
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                    filter: settled ? 'blur(0px)' : 'blur(0.5px)',
-                  }}
-                  transition={{
-                    duration: reducedMotion ? 0 : 0.16,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                  className="inline"
-                >
-                  {value}
-                </motion.span>
-              );
-            })}
-          </span>
-        );
-      })}
+      {words.map((word, index) => (
+        <motion.span
+          key={`${word}-${index}`}
+          aria-hidden="true"
+          variants={{
+            hidden: {
+              opacity: 0,
+              y: 18,
+              filter: 'blur(7px)',
+            },
+            visible: {
+              opacity: 1,
+              y: 0,
+              filter: 'blur(0px)',
+              transition: {
+                duration: reducedMotion ? 0 : 0.55,
+                ease: [0.22, 1, 0.36, 1],
+              },
+            },
+          }}
+          className="inline-block will-change-transform"
+        >
+          {word}
+          {index < totalWords - 1 ? '\u00a0' : ''}
+        </motion.span>
+      ))}
     </motion.p>
   );
 }
@@ -156,7 +112,11 @@ export default function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"
         animate={undefined}
-        transition={reducedMotion ? undefined : { duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        transition={
+          reducedMotion
+            ? undefined
+            : { duration: 8, repeat: Infinity, ease: 'easeInOut' }
+        }
       >
         <motion.div
           aria-hidden="true"
@@ -170,7 +130,7 @@ export default function Hero() {
         />
 
         <div className="absolute inset-0 bg-gradient-to-br from-white/0 via-emerald-400/5 to-black/20" />
-<div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/20" />
       </motion.div>
 
       <div
@@ -218,13 +178,15 @@ export default function Hero() {
             </h1>
           </div>
         </div>
-
       </div>
 
       <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
-            <div aria-hidden="true" className="h-[33svh] sm:h-[34svh] lg:h-[36svh]" />
+            <div
+              aria-hidden="true"
+              className="h-[33svh] sm:h-[34svh] lg:h-[36svh]"
+            />
 
             <div className="mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-[1.3fr_.7fr] md:items-end">
               <HeroTextMotion />
@@ -239,7 +201,12 @@ export default function Hero() {
                   Télécharger mon CV
                   <ArrowUpRight size={16} />
                 </motion.a>
-                <motion.button whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => scrollToSection('contact')} className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white/10">
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => scrollToSection('contact')}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white/10"
+                >
                   Me contacter
                 </motion.button>
               </div>
@@ -249,15 +216,32 @@ export default function Hero() {
 
         <div className="flex items-end justify-between gap-6">
           <div className="flex items-center gap-2">
-            <motion.a whileHover={{ y: -3, scale: 1.05 }} href="https://github.com/Djamaldine09" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/65 backdrop-blur-md hover:text-white">
+            <motion.a
+              whileHover={{ y: -3, scale: 1.05 }}
+              href="https://github.com/Djamaldine09"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/65 backdrop-blur-md hover:text-white"
+            >
               <Github size={18} />
             </motion.a>
-            <motion.a whileHover={{ y: -3, scale: 1.05 }} href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/65 backdrop-blur-md hover:text-white">
+            <motion.a
+              whileHover={{ y: -3, scale: 1.05 }}
+              href="https://www.linkedin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="LinkedIn"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/65 backdrop-blur-md hover:text-white"
+            >
               <Linkedin size={18} />
             </motion.a>
           </div>
 
-          <button onClick={() => scrollToSection('about')} className="group flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.26em] text-white/45 hover:text-white">
+          <button
+            onClick={() => scrollToSection('about')}
+            className="group flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.26em] text-white/45 hover:text-white"
+          >
             Scroll to explore
             <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-transform group-hover:translate-y-1">
               <ArrowDown size={14} />
@@ -267,7 +251,7 @@ export default function Hero() {
       </div>
 
       <div className="pointer-events-none absolute bottom-24 left-1/2 z-30 -translate-x-1/2 text-center text-[9px] font-medium uppercase tracking-[0.24em] text-white/35 md:hidden">
-        Touchez l&apos;écran et déplacez votre doigt
+        Touchez l'écran et déplacez votre doigt
       </div>
     </section>
   );
