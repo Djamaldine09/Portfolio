@@ -27,49 +27,25 @@ function randomChar() {
 
 function HeroTextMotion() {
   const reducedMotion = useReducedMotion();
-  const words = HERO_DESCRIPTION.split(' ');
-  const [displayWords, setDisplayWords] = useState(() =>
-    words.map((word) => [...word].map(() => randomChar())),
-  );
+  const segments = HERO_DESCRIPTION.split(/(\s+)/);
+  const [progress, setProgress] = useState(reducedMotion ? 1 : 0);
 
   useEffect(() => {
     if (reducedMotion) {
-      setDisplayWords(words.map((word) => [...word]));
+      setProgress(1);
       return;
     }
 
     let raf = 0;
     const startedAt = performance.now();
-    const settleDuration = 720;
-    const stagger = 8;
-    const totalCharacters = HERO_DESCRIPTION.length;
-    const totalDuration = settleDuration + totalCharacters * stagger;
+    const duration = 1250;
 
     const tick = (now: number) => {
-      const elapsed = now - startedAt;
-      let characterIndex = 0;
+      const next = Math.min(1, (now - startedAt) / duration);
+      setProgress(next);
 
-      const nextWords = words.map((word) => {
-        return [...word].map((target) => {
-          const localProgress = Math.max(
-            0,
-            Math.min(1, (elapsed - characterIndex * stagger) / settleDuration),
-          );
-          characterIndex += 1;
-
-          if (localProgress >= 1) return target;
-
-          const revealProgress = Math.pow(localProgress, 2.6);
-          return revealProgress > 0.55 ? target : randomChar();
-        });
-      });
-
-      setDisplayWords(nextWords);
-
-      if (elapsed < totalDuration) {
+      if (next < 1) {
         raf = requestAnimationFrame(tick);
-      } else {
-        setDisplayWords(words.map((word) => [...word]));
       }
     };
 
@@ -78,29 +54,63 @@ function HeroTextMotion() {
     return () => cancelAnimationFrame(raf);
   }, [reducedMotion]);
 
+  let characterIndex = 0;
+
   return (
     <motion.p
-      initial={reducedMotion ? false : { opacity: 0, y: 12, filter: 'blur(8px)' }}
+      initial={reducedMotion ? false : { opacity: 0, y: 12, filter: 'blur(6px)' }}
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       transition={{ duration: reducedMotion ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] }}
       aria-label={HERO_DESCRIPTION}
-      className="max-w-2xl text-lg leading-7 text-white/65 sm:text-xl sm:leading-8"
+      className="w-full max-w-2xl whitespace-normal break-words text-lg leading-7 text-white/65 sm:text-xl sm:leading-8"
     >
-      <span aria-hidden="true">
-        {displayWords.map((word, wordIndex) => (
-          <span key={wordIndex} className="whitespace-nowrap">
-            {word.map((character, characterIndex) => (
-              <span
-                key={characterIndex}
-                className="inline-block min-w-[0.52em]"
-              >
-                {character}
-              </span>
-            ))}
-            {wordIndex < displayWords.length - 1 ? ' ' : ''}
+      {segments.map((segment, segmentIndex) => {
+        if (/^\s+$/.test(segment)) {
+          characterIndex += segment.length;
+          return segment;
+        }
+
+        const chars = [...segment];
+        return (
+          <span key={\`word-\${segmentIndex}\`} className="inline">
+            {chars.map((character, indexInWord) => {
+              const index = characterIndex + indexInWord;
+              const revealPoint =
+                index / Math.max(1, HERO_DESCRIPTION.length - 1);
+              const characterProgress = Math.min(
+                1,
+                Math.max(0, (progress - revealPoint * 0.72) / 0.28),
+              );
+              const settled = reducedMotion || progress >= 0.98 || characterProgress > 0.7;
+              const value =
+                settled
+                  ? character
+                  : characterProgress > 0.35
+                    ? character
+                    : randomChar();
+
+              return (
+                <motion.span
+                  key={\`char-\${segmentIndex}-\${indexInWord}\`}
+                  aria-hidden="true"
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    filter: settled ? 'blur(0px)' : 'blur(0.5px)',
+                  }}
+                  transition={{
+                    duration: reducedMotion ? 0 : 0.16,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                  className="inline"
+                >
+                  {value}
+                </motion.span>
+              );
+            })}
           </span>
-        ))}
-      </span>
+        );
+      })}
     </motion.p>
   );
 }
