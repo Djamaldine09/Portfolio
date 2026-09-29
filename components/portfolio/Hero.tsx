@@ -206,13 +206,13 @@ export default function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
       >
-        <div className="absolute inset-x-0 top-[13%] mx-auto w-full px-3 sm:top-[10%] sm:px-6 lg:px-10">
-          <div className="mx-auto w-[112vw] max-w-none -translate-x-[6vw] sm:w-[108vw] sm:-translate-x-[4vw] lg:w-[106vw] lg:-translate-x-[3vw]">
-            <h1 className="font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.61] tracking-[-0.085em]">
-              <span className="block whitespace-nowrap text-[clamp(5.1rem,18vw,17.5rem)] text-white">
+        <div className="absolute inset-x-0 top-[17%] mx-auto w-full px-4 sm:top-[14%] sm:px-6 lg:px-10">
+          <div className="mx-auto w-full max-w-[1500px]">
+            <h1 className="w-full font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.61] tracking-[-0.075em]">
+              <span className="block whitespace-nowrap text-[clamp(4.25rem,15.8vw,15.8rem)] text-white">
                 Djamaldine
               </span>
-              <span className="mt-1 block whitespace-nowrap text-[clamp(5rem,18vw,17.5rem)] text-transparent [-webkit-text-stroke:1.2px_rgba(255,255,255,.52)]">
+              <span className="mt-1 block whitespace-nowrap text-[clamp(4.15rem,15.6vw,15.6rem)] text-transparent [-webkit-text-stroke:1.1px_rgba(255,255,255,.52)]">
                 Moustoifa
               </span>
             </h1>
