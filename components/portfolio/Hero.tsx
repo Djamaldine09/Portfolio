@@ -72,7 +72,7 @@ function HeroTextMotion() {
 
         const chars = [...segment];
         return (
-          <span key={\`word-\${segmentIndex}\`} className="inline">
+          <span key={`word-\${segmentIndex}`} className="inline">
             {chars.map((character, indexInWord) => {
               const index = characterIndex + indexInWord;
               const revealPoint =
@@ -91,7 +91,7 @@ function HeroTextMotion() {
 
               return (
                 <motion.span
-                  key={\`char-\${segmentIndex}-\${indexInWord}\`}
+                  key={`char-\${segmentIndex}-\${indexInWord}`}
                   aria-hidden="true"
                   animate={{
                     opacity: 1,
