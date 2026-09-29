@@ -9,7 +9,7 @@ import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const MINT = '#a3e635';
-const NAME = 'Djamaldine';
+const NAME = 'Djamaldine®';
 
 export default function MotionThreeScroll() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
