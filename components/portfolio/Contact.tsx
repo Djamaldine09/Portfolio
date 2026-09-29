@@ -67,19 +67,19 @@ export default function Contact() {
     {
       icon: Mail,
       label: 'Email',
-      value: 'contact@portfolio.com',
-      href: 'mailto:contact@portfolio.com',
+      value: 'djamaldinemoustafa@gmail.com',
+      href: 'mailto:djamaldinemoustafa@gmail.com',
     },
     {
       icon: Phone,
       label: 'Téléphone',
-      value: '+33 6 12 34 56 78',
-      href: 'tel:+33612345678',
+      value: '+261 38 95 99 911',
+      href: 'tel:+261389599911',
     },
     {
       icon: MapPin,
       label: 'Localisation',
-      value: 'Paris, France',
+      value: 'Antananarivo, Madagascar',
       href: '#',
     },
   ];
