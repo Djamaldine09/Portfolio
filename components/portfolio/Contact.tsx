@@ -84,11 +84,6 @@ export default function Contact() {
         <div
           className={`mb-14 transition-all duration-1000 sm:mb-16 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}
         >
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.25em] text-white/55 backdrop-blur-md">
-            <Sparkles className="h-3.5 w-3.5 text-lime-300" />
-            Parlons de votre projet
-          </div>
-
           <div className="grid gap-8 lg:grid-cols-[1.1fr_.9fr] lg:items-end">
             <div>
               <h2 className="max-w-4xl text-[clamp(3.2rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.07em]">
