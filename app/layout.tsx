@@ -1,10 +1,10 @@
 import '@/app/globals.css';
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Manrope } from 'next/font/google';
 import { Toaster } from '@/components/ui/toaster';
 import MotionCornerMenu from '@/components/portfolio/MotionCornerMenu';
 
-const inter = Inter({ subsets: ['latin'] });
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' });
 
 export const metadata: Metadata = {
   title: 'Portfolio - Développeur Full Stack',
@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={inter.className}>
+      <body className={`${manrope.variable} font-sans`}>
         {children}
         <Toaster />
         <MotionCornerMenu />
