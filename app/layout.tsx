@@ -1,10 +1,11 @@
 import '@/app/globals.css';
 import type { Metadata } from 'next';
-import { Manrope } from 'next/font/google';
+import { Manrope, Space_Grotesk } from 'next/font/google';
 import { Toaster } from '@/components/ui/toaster';
 import MotionCornerMenu from '@/components/portfolio/MotionCornerMenu';
 
 const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' });
+const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk', weight: ['500', '600', '700'] });
 
 export const metadata: Metadata = {
   title: 'Portfolio - Développeur Full Stack',
@@ -33,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={`${manrope.variable} font-sans`}>
+      <body className={`${manrope.variable} ${spaceGrotesk.variable} font-sans`}>
         {children}
         <Toaster />
         <MotionCornerMenu />
