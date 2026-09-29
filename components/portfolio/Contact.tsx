@@ -185,7 +185,7 @@ export default function Contact() {
                       type="email"
                       placeholder="jean@example.com"
                       required
-                      className="h-12 rounded-xl border-white/10 bg-black/15 text-white placeholder:text-white/25 transition-all duration-300 focus:border-lime-300/40 focus:ring-2 focus:ring-lime-300/10"
+                      className="h-12 rounded-xl border border-white/10 !bg-[#0b1110] !text-white !caret-lime-200 placeholder:text-white/35 focus:border-lime-300/40 focus:ring-2 focus:ring-lime-300/10 [&:-webkit-autofill]:!bg-[#0b1110] [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#0b1110_inset] transition-all duration-300"
                     />
                   </div>
                 </div>
@@ -199,7 +199,7 @@ export default function Contact() {
                     name="subject"
                     placeholder="Proposition de collaboration"
                     required
-                    className="h-12 rounded-xl border-white/10 bg-black/15 text-white placeholder:text-white/25 transition-all duration-300 focus:border-lime-300/40 focus:ring-2 focus:ring-lime-300/10"
+                    className="h-12 rounded-xl border border-white/10 !bg-[#0b1110] !text-white !caret-lime-200 placeholder:text-white/35 focus:border-lime-300/40 focus:ring-2 focus:ring-lime-300/10 [&:-webkit-autofill]:!bg-[#0b1110] [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#0b1110_inset] transition-all duration-300"
                   />
                 </div>
 
