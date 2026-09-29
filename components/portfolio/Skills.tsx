@@ -96,7 +96,7 @@ export default function Skills() {
       id="skills"
       ref={sectionRef}
       className={`relative bg-white py-24 text-[#101311] transition-colors duration-500 sm:py-32 ${
-        isDarkMode ? 'bg-black text-white' : 'bg-white text-[#101311]'
+        isDarkMode ? '!bg-black text-white' : '!bg-white text-[#101311]'
       }`}
     >
 
@@ -199,7 +199,7 @@ export default function Skills() {
               }}
               onMouseLeave={() => pointer.set(0)}
               className={`relative h-[68vh] min-h-[520px] max-h-[820px] w-full overflow-hidden rounded-none sm:rounded-[2rem] ${
-                isDarkMode ? 'bg-black' : 'bg-white shadow-[0_24px_80px_rgba(15,23,42,.10)]'
+                isDarkMode ? '!bg-black' : '!bg-white shadow-[0_24px_80px_rgba(15,23,42,.10)]'
               }`}
               aria-label="Animated Section About Parallax scroll"
             >
