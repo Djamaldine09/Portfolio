@@ -28,6 +28,7 @@ export default function MotionThreeScroll() {
     let wireGeometry: THREE.EdgesGeometry | null = null;
     let wireMaterial: THREE.LineDashedMaterial | null = null;
     let fillMaterial: THREE.MeshPhysicalMaterial | null = null;
+    let glowMaterial: THREE.MeshBasicMaterial | null = null;
     let environmentTarget: THREE.WebGLRenderTarget | null = null;
     let pmrem: THREE.PMREMGenerator | null = null;
     let cancelScroll: (() => void) | undefined;
@@ -49,6 +50,7 @@ export default function MotionThreeScroll() {
       wireGeometry?.dispose();
       wireMaterial?.dispose();
       fillMaterial?.dispose();
+      glowMaterial?.dispose();
       renderer?.dispose();
     };
 
@@ -146,15 +148,15 @@ export default function MotionThreeScroll() {
         const fill = new THREE.Mesh(geometry, fillMaterial);
         text.add(fill);
 
-        const bevelGlowMaterial = new THREE.MeshBasicMaterial({
+        glowMaterial = new THREE.MeshBasicMaterial({
           color: 0x6eff00,
           transparent: true,
-          opacity: 0.045,
+          opacity: 0,
           blending: THREE.AdditiveBlending,
           depthWrite: false,
         });
 
-        const glow = new THREE.Mesh(geometry.clone(), bevelGlowMaterial);
+        const glow = new THREE.Mesh(geometry.clone(), glowMaterial);
         glow.scale.setScalar(1.006);
         text.add(glow);
 
@@ -164,12 +166,16 @@ export default function MotionThreeScroll() {
         const filled = transformValue(() => clamp((progress.get() - 0.44) / 0.42));
 
         cleanupWireEffect = threeEffect(wireMaterial, {
-          dashSize: transformValue(() => Math.max(0.001, wireLength * drawn.get())),
-          opacity: transformValue(() => 0.98 - filled.get() * 0.86),
+          dashSize: transformValue(() => wireLength * drawn.get()),
+          opacity: transformValue(() => drawn.get() * (0.98 - filled.get() * 0.86)),
         });
 
         cleanupFillEffect = threeEffect(fillMaterial, {
           opacity: transformValue(() => filled.get() * 0.92),
+        });
+
+        const cleanupGlowEffect = threeEffect(glowMaterial, {
+          opacity: transformValue(() => filled.get() * 0.045),
         });
 
         cleanupTextEffect = threeEffect(text, {
@@ -215,7 +221,6 @@ export default function MotionThreeScroll() {
         return () => {
           resizeObserver.disconnect();
           cancelFrame(render);
-          bevelGlowMaterial.dispose();
           dispose();
         };
       } catch (error) {
@@ -254,18 +259,12 @@ export default function MotionThreeScroll() {
         </div>
 
         <div className="relative flex flex-1 items-center justify-center">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(163,230,53,.14),transparent_34%)]" />
-
           <div className="relative w-full max-w-[900px]">
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(163,230,53,.08)_50%,transparent_100%)] blur-3xl" />
-
             <canvas
               ref={canvasRef}
               aria-label="Le nom Djamaldine en 3D animé au scroll"
               className="relative mx-auto block aspect-[16/7] w-full max-w-[860px]"
             />
-
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-px max-w-[720px] bg-gradient-to-r from-transparent via-lime-300/40 to-transparent" />
           </div>
         </div>
 
