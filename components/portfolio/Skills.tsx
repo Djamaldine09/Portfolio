@@ -95,10 +95,23 @@ export default function Skills() {
     <section
       id="skills"
       ref={sectionRef}
-      className={`relative bg-white py-24 text-[#101311] transition-colors duration-500 sm:py-32 ${
-        isDarkMode ? '!bg-black text-white' : '!bg-white text-[#101311]'
+      className={`relative py-24 transition-colors duration-500 sm:py-32 ${
+        isDarkMode ? 'bg-[#050707] text-white' : 'bg-[#f4f6f2] text-[#101311]'
       }`}
     >
+      <div className="pointer-events-none absolute inset-0">
+        <div className={`absolute left-[-10%] top-[-15%] h-[420px] w-[420px] rounded-full blur-3xl transition-opacity duration-500 ${
+          isDarkMode ? 'bg-lime-400/10' : 'bg-lime-300/15'
+        }`} />
+        <div className={`absolute bottom-[-18%] right-[-8%] h-[420px] w-[420px] rounded-full blur-3xl transition-opacity duration-500 ${
+          isDarkMode ? 'bg-cyan-400/10' : 'bg-cyan-300/15'
+        }`} />
+        <div className={`absolute inset-0 transition-opacity duration-500 ${
+          isDarkMode
+            ? 'bg-[radial-gradient(circle_at_top,rgba(255,255,255,.06),transparent_38%)]'
+            : 'bg-[radial-gradient(circle_at_top,rgba(0,0,0,.04),transparent_38%)]'
+        }`} />
+      </div>
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className={`mb-14 max-w-4xl transition-all duration-1000 sm:mb-16 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
