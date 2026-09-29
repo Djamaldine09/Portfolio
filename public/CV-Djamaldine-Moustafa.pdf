@@ -1,0 +1,82 @@
+%PDF-1.4
+%PDF
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 3385 >>
+stream
+BT /F1 22 Tf 44 798 Td (DJAMALDINE MOUSTOIFA) Tj ET
+BT /F1 11 Tf 44 770 Td (Developpeur Full Stack Web et Mobile) Tj ET
+BT /F2 12 Tf 44 739 Td (CONTACT) Tj ET
+44 734 m 551 734 l S
+BT /F1 8.5 Tf 44 719 Td (+261 38 95 999 11) Tj ET
+BT /F1 8.5 Tf 44 707 Td (djamaldinemoustafa@gmail.com) Tj ET
+BT /F2 12 Tf 44 688 Td (PROFIL) Tj ET
+44 683 m 551 683 l S
+BT /F1 8.5 Tf 44 668 Td (Developpeur Full Stack Web et Mobile, avec 2 ans d'experience dans la conception) Tj ET
+BT /F1 8.5 Tf 44 656 Td (d'applications performantes, maintenables et centrees utilisateur.) Tj ET
+BT /F1 8.5 Tf 44 644 Td (Capacite a mutualiser le code et les competences entre le web et le mobile:) Tj ET
+BT /F1 8.5 Tf 44 632 Td (hooks personnalises, logique metier partagee, gestion d'etat, appels API.) Tj ET
+BT /F2 12 Tf 44 613 Td (EXPERIENCES / PROJETS) Tj ET
+44 608 m 551 608 l S
+BT /F2 9.5 Tf 44 593 Td (GESTION DES EXAMENS NATIONAUX \(FULL STACK JS : FRONTEND NEXT JS, BACKEND EXPRESS JS\)) Tj ET
+BT /F1 8 Tf 44 579 Td (Present) Tj ET
+BT /F1 8.5 Tf 44 567 Td (Plateforme complete de gestion d'examens pour Madagascar supportant 5000+ candidats,) Tj ET
+BT /F1 8.5 Tf 44 555 Td (87 centres d'examen dans 22 regions. Solution fullstack avec authentification JWT,) Tj ET
+BT /F1 8.5 Tf 44 543 Td (gestion de roles \(Admin, Responsable, Correcteur, Surveillant, Candidat\), et systeme) Tj ET
+BT /F1 8.5 Tf 44 531 Td (d'affectation intelligent.) Tj ET
+BT /F1 8.5 Tf 44 519 Td (Technologies: Node.js | Express | MongoDB | Next.js | React | TypeScript | JWT) Tj ET
+BT /F1 8.5 Tf 44 507 Td (Fonctionnalites: gestion des candidats; examens et centres; affectation manuelle;) Tj ET
+BT /F1 8.5 Tf 44 495 Td (affectation automatique avec algorithme intelligent; QR codes \(JWT\) et numeros de table;) Tj ET
+BT /F1 8.5 Tf 44 483 Td (statistiques en temps reel; systeme de log et monitoring; authentification JWT.) Tj ET
+BT /F1 8.5 Tf 44 471 Td (Realisations: architecture complete backend/frontend; base de donnees optimisee;) Tj ET
+BT /F1 8.5 Tf 44 459 Td (algorithme d'affectation; interface intuitive avec statistiques en temps reel;) Tj ET
+BT /F1 8.5 Tf 44 447 Td (systeme securise avec JWT et gestion des roles.) Tj ET
+BT /F2 9.5 Tf 44 428 Td (APPLICATION MOBILE RESEAUX SOCIAUX \(FRONTEND FLUTTER, BACKEND EXPRESS JS, MONGODB\)) Tj ET
+BT /F1 8 Tf 44 414 Td (2025) Tj ET
+BT /F1 8.5 Tf 44 402 Td (Creation de bout en bout d'une application sociale mobile, du design d'interface sous) Tj ET
+BT /F1 8.5 Tf 44 390 Td (Flutter a l'architecture backend sur Express.js. Experience utilisateur fluide et) Tj ET
+BT /F1 8.5 Tf 44 378 Td (securite des donnees, avec un projet operationnel et scalable.) Tj ET
+BT /F2 12 Tf 44 359 Td (FORMATION) Tj ET
+44 354 m 551 354 l S
+BT /F1 8.5 Tf 44 339 Td (LICENSE \(3EME ANNEE\) - INSI - 2024 - present) Tj ET
+BT /F1 8.5 Tf 44 327 Td (BACCALAUREAT - Ecole privee Notre Dame - 2024) Tj ET
+BT /F2 12 Tf 44 308 Td (COMPETENCES) Tj ET
+44 303 m 551 303 l S
+BT /F1 8.5 Tf 44 288 Td (React.js, Express.js, Three.js, Nest.js, Next.js, Tailwind CSS,) Tj ET
+BT /F1 8.5 Tf 44 276 Td (.Net, Spring Boot, Python \(Django\), Java, React Native) Tj ET
+BT /F1 8.5 Tf 44 264 Td (MongoDB, MySQL, PostgreSQL) Tj ET
+BT /F1 8.5 Tf 44 252 Td (Figma, Git, GitHub, CI/CD) Tj ET
+BT /F2 12 Tf 44 233 Td (LANGUES) Tj ET
+44 228 m 551 228 l S
+BT /F1 8.5 Tf 44 213 Td (Francais) Tj ET
+BT /F1 8.5 Tf 44 201 Td (Anglais) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000121 00000 n 
+0000000257 00000 n 
+0000003694 00000 n 
+0000003791 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+3893
+%%EOF
