@@ -9,7 +9,7 @@ import {
   useTransform,
   useMotionTemplate,
 } from 'framer-motion';
-import { ArrowDown, ArrowUpRight, Github, Linkedin, Sparkles } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Github, Linkedin } from 'lucide-react';
 
 const MASK_SIZE = 270;
 const HERO_BACKGROUND = '/1719.png';
