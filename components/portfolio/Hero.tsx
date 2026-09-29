@@ -62,7 +62,7 @@ function HeroTextMotion() {
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       transition={{ duration: reducedMotion ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] }}
       aria-label={HERO_DESCRIPTION}
-      className="w-full max-w-2xl whitespace-normal break-words text-lg leading-7 text-white/65 sm:text-xl sm:leading-8"
+      className="w-full max-w-2xl whitespace-normal break-words font-[family-name:var(--font-manrope)] text-[1.05rem] font-medium leading-7 tracking-[-0.01em] text-white/65 sm:text-xl sm:leading-8"
     >
       {segments.map((segment, segmentIndex) => {
         if (/^\s+$/.test(segment)) {
@@ -206,7 +206,7 @@ export default function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-[18%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12 sm:top-[15%]"
       >
-        <h1 className="w-full max-w-6xl overflow-hidden font-black uppercase leading-[0.82] tracking-[-0.075em]">
+        <h1 className="w-full max-w-6xl overflow-hidden font-[family-name:var(--font-manrope)] font-extrabold uppercase leading-[0.82] tracking-[-0.09em]">
           <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
           <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] text-white/12 [-webkit-text-stroke:1px_rgba(255,255,255,.32)]">Moustafa</span>
         </h1>
@@ -215,7 +215,7 @@ export default function Hero() {
       <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
-            <h1 className="relative z-10 w-full max-w-full overflow-hidden font-black uppercase leading-[0.82] tracking-[-0.075em] opacity-0">
+            <h1 className="relative z-10 w-full max-w-full overflow-hidden font-[family-name:var(--font-manrope)] font-extrabold uppercase leading-[0.82] tracking-[-0.09em] opacity-0">
               <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
               <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] text-white/12 [-webkit-text-stroke:1px_rgba(255,255,255,.32)]">Moustafa</span>
             </h1>
