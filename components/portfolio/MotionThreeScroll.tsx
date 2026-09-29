@@ -35,6 +35,7 @@ export default function MotionThreeScroll() {
     let cleanupWireEffect: (() => void) | undefined;
     let cleanupFillEffect: (() => void) | undefined;
     let cleanupTextEffect: (() => void) | undefined;
+    let cleanupGlowEffect: (() => void) | undefined;
     let stopped = false;
 
     const dispose = () => {
@@ -43,6 +44,7 @@ export default function MotionThreeScroll() {
       cleanupWireEffect?.();
       cleanupFillEffect?.();
       cleanupTextEffect?.();
+      cleanupGlowEffect?.();
 
       environmentTarget?.dispose();
       pmrem?.dispose();
@@ -174,7 +176,7 @@ export default function MotionThreeScroll() {
           opacity: transformValue(() => filled.get() * 0.92),
         });
 
-        const cleanupGlowEffect = threeEffect(glowMaterial, {
+        cleanupGlowEffect = threeEffect(glowMaterial, {
           opacity: transformValue(() => filled.get() * 0.045),
         });
 
