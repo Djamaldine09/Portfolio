@@ -7,6 +7,7 @@ import Projects from '@/components/portfolio/Projects';
 import ScrollTextLines from '@/components/portfolio/ScrollTextLines';
 import ScrollTimelinePro from '@/components/portfolio/ScrollTimelinePro';
 import KageCameraExperience from '@/components/portfolio/KageCameraExperience';
+import MotionThreeScroll from '@/components/portfolio/MotionThreeScroll';
 import Skills from '@/components/portfolio/Skills';
 import Contact from '@/components/portfolio/Contact';
 import Footer from '@/components/portfolio/Footer';
@@ -28,6 +29,7 @@ export default function Portfolio() {
         <Hero />
         <About />
         <KageCameraExperience />
+        <MotionThreeScroll />
         <Projects />
         <ScrollTimelinePro />
         <div className="bg-[#0a0f0d] pt-16 sm:pt-24 lg:pt-28">
