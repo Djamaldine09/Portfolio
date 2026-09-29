@@ -204,21 +204,44 @@ export default function Hero() {
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-[18%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12 sm:top-[15%]"
+        className="pointer-events-none absolute inset-0 z-10 overflow-hidden"
       >
-        <h1 className="w-full max-w-[1500px] overflow-visible font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.73] tracking-[-0.07em]">
-          <span className="block whitespace-nowrap text-[clamp(4.2rem,15vw,14rem)] leading-[0.72] tracking-[-0.065em] text-white [-webkit-text-stroke:1px_currentColor] sm:text-[clamp(5.8rem,15.8vw,14rem)]">Djamaldine</span>
-          <span className="block whitespace-nowrap font-[family-name:var(--font-inter-tight)] font-black text-[clamp(4.4rem,16.5vw,15.2rem)] leading-[0.72] tracking-[-0.078em] text-white/12 [-webkit-text-stroke:1.15px_rgba(255,255,255,.5)] sm:text-[clamp(6rem,17vw,15.2rem)]">Moustoifa</span>
-        </h1>
+        <div className="absolute inset-x-0 top-[13%] mx-auto w-full px-3 sm:top-[10%] sm:px-6 lg:px-10">
+          <div className="mx-auto w-[112vw] max-w-none -translate-x-[6vw] sm:w-[108vw] sm:-translate-x-[4vw] lg:w-[106vw] lg:-translate-x-[3vw]">
+            <h1 className="font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.61] tracking-[-0.085em]">
+              <span className="block whitespace-nowrap text-[clamp(5.1rem,18vw,17.5rem)] text-white">
+                Djamaldine
+              </span>
+              <span className="mt-1 block whitespace-nowrap text-[clamp(5rem,18vw,17.5rem)] text-transparent [-webkit-text-stroke:1.2px_rgba(255,255,255,.52)]">
+                Moustoifa
+              </span>
+            </h1>
+          </div>
+        </div>
+
+        <div className="absolute left-5 top-[8.5%] flex flex-col gap-1 text-[9px] font-semibold uppercase tracking-[0.28em] text-white/45 sm:left-8 sm:top-[7%] lg:left-12">
+          <span>Full Stack Developer</span>
+          <span>Antananarivo · Madagascar</span>
+        </div>
+
+        <div className="absolute right-5 top-[8.5%] flex items-end gap-3 text-[9px] font-semibold uppercase tracking-[0.28em] text-white/35 sm:right-8 sm:top-[7%] lg:right-12">
+          <span>Portfolio</span>
+          <span className="h-px w-9 bg-white/25" />
+          <span>01 / 06</span>
+        </div>
+
+        <div className="absolute bottom-[16%] left-5 flex items-center gap-3 sm:left-8 lg:left-12">
+          <span className="h-px w-12 bg-white/25 sm:w-16" />
+          <span className="text-[9px] font-semibold uppercase tracking-[0.28em] text-white/35">
+            Digital experiences
+          </span>
+        </div>
       </div>
 
       <div className="relative z-30 flex min-h-screen flex-col justify-between px-5 pb-7 pt-28 sm:px-8 sm:pb-9 lg:px-12 lg:pt-32">
         <div className="mx-auto w-full max-w-[1450px] py-16 sm:py-20">
           <div className="max-w-6xl">
-            <h1 className="relative z-10 w-full max-w-full overflow-hidden font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.73] tracking-[-0.07em] opacity-0">
-              <span className="block whitespace-nowrap text-[clamp(4.2rem,15vw,14rem)] leading-[0.72] tracking-[-0.065em]">Djamaldine</span>
-              <span className="block whitespace-nowrap font-[family-name:var(--font-inter-tight)] font-black text-[clamp(4.4rem,16.5vw,15.2rem)] leading-[0.72] tracking-[-0.078em] text-white/12 [-webkit-text-stroke:1.15px_rgba(255,255,255,.5)] sm:text-[clamp(6rem,17vw,15.2rem)]">Moustoifa</span>
-            </h1>
+            <div aria-hidden="true" className="h-[33svh] sm:h-[34svh] lg:h-[36svh]" />
 
             <div className="mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-[1.3fr_.7fr] md:items-end">
               <HeroTextMotion />
