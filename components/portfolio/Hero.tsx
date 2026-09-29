@@ -17,7 +17,7 @@ const HOVER_BACKGROUND = '/portrait2.png';
 const PORTRAIT = '/portrait.png';
 
 const HERO_DESCRIPTION =
-  "Introduction. In this tutorial, we'll explore how to create a staggered text animation using the splitText utility from Motion+. This technique breaks text into individual words or characters that can be animated independently, creating elegant text reveal effects. We'll learn how to use: splitText to separate text into animatable elements, animate to control the animation of those elements, stagger to create sequential timing effects.";
+  "Je conçois des applications web et mobiles modernes, robustes et interactives avec une attention particulière portée au design, à l'expérience utilisateur et aux performances.";
 
 function HeroTextMotion() {
   const reducedMotion = useReducedMotion();
