@@ -95,17 +95,10 @@ export default function Skills() {
     <section
       id="skills"
       ref={sectionRef}
-      className={`relative py-24 transition-colors duration-500 sm:py-32 ${
-        isDarkMode ? 'bg-[#0a0f0d] text-white' : 'bg-[#f4f6f2] text-[#101311]'
+      className={`relative bg-white py-24 text-[#101311] transition-colors duration-500 sm:py-32 ${
+        isDarkMode ? 'bg-black text-white' : 'bg-white text-[#101311]'
       }`}
     >
-      <div
-        className={`absolute inset-0 transition-opacity duration-500 ${
-          isDarkMode
-            ? 'bg-[radial-gradient(circle_at_20%_20%,rgba(6,182,212,0.12),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(59,130,246,0.10),transparent_30%)]'
-            : 'bg-[radial-gradient(circle_at_20%_20%,rgba(6,182,212,0.10),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(132,204,22,0.08),transparent_30%)]'
-        }`}
-      />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className={`mb-14 max-w-4xl transition-all duration-1000 sm:mb-16 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
@@ -137,8 +130,8 @@ export default function Skills() {
               transition={{ duration: 0.7, delay: index * 0.15 }}
               className={`group overflow-hidden rounded-3xl border shadow-2xl backdrop-blur-sm transition-colors duration-500 ${
                 isDarkMode
-                  ? 'border-white/10 bg-white/[0.04]'
-                  : 'border-black/10 bg-white/75'
+                  ? 'border-white/10 bg-black'
+                  : 'border-black/10 bg-white'
               }`}
             >
               <div className="relative h-64 overflow-hidden">
@@ -206,7 +199,7 @@ export default function Skills() {
               }}
               onMouseLeave={() => pointer.set(0)}
               className={`relative h-[68vh] min-h-[520px] max-h-[820px] w-full overflow-hidden rounded-none sm:rounded-[2rem] ${
-                isDarkMode ? 'bg-black' : 'bg-slate-900 shadow-[0_24px_80px_rgba(15,23,42,.14)]'
+                isDarkMode ? 'bg-black' : 'bg-white shadow-[0_24px_80px_rgba(15,23,42,.10)]'
               }`}
               aria-label="Animated Section About Parallax scroll"
             >
