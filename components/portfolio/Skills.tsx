@@ -83,8 +83,11 @@ export default function Skills() {
           <div className="mb-5 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.25em] text-cyan-400">
             <Sparkles className="h-4 w-4" />Mon savoir-faire
           </div>
-          <h2 className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Mes <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-300 bg-clip-text text-transparent">Compétences</span>
+          <h2 className="max-w-4xl text-[clamp(3.2rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.07em]">
+            Mes{' '}
+            <span className="bg-gradient-to-r from-lime-300 via-white to-cyan-300 bg-clip-text text-transparent">
+              compétences
+            </span>
           </h2>
           <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300 sm:text-xl">
             Je conçois des expériences web modernes en combinant développement, animation et direction visuelle. Mes interfaces utilisent le scroll, le mouvement et le parallaxe pour donner vie aux contenus sans sacrifier les performances.
