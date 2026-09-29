@@ -17,7 +17,7 @@ const HOVER_BACKGROUND = '/portrait2.png';
 const PORTRAIT = '/portrait.png';
 
 const HERO_DESCRIPTION =
-  "Je conçois des applications web et mobiles modernes, robustes et interactives avec une attention particulière portée au design, à l'expérience utilisateur et aux performances.";
+  "Introduction\n\nIn this tutorial, we'll explore how to create a staggered text animation using the splitText utility from Motion+. This technique breaks text into individual words or characters that can be animated independently, creating elegant text reveal effects.\n\nWe'll learn how to use:\n\nsplitText to separate text into animatable elements\nanimate to control the animation of those elements\nstagger to create sequential timing effects";
 
 const SCRAMBLE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%&*';
 
@@ -62,7 +62,7 @@ function HeroTextMotion() {
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       transition={{ duration: reducedMotion ? 0 : 0.7, ease: [0.22, 1, 0.36, 1] }}
       aria-label={HERO_DESCRIPTION}
-      className="w-full max-w-2xl whitespace-normal break-words font-[family-name:var(--font-manrope)] text-[1.05rem] font-medium leading-7 tracking-[-0.01em] text-white/65 sm:text-xl sm:leading-8"
+      className="w-full max-w-2xl whitespace-pre-line break-words font-[family-name:var(--font-manrope)] text-[1.05rem] font-medium leading-7 tracking-[-0.01em] text-white/65 sm:text-xl sm:leading-8"
     >
       {segments.map((segment, segmentIndex) => {
         if (/^\s+$/.test(segment)) {
