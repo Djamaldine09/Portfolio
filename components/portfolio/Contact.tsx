@@ -214,7 +214,7 @@ export default function Contact() {
                       type="email"
                       placeholder="jean@example.com"
                       required
-                      className="h-12 rounded-xl border border-white/10 !bg-[#0b1110] !text-white !caret-lime-200 placeholder:text-white/35 focus:border-lime-300/40 focus:ring-2 focus:ring-lime-300/10 [&:-webkit-autofill]:!bg-[#0b1110] [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#0b1110_inset] transition-all duration-300"
+                      className={`h-12 rounded-xl border transition-all duration-300 focus:ring-2 ${isLightMode ? "border-black/10 !bg-white !text-[#101311] !caret-lime-600 placeholder:text-black/35 focus:border-lime-500/50 focus:ring-lime-500/10" : "border-white/10 !bg-[#0b1110] !text-white !caret-lime-200 placeholder:text-white/35 focus:border-lime-300/40 focus:ring-lime-300/10 [&:-webkit-autofill]:!bg-[#0b1110] [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:[box-shadow:0_0_0_1000px_#0b1110_inset]"}`}
                     />
                   </div>
                 </div>
