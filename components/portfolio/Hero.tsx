@@ -208,11 +208,11 @@ export default function Hero() {
       >
         <div className="absolute inset-x-0 top-[21%] mx-auto w-full px-5 sm:top-[17%] sm:px-7 lg:px-10">
           <div className="mx-auto w-full max-w-[1500px]">
-            <h1 className="w-full overflow-hidden font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.61] tracking-[-0.09em]">
-              <span className="block whitespace-nowrap text-[clamp(3.8rem,13.4vw,14.2rem)] text-white">
+            <h1 className="w-full overflow-visible py-1 font-[family-name:var(--font-inter-tight)] font-black uppercase leading-[0.72] tracking-[-0.09em]">
+              <span className="block whitespace-nowrap text-[clamp(3.75rem,13.2vw,14rem)] leading-[0.76] text-white">
                 Djamaldine
               </span>
-              <span className="mt-1 block whitespace-nowrap text-[clamp(3.7rem,13.2vw,14rem)] text-transparent [-webkit-text-stroke:1.05px_rgba(255,255,255,.52)]">
+              <span className="mt-0.5 block whitespace-nowrap text-[clamp(3.65rem,13vw,13.8rem)] leading-[0.76] text-transparent [-webkit-text-stroke:1.05px_rgba(255,255,255,.52)]">
                 Moustoifa
               </span>
             </h1>
