@@ -103,8 +103,6 @@ export default function Hero() {
         style={{ left: maskX, top: maskY, width: MASK_SIZE, height: MASK_SIZE }}
       />
 
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-20 opacity-20 [background-image:linear-gradient(rgba(255,255,255,.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.07)_1px,transparent_1px)] [background-size:56px_56px]" />
-
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-[18%] z-10 mx-auto w-full max-w-[1450px] px-5 sm:px-8 lg:px-12 sm:top-[15%]"
