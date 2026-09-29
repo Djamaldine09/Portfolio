@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from 'framer-motion';
-import { Image as ImageIcon, Sparkles } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 
 const skills = [
   { title: 'Frontend', description: 'Interfaces modernes, rapides et responsives.', technologies: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS'], image: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1200' },
@@ -38,6 +38,7 @@ export default function Skills() {
   const [isVisible, setIsVisible] = useState(false);
   const [activeSection, setActiveSection] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: animatedScrollRef,
@@ -51,6 +52,22 @@ export default function Skills() {
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting), { threshold: 0.12 });
     if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const syncTheme = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+
+    syncTheme();
+
+    const observer = new MutationObserver(syncTheme);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
     return () => observer.disconnect();
   }, []);
 
@@ -75,18 +92,38 @@ export default function Skills() {
   const current = animatedSections[activeSection];
 
   return (
-    <section id="skills" ref={sectionRef} className="relative bg-[#0a0f0d] py-24 text-white sm:py-32">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(6,182,212,0.12),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(59,130,246,0.10),transparent_30%)]" />
+    <section
+      id="skills"
+      ref={sectionRef}
+      className={`relative overflow-hidden py-24 transition-colors duration-500 sm:py-32 ${
+        isDarkMode ? 'bg-[#0a0f0d] text-white' : 'bg-[#f4f6f2] text-[#101311]'
+      }`}
+    >
+      <div
+        className={`absolute inset-0 transition-opacity duration-500 ${
+          isDarkMode
+            ? 'bg-[radial-gradient(circle_at_20%_20%,rgba(6,182,212,0.12),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(59,130,246,0.10),transparent_30%)]'
+            : 'bg-[radial-gradient(circle_at_20%_20%,rgba(6,182,212,0.10),transparent_30%),radial-gradient(circle_at_80%_70%,rgba(132,204,22,0.08),transparent_30%)]'
+        }`}
+      />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className={`mb-14 max-w-4xl transition-all duration-1000 sm:mb-16 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <h2 className="max-w-4xl text-[clamp(3.2rem,9vw,7.5rem)] font-black uppercase leading-[0.82] tracking-[-0.07em]">
             Mes{' '}
-            <span className="bg-gradient-to-r from-lime-300 via-white to-cyan-300 bg-clip-text text-transparent">
+            <span
+              className={`bg-gradient-to-r bg-clip-text text-transparent ${
+                isDarkMode
+                  ? 'from-lime-300 via-white to-cyan-300'
+                  : 'from-lime-600 via-slate-900 to-cyan-600'
+              }`}
+            >
               compétences
             </span>
           </h2>
-          <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300 sm:text-xl">
+          <p className={`mt-6 max-w-3xl text-lg leading-8 sm:text-xl ${
+            isDarkMode ? 'text-slate-300' : 'text-slate-600'
+          }`}>
             Je conçois des expériences web modernes en combinant développement, animation et direction visuelle. Mes interfaces utilisent le scroll, le mouvement et le parallaxe pour donner vie aux contenus sans sacrifier les performances.
           </p>
         </div>
@@ -98,7 +135,11 @@ export default function Skills() {
               initial={{ opacity: 0, y: 50 }}
               animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
               transition={{ duration: 0.7, delay: index * 0.15 }}
-              className="group overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl backdrop-blur-sm"
+              className={`group overflow-hidden rounded-3xl border shadow-2xl backdrop-blur-sm transition-colors duration-500 ${
+                isDarkMode
+                  ? 'border-white/10 bg-white/[0.04]'
+                  : 'border-black/10 bg-white/75'
+              }`}
             >
               <div className="relative h-64 overflow-hidden">
                 <motion.img
@@ -107,15 +148,34 @@ export default function Skills() {
                   style={{ x: parallaxX, scale: 1.08 }}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0d] via-[#0a0f0d]/30 to-transparent" />
-                <span className="absolute bottom-5 left-5 rounded-full border border-white/20 bg-black/30 px-3 py-1 text-xs font-mono text-cyan-300 backdrop-blur-md">0{index + 1}</span>
+                <div
+                  className={`absolute inset-0 bg-gradient-to-t transition-colors duration-500 ${
+                    isDarkMode
+                      ? 'from-[#0a0f0d] via-[#0a0f0d]/30'
+                      : 'from-[#f4f6f2] via-[#f4f6f2]/20'
+                  } to-transparent`}
+                />
+                <span className={`absolute bottom-5 left-5 rounded-full border px-3 py-1 text-xs font-mono backdrop-blur-md ${
+                  isDarkMode
+                    ? 'border-white/20 bg-black/30 text-cyan-300'
+                    : 'border-black/10 bg-white/75 text-cyan-700'
+                }`}>0{index + 1}</span>
               </div>
               <div className="p-6 sm:p-7">
                 <h3 className="text-2xl font-semibold">{skill.title}</h3>
-                <p className="mt-2 text-slate-400">{skill.description}</p>
+                <p className={`mt-2 ${
+                  isDarkMode ? 'text-slate-400' : 'text-slate-600'
+                }`}>{skill.description}</p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   {skill.technologies.map((technology) => (
-                    <span key={technology} className="rounded-full border border-cyan-400/20 bg-cyan-400/5 px-3 py-1.5 text-sm text-cyan-200 transition-colors group-hover:border-cyan-400/40">
+                    <span
+                      key={technology}
+                      className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
+                        isDarkMode
+                          ? 'border-cyan-400/20 bg-cyan-400/5 text-cyan-200 group-hover:border-cyan-400/40'
+                          : 'border-cyan-600/15 bg-cyan-500/5 text-cyan-700 group-hover:border-cyan-600/30'
+                      }`}
+                    >
                       {technology}
                     </span>
                   ))}
@@ -126,10 +186,14 @@ export default function Skills() {
         </div>
 
         <div className="mb-8">
-          <div className="mb-4 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.2em] text-cyan-400">
+          <div className={`mb-4 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.2em] ${
+            isDarkMode ? 'text-cyan-400' : 'text-cyan-700'
+          }`}>
             <ImageIcon className="h-4 w-4" />Animated Section
           </div>
-          <h3 className="text-4xl font-bold sm:text-5xl">About Parallax scroll</h3>
+          <h3 className={`text-4xl font-bold sm:text-5xl ${
+            isDarkMode ? 'text-white' : 'text-[#101311]'
+          }`}>About Parallax scroll</h3>
         </div>
 
         <div ref={animatedScrollRef} className="relative min-h-[300vh]">
@@ -141,7 +205,9 @@ export default function Skills() {
                 pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1);
               }}
               onMouseLeave={() => pointer.set(0)}
-              className="relative h-[68vh] min-h-[520px] max-h-[820px] w-full overflow-hidden rounded-none bg-black sm:rounded-[2rem]"
+              className={`relative h-[68vh] min-h-[520px] max-h-[820px] w-full overflow-hidden rounded-none sm:rounded-[2rem] ${
+                isDarkMode ? 'bg-black' : 'bg-slate-900 shadow-[0_24px_80px_rgba(15,23,42,.14)]'
+              }`}
               aria-label="Animated Section About Parallax scroll"
             >
               <motion.div
@@ -209,7 +275,9 @@ export default function Skills() {
           </div>
         </div>
 
-        <p className="mt-5 text-center text-xs uppercase tracking-[0.25em] text-slate-600">Scroll pour découvrir · 3 transitions · puis Contact</p>
+        <p className={`mt-5 text-center text-xs uppercase tracking-[0.25em] ${
+          isDarkMode ? 'text-slate-600' : 'text-slate-500'
+        }`}>Scroll pour découvrir · 3 transitions · puis Contact</p>
       </div>
     </section>
   );
