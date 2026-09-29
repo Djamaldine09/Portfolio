@@ -126,10 +126,16 @@ export default function Hero() {
                 Je conçois des applications web et mobiles modernes, robustes et interactives avec une attention particulière portée au design, à l&apos;expérience utilisateur et aux performances.
               </p>
               <div className="flex flex-wrap gap-3 md:justify-end">
-                <motion.button whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => scrollToSection('projects')} className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition-colors hover:bg-lime-200">
-                  Voir mes projets
+                <motion.a
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  href="/CV-Djamaldine-Moustafa.pdf"
+                  download="CV-Djamaldine-Moustafa.pdf"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-semibold text-black transition-colors hover:bg-lime-200"
+                >
+                  Télécharger mon CV
                   <ArrowUpRight size={16} />
-                </motion.button>
+                </motion.a>
                 <motion.button whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => scrollToSection('contact')} className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 text-sm font-medium text-white backdrop-blur-md transition-colors hover:bg-white/10">
                   Me contacter
                 </motion.button>
