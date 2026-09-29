@@ -208,7 +208,7 @@ export default function Hero() {
       >
         <h1 className="w-full max-w-6xl overflow-hidden font-[family-name:var(--font-inter)] font-black uppercase leading-[0.76] tracking-[-0.11em]">
           <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] [-webkit-text-stroke:1.5px_currentColor]">Djamaldine</span>
-          <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] text-white/10 [-webkit-text-stroke:2px_rgba(255,255,255,.46)]">Moustoifa</span>
+          <span className="block whitespace-nowrap font-[family-name:var(--font-sora)] font-bold text-[clamp(3.15rem,13.5vw,12.6rem)] leading-[0.8] tracking-[-0.085em] text-white/14 [-webkit-text-stroke:0.9px_rgba(255,255,255,.34)] sm:text-[clamp(4.7rem,14.5vw,12.6rem)]">Moustoifa</span>
         </h1>
       </div>
 
@@ -217,7 +217,7 @@ export default function Hero() {
           <div className="max-w-6xl">
             <h1 className="relative z-10 w-full max-w-full overflow-hidden font-[family-name:var(--font-space-grotesk)] font-extrabold uppercase leading-[0.78] tracking-[-0.105em] opacity-0">
               <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)]">Djamaldine</span>
-              <span className="block whitespace-nowrap text-[clamp(3.2rem,14vw,13rem)] sm:text-[clamp(4.8rem,15vw,13rem)] text-white/12 [-webkit-text-stroke:1px_rgba(255,255,255,.32)]">Moustoifa</span>
+              <span className="block whitespace-nowrap font-[family-name:var(--font-sora)] font-bold text-[clamp(3.15rem,13.5vw,12.6rem)] leading-[0.8] tracking-[-0.085em] text-white/14 [-webkit-text-stroke:0.9px_rgba(255,255,255,.34)] sm:text-[clamp(4.7rem,14.5vw,12.6rem)]">Moustoifa</span>
             </h1>
 
             <div className="mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-[1.3fr_.7fr] md:items-end">
