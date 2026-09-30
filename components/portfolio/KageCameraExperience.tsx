@@ -15,6 +15,137 @@ type LeafData = { x: number; y: number; z: number; phase: number; speed: number;
 type CloudData = { group: any; baseX: number; baseY: number; speed: number; phase: number };
 type ThemePart = { material: any; night: number; day: number };
 type ThreeState = { renderer: any; scene: any; camera: any; group: any; leaves: any; leafData: LeafData[]; clouds: CloudData[]; themeParts: ThemePart[]; moonMaterial: any; glowMaterial: any; glow2Material: any; moonLight: any; moonPoint: any; doorLeaves: any[]; doorLight: any; teaSteam: any[]; applyTheme: (day: boolean) => void };
+function createBeveledBoxGeometry(THREE: any, sx: number, sy: number, sz: number, mobile: boolean) {
+  const halfX = sx * 0.5;
+  const halfY = sy * 0.5;
+  const radius = Math.min(0.045, halfX * 0.42, halfY * 0.42, sz * 0.16);
+  if (radius < 0.008 || Math.min(sx, sy, sz) < 0.08) {
+    return new THREE.BoxGeometry(sx, sy, sz);
+  }
+  const shape = new THREE.Shape();
+  shape.moveTo(-halfX + radius, -halfY);
+  shape.lineTo(halfX - radius, -halfY);
+  shape.quadraticCurveTo(halfX, -halfY, halfX, -halfY + radius);
+  shape.lineTo(halfX, halfY - radius);
+  shape.quadraticCurveTo(halfX, halfY, halfX - radius, halfY);
+  shape.lineTo(-halfX + radius, halfY);
+  shape.quadraticCurveTo(-halfX, halfY, -halfX, halfY - radius);
+  shape.lineTo(-halfX, -halfY + radius);
+  shape.quadraticCurveTo(-halfX, -halfY, -halfX + radius, -halfY);
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: sz,
+    bevelEnabled: true,
+    bevelSegments: mobile ? 1 : 2,
+    bevelSize: radius * 0.72,
+    bevelThickness: radius * 0.72,
+    curveSegments: mobile ? 2 : 3,
+  });
+  geometry.translate(0, 0, -sz * 0.5);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function configureKagePBR(THREE: any, scene: any, mobile: boolean) {
+  scene.traverse((object: any) => {
+    if (!object.isMesh || !object.material) return;
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+    materials.forEach((material: any) => {
+      if (!material || !material.color || !('roughness' in material)) return;
+
+      const currentMetalness = material.metalness ?? 0;
+      const currentRoughness = material.roughness ?? 0.8;
+      const isGlass = material.userData?.kageSurface === 'glass' || (
+        material.transparent && material.opacity < 0.2 && currentRoughness <= 0.2 && currentMetalness < 0.15
+      );
+      const isMetal = material.userData?.kageSurface === 'metal' || currentMetalness >= 0.14;
+      const isCeramic = material.userData?.kageSurface === 'ceramic' || (!isMetal && !isGlass && currentRoughness < 0.52);
+      const isStoneLike = material.userData?.kageSurface === 'stone' || (!isMetal && !isGlass && currentRoughness >= 0.94);
+
+      if (isGlass) {
+        material.metalness = 0;
+        material.roughness = Math.min(0.16, currentRoughness);
+        material.envMapIntensity = 0.65;
+        if ('ior' in material) material.ior = 1.5;
+        if ('thickness' in material) material.thickness = 0.018;
+        if ('transmission' in material) material.transmission = Math.max(material.transmission ?? 0, 0.2);
+        material.userData.kageImperfectionStrength = 0.008;
+      } else if (isMetal) {
+        material.metalness = Math.max(0.72, currentMetalness);
+        material.roughness = Math.min(0.38, Math.max(0.22, currentRoughness * 0.62));
+        material.envMapIntensity = 1.15;
+        material.userData.kageImperfectionStrength = 0.045;
+      } else if (isCeramic) {
+        material.metalness = Math.min(0.04, currentMetalness);
+        material.roughness = Math.min(0.58, Math.max(0.26, currentRoughness));
+        material.envMapIntensity = 0.85;
+        material.userData.kageImperfectionStrength = 0.026;
+      } else if (isStoneLike) {
+        material.metalness = 0;
+        material.roughness = Math.min(0.99, Math.max(0.86, currentRoughness));
+        material.envMapIntensity = 0.45;
+        material.userData.kageImperfectionStrength = 0.032;
+      } else {
+        material.metalness = Math.min(0.06, currentMetalness);
+        material.roughness = Math.min(0.9, Math.max(0.58, currentRoughness * 0.88));
+        material.envMapIntensity = 0.72;
+        material.userData.kageImperfectionStrength = 0.045;
+      }
+
+      const strength = material.userData.kageImperfectionStrength || 0.02;
+      material.onBeforeCompile = (shader: any) => {
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <common>',
+          '#include <common>\\nvarying vec3 vKagePosition;'
+        );
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <begin_vertex>',
+          '#include <begin_vertex>\\nvKagePosition = transformed;'
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <common>',
+          [
+            '#include <common>',
+            'varying vec3 vKagePosition;',
+            'float kageHash(vec3 p) {',
+            '  p = fract(p * 0.3183099 + vec3(0.17, 0.37, 0.11));',
+            '  p *= 17.0;',
+            '  return fract(p.x * p.y * p.z * (p.x + p.y + p.z));',
+            '}',
+            'float kageNoise(vec3 p) {',
+            '  vec3 i = floor(p);',
+            '  vec3 f = fract(p);',
+            '  f = f * f * (3.0 - 2.0 * f);',
+            '  float n000 = kageHash(i + vec3(0.0,0.0,0.0));',
+            '  float n100 = kageHash(i + vec3(1.0,0.0,0.0));',
+            '  float n010 = kageHash(i + vec3(0.0,1.0,0.0));',
+            '  float n110 = kageHash(i + vec3(1.0,1.0,0.0));',
+            '  float n001 = kageHash(i + vec3(0.0,0.0,1.0));',
+            '  float n101 = kageHash(i + vec3(1.0,0.0,1.0));',
+            '  float n011 = kageHash(i + vec3(0.0,1.0,1.0));',
+            '  float n111 = kageHash(i + vec3(1.0,1.0,1.0));',
+            '  return mix(',
+            '    mix(mix(n000, n100, f.x), mix(n010, n110, f.x), f.y),',
+            '    mix(mix(n001, n101, f.x), mix(n011, n111, f.x), f.y),',
+            '    f.z',
+            '  );',
+            '}',
+          ].join('\n')
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <roughnessmap_fragment>',
+          [
+            '#include <roughnessmap_fragment>',
+            'float kageSurfaceNoise = kageNoise(vKagePosition * ' + (mobile ? '1.35' : '1.7') + ');',
+            'roughnessFactor = clamp(roughnessFactor + (kageSurfaceNoise - 0.5) * ' + strength.toFixed(4) + ', 0.05, 0.99);',
+          ].join('\n')
+        );
+      };
+      material.customProgramCacheKey = () => 'kage-pbr-' + strength.toFixed(4);
+      material.needsUpdate = true;
+    });
+  });
+}
+
 function themeMaterial(material: any, night: number, day: number, themeParts: ThemePart[]) { themeParts.push({ material, night, day }); material.color.setHex(night); return material; }
 function createTorii(THREE: any, color: number, themeParts: ThemePart[]) { const root = new THREE.Group(); const material = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.05 }), color, color, themeParts); material.userData.kageSurface = 'wood'; const box = (x: number, y: number, sx: number, sy: number, sz: number) => { const mesh = new THREE.Mesh(createBeveledBoxGeometry(THREE, sx, sy, sz, false), material); mesh.position.set(x, y, 0); root.add(mesh); }; box(-2.05, 1.65, 0.32, 3.3, 0.34); box(2.05, 1.65, 0.32, 3.3, 0.34); box(0, 3.05, 4.8, 0.3, 0.42); box(0, 2.7, 4.25, 0.16, 0.32); box(0, 3.35, 5.15, 0.18, 0.5); return root; }
 function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) { const root = new THREE.Group(); const dark = new THREE.MeshStandardMaterial({ color: 0x17110c, roughness: 1 }); const warm = themeMaterial(new THREE.MeshStandardMaterial({ color: 0xffad45, emissive: 0xd86b17, emissiveIntensity: 1.5 }), 0xffad45, 0xffc45b, themeParts); const body = new THREE.Mesh(createBeveledBoxGeometry(THREE, 0.38, 0.55, 0.38, false), warm); body.position.y = 1.65; root.add(body); const top = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.2, 4), dark); top.position.y = 2.03; top.rotation.y = Math.PI / 4; root.add(top); const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.12, 6), dark); base.position.y = 1.32; root.add(base); if (withLight) { const light = new THREE.PointLight(0xffa640, 1.8, 5, 2); light.position.y = 1.65; root.add(light); } return root; }
