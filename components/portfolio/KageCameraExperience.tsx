@@ -1005,7 +1005,60 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   return root;
 }
 
-function createMountain(THREE: any, x: number, z: number, scale: number, color: number, themeParts: ThemePart[]) { const root = new THREE.Group(); const mountainMat = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 1, flatShading: true }), color, 0x5f7891, themeParts); const ridgeMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x111722, roughness: 1, flatShading: true }), 0x111722, 0x7892a8, themeParts); const mountain = new THREE.Mesh(new THREE.ConeGeometry(7 * scale, 11 * scale, 32, 3), mountainMat); mountain.position.y = 5.5 * scale; mountain.rotation.y = 0.35; root.add(mountain); const ridge = new THREE.Mesh(new THREE.ConeGeometry(3.2 * scale, 5.4 * scale, 16, 2), ridgeMat); ridge.position.set(-1.7 * scale, 2.6 * scale, 1.5 * scale); ridge.rotation.z = -0.08; root.add(ridge); root.position.set(x, 0, z); return root; }
+function createMountain(THREE: any, x: number, z: number, scale: number, color: number, themeParts: ThemePart[]) {
+  const root = new THREE.Group();
+  const mountainMat = themeMaterial(
+    new THREE.MeshStandardMaterial({ color, roughness: 1.0, metalness: 0.0 }),
+    color,
+    0x5f7891,
+    themeParts
+  );
+  const ridgeMat = themeMaterial(
+    new THREE.MeshStandardMaterial({ color: 0x111722, roughness: 1.0, metalness: 0.0 }),
+    0x111722,
+    0x7892a8,
+    themeParts
+  );
+
+  // Broad, curved mountain silhouette instead of a sharp cone. The profile uses
+  // several gentle shoulders so the distant peaks feel naturally eroded.
+  const createProfile = (THREE: any, width: number, height: number, depth: number, material: any) => {
+    const shape = new THREE.Shape();
+    shape.moveTo(-width, 0);
+    shape.quadraticCurveTo(-width * 0.88, height * 0.18, -width * 0.60, height * 0.38);
+    shape.quadraticCurveTo(-width * 0.38, height * 0.54, -width * 0.18, height * 0.72);
+    shape.quadraticCurveTo(-width * 0.07, height * 0.86, width * 0.03, height * 0.90);
+    shape.quadraticCurveTo(width * 0.14, height * 0.87, width * 0.25, height * 0.74);
+    shape.quadraticCurveTo(width * 0.40, height * 0.58, width * 0.66, height * 0.40);
+    shape.quadraticCurveTo(width * 0.86, height * 0.22, width, 0);
+    shape.lineTo(-width, 0);
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth,
+      bevelEnabled: false,
+      curveSegments: 6,
+      steps: 1,
+    });
+    geometry.translate(0, 0, -depth * 0.5);
+    geometry.computeVertexNormals();
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.y = 0;
+    return mesh;
+  };
+
+  const mountain = createProfile(THREE, 7.4 * scale, 10.6 * scale, 5.5 * scale, mountainMat);
+  mountain.rotation.y = 0.20;
+  root.add(mountain);
+
+  // A softer secondary ridge overlaps the main mass to break the perfect symmetry.
+  const ridge = createProfile(THREE, 4.6 * scale, 5.1 * scale, 3.0 * scale, ridgeMat);
+  ridge.position.set(-1.9 * scale, 0.55 * scale, 1.55 * scale);
+  ridge.rotation.y = -0.12;
+  ridge.scale.x = 0.92;
+  root.add(ridge);
+
+  root.position.set(x, 0, z);
+  return root;
+}
 function createCloud(THREE: any, x: number, y: number, z: number, scale: number, mobile: boolean, themeParts: ThemePart[]) { const root = new THREE.Group(); const material = themeMaterial(new THREE.MeshBasicMaterial({ color: 0xb9c3cf, transparent: true, opacity: mobile ? 0.07 : 0.09, depthWrite: false }), 0x7e8794, 0xffffff, themeParts); const parts = mobile ? 3 : 5; for (let i = 0; i < parts; i += 1) { const sphere = new THREE.Mesh(new THREE.SphereGeometry(1.5 + (i % 2) * 0.45, mobile ? 10 : 14, mobile ? 8 : 10), material); sphere.position.set((i - (parts - 1) / 2) * 1.25, Math.sin(i * 1.7) * 0.35, Math.cos(i * 1.2) * 0.35); sphere.scale.y = 0.42 + (i % 2) * 0.08; root.add(sphere); } root.position.set(x, y, z); root.scale.setScalar(scale); return root; }
 function createLeaves(THREE: any, mobile: boolean, depth: number, themeParts: ThemePart[]) { const count = mobile ? 28 : 65; const material = themeMaterial(new THREE.MeshBasicMaterial({ color: 0x7e6b4b, transparent: true, opacity: 0.88, side: THREE.DoubleSide, depthWrite: false }), 0x7e6b4b, 0x3f7b3e, themeParts); const mesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.32, 0.16), material, count); const data: LeafData[] = []; const dummy = new THREE.Object3D(); for (let i = 0; i < count; i += 1) { const item: LeafData = { x: (Math.random() - 0.5) * 11, y: 0.8 + Math.random() * 7.5, z: -8 - Math.random() * (depth - 8), phase: Math.random() * Math.PI * 2, speed: 0.55 + Math.random() * 0.8, drift: 0.7 + Math.random() * 1.3, size: 0.55 + Math.random() * 0.8, rotation: Math.random() * Math.PI }; data.push(item); dummy.position.set(item.x, item.y, item.z); dummy.rotation.set(Math.random(), item.rotation, Math.random()); dummy.scale.set(item.size, item.size, item.size); dummy.updateMatrix(); mesh.setMatrixAt(i, dummy.matrix); } mesh.instanceMatrix.needsUpdate = true; return { mesh, data }; }
 function createSunTexture(THREE: any, mobile: boolean) {
