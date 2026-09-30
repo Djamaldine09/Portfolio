@@ -36,9 +36,179 @@ function loadThree(): Promise<any> {
   });
 }
 
+function createBeveledBoxGeometry(THREE: any, sx: number, sy: number, sz: number, mobile: boolean) {
+  const minDimension = Math.min(sx, sy, sz);
+  const radius = Math.min(0.04, sx * 0.10, sy * 0.18, sz * 0.12);
+  if (minDimension < 0.07 || radius < 0.006) {
+    return new THREE.BoxGeometry(sx, sy, sz);
+  }
+
+  const halfX = sx * 0.5;
+  const halfY = sy * 0.5;
+  const shape = new THREE.Shape();
+  shape.moveTo(-halfX + radius, -halfY);
+  shape.lineTo(halfX - radius, -halfY);
+  shape.quadraticCurveTo(halfX, -halfY, halfX, -halfY + radius);
+  shape.lineTo(halfX, halfY - radius);
+  shape.quadraticCurveTo(halfX, halfY, halfX - radius, halfY);
+  shape.lineTo(-halfX + radius, halfY);
+  shape.quadraticCurveTo(-halfX, halfY, -halfX, halfY - radius);
+  shape.lineTo(-halfX, -halfY + radius);
+  shape.quadraticCurveTo(-halfX, -halfY, -halfX + radius, -halfY);
+
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: sz,
+    bevelEnabled: true,
+    bevelSegments: mobile ? 1 : 2,
+    bevelSize: radius * 0.62,
+    bevelThickness: radius * 0.62,
+    curveSegments: mobile ? 2 : 3,
+  });
+  geometry.translate(0, 0, -sz * 0.5);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function createKageRoughnessTexture(THREE: any, mobile: boolean, scale: number, contrast: number) {
+  const size = mobile ? 96 : 160;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
+
+  const image = ctx.createImageData(size, size);
+  const data = image.data;
+  for (let y = 0; y < size; y += 1) {
+    for (let x = 0; x < size; x += 1) {
+      const wave = Math.sin((x * 0.17 + y * 0.07) * scale) * 0.5 + 0.5;
+      const ripple = Math.sin((x * 0.043 - y * 0.13) * (scale * 0.72)) * 0.5 + 0.5;
+      const fine = Math.sin((x * 1.7 + y * 2.1) * 0.11) * 0.5 + 0.5;
+      const noise = wave * 0.52 + ripple * 0.34 + fine * 0.14;
+      const value = Math.max(0, Math.min(255, 128 + (noise - 0.5) * contrast * 255));
+      const index = (y * size + x) * 4;
+      data[index] = value;
+      data[index + 1] = value;
+      data[index + 2] = value;
+      data[index + 3] = 255;
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(2.6, 2.6);
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.colorSpace = THREE.NoColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function createKageEnvironment(THREE: any, renderer: any, mobile: boolean) {
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const environmentScene = new THREE.Scene();
+  environmentScene.background = new THREE.Color(0x11151b);
+
+  const addPanel = (w: number, h: number, color: number, x: number, y: number, z: number, rotation: [number, number, number]) => {
+    const material = new THREE.MeshBasicMaterial({ color });
+    const panel = new THREE.Mesh(new THREE.PlaneGeometry(w, h), material);
+    panel.position.set(x, y, z);
+    panel.rotation.set(rotation[0], rotation[1], rotation[2]);
+    environmentScene.add(panel);
+  };
+
+  addPanel(12, 12, 0x27313d, 0, -5, 0, [-Math.PI * 0.5, 0, 0]);
+  addPanel(12, 12, 0x202733, 0, 5, 0, [Math.PI * 0.5, 0, 0]);
+  addPanel(12, 12, 0x151a21, -6, 0, 0, [0, Math.PI * 0.5, 0]);
+  addPanel(12, 12, 0x181d24, 6, 0, 0, [0, -Math.PI * 0.5, 0]);
+  addPanel(12, 12, 0x242a33, 0, 0, -6, [0, 0, 0]);
+  addPanel(12, 12, 0x303945, 0, 0, 6, [0, Math.PI, 0]);
+  addPanel(3.8, 0.7, 0xffd8a0, -1.7, 3.1, -2.7, [0.0, 0.18, 0.0]);
+  addPanel(2.8, 0.45, 0xbfd9ff, 2.1, 2.2, -3.3, [0.0, -0.14, 0.0]);
+  addPanel(3.2, 0.55, 0x9f7350, 0, -2.7, 2.8, [Math.PI, 0, 0]);
+
+  const target = pmrem.fromScene(environmentScene, 0.035, 0.1, 30);
+  environmentScene.traverse((object: any) => {
+    object.geometry?.dispose?.();
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+    materials.forEach((material: any) => material?.dispose?.());
+  });
+  pmrem.dispose();
+
+  return target;
+}
+
+function applyKageMaterialFinishes(THREE: any, scene: any, mobile: boolean) {
+  const woodRoughness = createKageRoughnessTexture(THREE, mobile, 1.0, 0.18);
+  const stoneRoughness = createKageRoughnessTexture(THREE, mobile, 1.6, 0.12);
+  const metalRoughness = createKageRoughnessTexture(THREE, mobile, 2.4, 0.09);
+
+  scene.traverse((object: any) => {
+    if (!object.isMesh || !object.material) return;
+    const materials = Array.isArray(object.material) ? object.material : [object.material];
+
+    materials.forEach((material: any) => {
+      if (!material || !('roughness' in material) || !material.color) return;
+
+      const metalness = material.metalness ?? 0;
+      const roughness = material.roughness ?? 0.8;
+      const opacity = material.opacity ?? 1;
+
+      if (opacity < 0.2 && roughness <= 0.2) {
+        material.metalness = 0;
+        material.roughness = Math.min(0.16, roughness);
+        material.envMapIntensity = 0.8;
+        return;
+      }
+
+      if (metalness >= 0.14) {
+        material.metalness = Math.max(0.72, metalness);
+        material.roughness = Math.min(0.36, Math.max(0.22, roughness * 0.72));
+        material.envMapIntensity = 1.1;
+        material.roughnessMap = metalRoughness;
+        material.roughnessMap.repeat.set(3.2, 3.2);
+        material.needsUpdate = true;
+        return;
+      }
+
+      if (roughness >= 0.93) {
+        material.metalness = 0;
+        material.roughness = Math.min(0.98, Math.max(0.84, roughness));
+        material.envMapIntensity = 0.48;
+        material.roughnessMap = stoneRoughness;
+        material.needsUpdate = true;
+        return;
+      }
+
+      if (roughness < 0.58) {
+        material.metalness = Math.min(0.04, metalness);
+        material.roughness = Math.max(0.28, Math.min(0.58, roughness));
+        material.envMapIntensity = 0.82;
+        material.roughnessMap = woodRoughness;
+        material.needsUpdate = true;
+        return;
+      }
+
+      material.metalness = Math.min(0.06, metalness);
+      material.roughness = Math.min(0.9, Math.max(0.58, roughness * 0.9));
+      material.envMapIntensity = 0.72;
+      material.roughnessMap = woodRoughness;
+      material.needsUpdate = true;
+    });
+  });
+
+  return () => {
+    woodRoughness?.dispose?.();
+    stoneRoughness?.dispose?.();
+    metalRoughness?.dispose?.();
+  };
+}
+
 function themeMaterial(material: any, night: number, day: number, themeParts: ThemePart[]) { themeParts.push({ material, night, day }); material.color.setHex(night); return material; }
-function createTorii(THREE: any, color: number, themeParts: ThemePart[]) { const root = new THREE.Group(); const material = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.05 }), color, color, themeParts); const box = (x: number, y: number, sx: number, sy: number, sz: number) => { const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material); mesh.position.set(x, y, 0); root.add(mesh); }; box(-2.05, 1.65, 0.32, 3.3, 0.34); box(2.05, 1.65, 0.32, 3.3, 0.34); box(0, 3.05, 4.8, 0.3, 0.42); box(0, 2.7, 4.25, 0.16, 0.32); box(0, 3.35, 5.15, 0.18, 0.5); return root; }
-function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) { const root = new THREE.Group(); const dark = new THREE.MeshStandardMaterial({ color: 0x17110c, roughness: 1 }); const warm = themeMaterial(new THREE.MeshStandardMaterial({ color: 0xffad45, emissive: 0xd86b17, emissiveIntensity: 1.5 }), 0xffad45, 0xffc45b, themeParts); const body = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.55, 0.38), warm); body.position.y = 1.65; root.add(body); const top = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.2, 4), dark); top.position.y = 2.03; top.rotation.y = Math.PI / 4; root.add(top); const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.12, 6), dark); base.position.y = 1.32; root.add(base); if (withLight) { const light = new THREE.PointLight(0xffa640, 1.8, 5, 2); light.position.y = 1.65; root.add(light); } return root; }
+function createTorii(THREE: any, color: number, themeParts: ThemePart[]) { const root = new THREE.Group(); const material = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 0.68, metalness: 0.02 }), color, color, themeParts); const box = (x: number, y: number, sx: number, sy: number, sz: number) => { const mesh = new THREE.Mesh(createBeveledBoxGeometry(THREE, sx, sy, sz, false), material); mesh.position.set(x, y, 0); root.add(mesh); }; box(-2.05, 1.65, 0.32, 3.3, 0.34); box(2.05, 1.65, 0.32, 3.3, 0.34); box(0, 3.05, 4.8, 0.3, 0.42); box(0, 2.7, 4.25, 0.16, 0.32); box(0, 3.35, 5.15, 0.18, 0.5); return root; }
+function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) { const root = new THREE.Group(); const dark = new THREE.MeshStandardMaterial({ color: 0x17110c, roughness: 1 }); const warm = themeMaterial(new THREE.MeshStandardMaterial({ color: 0xffad45, emissive: 0xd86b17, emissiveIntensity: 1.5 }), 0xffad45, 0xffc45b, themeParts); const body = new THREE.Mesh(createBeveledBoxGeometry(THREE, 0.38, 0.55, 0.38, false), warm); body.position.y = 1.65; root.add(body); const top = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.2, 4), dark); top.position.y = 2.03; top.rotation.y = Math.PI / 4; root.add(top); const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.12, 6), dark); base.position.y = 1.32; root.add(base); if (withLight) { const light = new THREE.PointLight(0xffa640, 1.8, 5, 2); light.position.y = 1.65; root.add(light); } return root; }
 
 function createTree(THREE: any, scale: number, themeParts: ThemePart[], mobile: boolean) {
   const root = new THREE.Group(); const trunkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x130d09, roughness: 0.96, metalness: 0 }), 0x130d09, 0x4d2e1c, themeParts); const barkMat = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x24150d, roughness: 1 }), 0x24150d, 0x6b4327, themeParts); const foliageDark = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x03100a, roughness: 0.98 }), 0x03100a, 0x174a26, themeParts); const foliageMid = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x06180d, roughness: 0.98 }), 0x06180d, 0x246336, themeParts); const foliageLight = themeMaterial(new THREE.MeshStandardMaterial({ color: 0x0a2112, roughness: 0.96 }), 0x0a2112, 0x397842, themeParts);
@@ -107,7 +277,7 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
     z: number,
     material: any
   ) => {
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), material);
+    const mesh = new THREE.Mesh(createBeveledBoxGeometry(THREE, sx, sy, sz, mobile), material);
     mesh.position.set(x, y, z);
     root.add(mesh);
     return mesh;
@@ -491,23 +661,26 @@ function createTemple(THREE: any, themeParts: ThemePart[], mobile: boolean) {
   photoFrame.add(photo);
   const glass = new THREE.Mesh(
     new THREE.PlaneGeometry(0.61, 0.73),
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshPhysicalMaterial({
       color: 0xf5eadb,
       transparent: true,
-      opacity: 0.07,
-      roughness: 0.12,
-      metalness: 0.02,
+      opacity: 0.10,
+      roughness: 0.09,
+      metalness: 0,
+      transmission: 0.24,
+      thickness: 0.018,
+      ior: 1.5,
       depthWrite: false,
     })
   );
   glass.position.z = 0.065;
   photoFrame.add(glass);
-  const frameTop = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.055, 0.09), furnitureWood);
+  const frameTop = new THREE.Mesh(createBeveledBoxGeometry(THREE, 0.74, 0.055, 0.09, mobile), furnitureWood);
   frameTop.position.y = 0.43;
   frameTop.position.z = 0.04;
   const frameBottom = frameTop.clone();
   frameBottom.position.y = -0.43;
-  const frameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.86, 0.09), furnitureWood);
+  const frameLeft = new THREE.Mesh(createBeveledBoxGeometry(THREE, 0.055, 0.86, 0.09, mobile), furnitureWood);
   frameLeft.position.x = -0.37;
   frameLeft.position.z = 0.04;
   const frameRight = frameLeft.clone();
@@ -852,24 +1025,22 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   const temple = createTemple(THREE, themeParts, mobile); temple.position.set(0, 0, -73); temple.scale.setScalar(mobile ? 0.96 : 1.0); group.add(temple); const count = mobile ? 10 : 13; for (let i = 0; i < count; i += 1) { const z = -7 - i * 7.2, scale = Math.max(mobile ? 0.68 : 0.72, 1 - i * 0.018); if (i !== count - 1) { const gate = createTorii(THREE, i % 3 === 0 ? 0xb45c36 : 0x8f4329, themeParts); gate.position.z = z; gate.scale.setScalar(scale); group.add(gate); const left = createLantern(THREE, i < 6, themeParts); left.position.set(-2.75, 0, z - 0.8); left.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(left); const right = createLantern(THREE, i < 6, themeParts); right.position.set(2.75, 0, z - 0.8); right.scale.setScalar(Math.max(0.56, 1 - i * 0.025)); group.add(right); } if (i % 2 === 0) { const treeScale = mobile ? 1.05 : 1.25; const lt = createTree(THREE, treeScale - i * 0.02, themeParts, mobile); lt.position.set(-5.1, 0, z - 1.8); group.add(lt); const rt = createTree(THREE, treeScale + 0.08 - i * 0.02, themeParts, mobile); rt.position.set(5.1, 0, z - 2.2); group.add(rt); } }
   const mountainSpecs: [number, number, number, number][] = [[-16, -124, 2.25, 0x0b1018], [-5, -136, 3.15, 0x070b12], [8, -130, 2.65, 0x0a0e16], [18, -146, 3.25, 0x080b11]]; mountainSpecs.forEach(([x, z, scale, color]) => group.add(createMountain(THREE, x, z, scale, color, themeParts))); const clouds: CloudData[] = []; const cloudSpecs: [number, number, number, number, number][] = [[-8, 8.5, -42, 1.6, 0.9], [6, 10.2, -50, 1.9, 0.7], [-3, 12.2, -62, 2.2, 0.5], [11, 9.2, -70, 1.7, 0.35]]; cloudSpecs.forEach(([x, y, z, scale, speed], index) => { const cloud = createCloud(THREE, x, y, z, scale, mobile, themeParts); group.add(cloud); clouds.push({ group: cloud, baseX: x, baseY: y, speed, phase: index * 1.8 }); }); const leafSet = createLeaves(THREE, mobile, depth, themeParts); group.add(leafSet.mesh);
   const particleCount = mobile ? 120 : 260, positions = new Float32Array(particleCount * 3); for (let i = 0; i < particleCount; i += 1) { positions[i * 3] = (Math.random() - 0.5) * 28; positions[i * 3 + 1] = Math.random() * 10; positions[i * 3 + 2] = -Math.random() * depth - 4; } const particleGeometry = new THREE.BufferGeometry(); particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); group.add(new THREE.Points(particleGeometry, themeMaterial(new THREE.PointsMaterial({ color: 0xc8a875, size: mobile ? 0.045 : 0.04, transparent: true, opacity: 0.32, depthWrite: false }), 0xc8a875, 0xffffff, themeParts)));
-  // Realistic WebGL lighting pass: every solid surface participates in soft shadows.
-  // This gives the scene contact, depth and believable occlusion instead of a flat game-like look.
+  // PBR + local image-based environment: reflections come from a coherent studio-like room,
+  // while subtle roughness maps break the perfectly uniform computer-generated look.
+  let environmentTarget: any = null;
+  let disposeMaterialFinishes: (() => void) | undefined;
+  environmentTarget = createKageEnvironment(THREE, renderer, mobile);
+  scene.environment = environmentTarget.texture;
+  if ('environmentIntensity' in scene) scene.environmentIntensity = 0.72;
   scene.traverse((object: any) => {
     if (!object.isMesh) return;
     object.castShadow = !mobile;
     object.receiveShadow = true;
-    if (object.material) {
-      const materials = Array.isArray(object.material) ? object.material : [object.material];
-      materials.forEach((material: any) => {
-        if (!material) return;
-        if ('envMapIntensity' in material) material.envMapIntensity = 0.9;
-        if ('roughness' in material) material.roughness = Math.min(1, Math.max(0.18, material.roughness ?? 0.8));
-      });
-    }
   });
+  disposeMaterialFinishes = applyKageMaterialFinishes(THREE, scene, mobile);
 
   const applyTheme = (day: boolean) => { renderer.setClearColor(day ? 0x8fc4e9 : 0x030508, 1); if (skyTexture) skyTexture.dispose(); skyTexture = createSkyTexture(THREE, day, mobile); if (skyTexture) scene.background = skyTexture; scene.fog.color.setHex(day ? 0x8fc4e9 : 0x080a0d); scene.fog.density = day ? (mobile ? 0.018 : 0.014) : (mobile ? 0.038 : 0.03); hemisphere.color.setHex(day ? 0xbfe4ff : 0x9eabc5); hemisphere.groundColor.setHex(day ? 0x304d2c : 0x080604); hemisphere.intensity = day ? 1.35 : 0.78; moonMaterial.map = day ? undefined : moonTexture || undefined; moonMaterial.bumpMap = day ? undefined : moonTexture || undefined; moonMaterial.emissiveMap = day ? undefined : moonTexture || undefined; moonMaterial.color.setHex(day ? 0xffd85a : 0xffffff); moonMaterial.emissive.setHex(day ? 0xff9d1a : 0xfff3d6); moonMaterial.emissiveIntensity = day ? 2.2 : 0.72; moonMaterial.bumpScale = day ? 0 : 0.075; moonMaterial.needsUpdate = true; glowMaterial.color.setHex(day ? 0xffb62e : 0xfff1ce); glowMaterial.opacity = mobile ? (day ? 0.7 : 0.62) : (day ? 0.82 : 0.72); glow2Material.color.setHex(day ? 0xffd36a : 0xdde9ff); glow2Material.opacity = mobile ? (day ? 0.18 : 0.28) : (day ? 0.22 : 0.34); moonLight.color.setHex(day ? 0xffe4b0 : 0xdce8ff); moonLight.intensity = day ? (mobile ? 2.3 : 2.8) : (mobile ? 1.25 : 1.65); moonPoint.color.setHex(day ? 0xffb52e : 0xfff2d0); moonPoint.intensity = day ? 0.7 : (mobile ? 0.45 : 0.65); themeParts.forEach(({ material, night, day: dayColor }) => material.color.setHex(day ? dayColor : night)); const cloudMaterials = clouds.map((cloud) => cloud.group.children[0]?.material).filter(Boolean); cloudMaterials.forEach((material: any) => { material.opacity = mobile ? (day ? 0.3 : 0.07) : (day ? 0.42 : 0.09); material.needsUpdate = true; }); };
-  const resize = () => { const width = Math.max(1, canvas.clientWidth || window.innerWidth), height = Math.max(1, canvas.clientHeight || window.innerHeight); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }; resize(); const observer = new ResizeObserver(resize); observer.observe(canvas); stateRef.current = { renderer, scene, camera, group, leaves: leafSet.mesh, leafData: leafSet.data, clouds, themeParts, moonMaterial, glowMaterial, glow2Material, moonLight, moonPoint, doorLeaves: temple.userData.doorLeaves || [], doorLight: temple.userData.doorLight, teaSteam: temple.userData.teaSteam || [], applyTheme }; return () => { observer.disconnect(); disposeObject(scene); renderer.dispose(); stateRef.current = null; };
+  const resize = () => { const width = Math.max(1, canvas.clientWidth || window.innerWidth), height = Math.max(1, canvas.clientHeight || window.innerHeight); renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }; resize(); const observer = new ResizeObserver(resize); observer.observe(canvas); stateRef.current = { renderer, scene, camera, group, leaves: leafSet.mesh, leafData: leafSet.data, clouds, themeParts, moonMaterial, glowMaterial, glow2Material, moonLight, moonPoint, doorLeaves: temple.userData.doorLeaves || [], doorLight: temple.userData.doorLight, teaSteam: temple.userData.teaSteam || [], applyTheme }; return () => { observer.disconnect(); disposeMaterialFinishes?.(); environmentTarget?.dispose?.(); disposeObject(scene); renderer.dispose(); stateRef.current = null; };
 }
 
 export default function KageCameraExperience() {
