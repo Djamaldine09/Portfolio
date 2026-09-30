@@ -17,7 +17,7 @@ const projects = [
     tags: ['Next.js 15', 'TypeScript', 'Tailwind CSS', 'JWT'],
     color: 'from-cyan-600 to-teal-600',
     github: 'https://github.com/Djamaldine09/frontend',
-    demo: 'https://frontend-six-rho-57.vercel.app',
+    demo: 'https://exammada.site',
   },
   {
     title: 'Task Management App',
