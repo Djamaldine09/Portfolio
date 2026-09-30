@@ -270,18 +270,7 @@ export default function MotionThreeScroll() {
           </div>
         </div>
 
-        <div className="mx-auto flex w-full max-w-[1450px] items-end justify-between gap-6">
-          <p className="max-w-sm font-mono text-[10px] uppercase leading-5 tracking-[0.16em] text-white/35">
-            Mon nom se construit en profondeur pendant le scroll, avec extrusion, matière métallique et contour lumineux.
-          </p>
-
-          <div className="text-right">
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/25">
-              Scroll interaction
-            </p>
-            <p className="mt-1 text-xs text-white/50">Motion + Three.js</p>
-          </div>
-        </div>
+        <div className="mx-auto h-8 w-full max-w-[1450px]" aria-hidden="true" />
       </div>
     </section>
   );
