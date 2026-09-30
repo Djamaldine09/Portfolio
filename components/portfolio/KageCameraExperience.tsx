@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import * as THREE_NAMESPACE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const chapters = [
   { kicker: '01 / ENTER', title: 'Bienvenue\ndans la nuit.', body: 'Une traversée 3D immersive où la caméra avance réellement dans un paysage nocturne japonais.' },
@@ -13,179 +15,6 @@ type LeafData = { x: number; y: number; z: number; phase: number; speed: number;
 type CloudData = { group: any; baseX: number; baseY: number; speed: number; phase: number };
 type ThemePart = { material: any; night: number; day: number };
 type ThreeState = { renderer: any; scene: any; camera: any; group: any; leaves: any; leafData: LeafData[]; clouds: CloudData[]; themeParts: ThemePart[]; moonMaterial: any; glowMaterial: any; glow2Material: any; moonLight: any; moonPoint: any; doorLeaves: any[]; doorLight: any; teaSteam: any[]; applyTheme: (day: boolean) => void };
-type ThreeWindow = Window & { THREE?: any };
-
-function loadThree(): Promise<any> {
-  const existing = (window as ThreeWindow).THREE;
-  if (existing) return Promise.resolve(existing);
-  return new Promise((resolve, reject) => {
-    const current = document.querySelector<HTMLScriptElement>('script[data-kage-three]');
-    if (current) {
-      const done = () => ((window as ThreeWindow).THREE ? resolve((window as ThreeWindow).THREE) : reject(new Error('Three.js unavailable')));
-      current.addEventListener('load', done, { once: true });
-      current.addEventListener('error', () => reject(new Error('Three.js failed to load')), { once: true });
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
-    script.async = true;
-    script.dataset.kageThree = 'true';
-    script.onload = () => { const THREE = (window as ThreeWindow).THREE; THREE ? resolve(THREE) : reject(new Error('Three.js unavailable')); };
-    script.onerror = () => reject(new Error('Unable to load Three.js'));
-    document.head.appendChild(script);
-  });
-}
-
-function loadRoomEnvironment(THREE: any): Promise<any> {
-  if (THREE.RoomEnvironment) return Promise.resolve(THREE.RoomEnvironment);
-  return new Promise((resolve) => {
-    const existing = document.querySelector<HTMLScriptElement>('script[data-kage-room-environment]');
-    if (existing) {
-      const done = () => resolve((window as ThreeWindow).THREE?.RoomEnvironment || null);
-      existing.addEventListener('load', done, { once: true });
-      existing.addEventListener('error', () => resolve(null), { once: true });
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/environments/RoomEnvironment.js';
-    script.async = true;
-    script.dataset.kageRoomEnvironment = 'true';
-    script.onload = () => resolve((window as ThreeWindow).THREE?.RoomEnvironment || null);
-    script.onerror = () => resolve(null);
-    document.head.appendChild(script);
-  });
-}
-
-function createBeveledBoxGeometry(THREE: any, sx: number, sy: number, sz: number, mobile: boolean) {
-  const halfX = sx * 0.5;
-  const halfY = sy * 0.5;
-  const radius = Math.min(0.045, halfX * 0.42, halfY * 0.42, sz * 0.16);
-  if (radius < 0.008 || Math.min(sx, sy, sz) < 0.08) {
-    return new THREE.BoxGeometry(sx, sy, sz);
-  }
-  const shape = new THREE.Shape();
-  shape.moveTo(-halfX + radius, -halfY);
-  shape.lineTo(halfX - radius, -halfY);
-  shape.quadraticCurveTo(halfX, -halfY, halfX, -halfY + radius);
-  shape.lineTo(halfX, halfY - radius);
-  shape.quadraticCurveTo(halfX, halfY, halfX - radius, halfY);
-  shape.lineTo(-halfX + radius, halfY);
-  shape.quadraticCurveTo(-halfX, halfY, -halfX, halfY - radius);
-  shape.lineTo(-halfX, -halfY + radius);
-  shape.quadraticCurveTo(-halfX, -halfY, -halfX + radius, -halfY);
-  const geometry = new THREE.ExtrudeGeometry(shape, {
-    depth: sz,
-    bevelEnabled: true,
-    bevelSegments: mobile ? 1 : 2,
-    bevelSize: radius * 0.72,
-    bevelThickness: radius * 0.72,
-    curveSegments: mobile ? 2 : 3,
-  });
-  geometry.translate(0, 0, -sz * 0.5);
-  geometry.computeVertexNormals();
-  return geometry;
-}
-
-function configureKagePBR(THREE: any, scene: any, mobile: boolean) {
-  scene.traverse((object: any) => {
-    if (!object.isMesh || !object.material) return;
-    const materials = Array.isArray(object.material) ? object.material : [object.material];
-    materials.forEach((material: any) => {
-      if (!material || !material.color || !('roughness' in material)) return;
-      const currentMetalness = material.metalness ?? 0;
-      const currentRoughness = material.roughness ?? 0.8;
-      const isGlass = material.userData?.kageSurface === 'glass' || (
-        material.transparent && material.opacity < 0.2 && currentRoughness <= 0.2 && currentMetalness < 0.15
-      );
-      const isMetal = material.userData?.kageSurface === 'metal' || currentMetalness >= 0.14;
-      const isCeramic = material.userData?.kageSurface === 'ceramic' || (!isMetal && !isGlass && currentRoughness < 0.52);
-      const isStoneLike = material.userData?.kageSurface === 'stone' || (!isMetal && !isGlass && currentRoughness >= 0.94);
-
-      if (isGlass) {
-        material.metalness = 0;
-        material.roughness = Math.min(0.16, currentRoughness);
-        material.envMapIntensity = 0.65;
-        if ('ior' in material) material.ior = 1.5;
-        if ('thickness' in material) material.thickness = 0.018;
-        if ('transmission' in material) material.transmission = Math.max(material.transmission ?? 0, 0.2);
-        material.userData.kageImperfectionStrength = 0.008;
-      } else if (isMetal) {
-        material.metalness = Math.max(0.72, currentMetalness);
-        material.roughness = Math.min(0.38, Math.max(0.22, currentRoughness * 0.62));
-        material.envMapIntensity = 1.15;
-        material.userData.kageImperfectionStrength = 0.045;
-      } else if (isCeramic) {
-        material.metalness = Math.min(0.04, currentMetalness);
-        material.roughness = Math.min(0.58, Math.max(0.26, currentRoughness));
-        material.envMapIntensity = 0.85;
-        material.userData.kageImperfectionStrength = 0.026;
-      } else if (isStoneLike) {
-        material.metalness = 0;
-        material.roughness = Math.min(0.99, Math.max(0.86, currentRoughness));
-        material.envMapIntensity = 0.45;
-        material.userData.kageImperfectionStrength = 0.032;
-      } else {
-        material.metalness = Math.min(0.06, currentMetalness);
-        material.roughness = Math.min(0.9, Math.max(0.58, currentRoughness * 0.88));
-        material.envMapIntensity = 0.72;
-        material.userData.kageImperfectionStrength = 0.045;
-      }
-
-      const strength = material.userData.kageImperfectionStrength || 0.02;
-      material.onBeforeCompile = (shader: any) => {
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <common>',
-          '#include <common>\\nvarying vec3 vKagePosition;'
-        );
-        shader.vertexShader = shader.vertexShader.replace(
-          '#include <begin_vertex>',
-          '#include <begin_vertex>\\nvKagePosition = transformed;'
-        );
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <common>',
-          [
-            '#include <common>',
-            'varying vec3 vKagePosition;',
-            'float kageHash(vec3 p) {',
-            '  p = fract(p * 0.3183099 + vec3(0.17, 0.37, 0.11));',
-            '  p *= 17.0;',
-            '  return fract(p.x * p.y * p.z * (p.x + p.y + p.z));',
-            '}',
-            'float kageNoise(vec3 p) {',
-            '  vec3 i = floor(p);',
-            '  vec3 f = fract(p);',
-            '  f = f * f * (3.0 - 2.0 * f);',
-            '  float n000 = kageHash(i + vec3(0.0,0.0,0.0));',
-            '  float n100 = kageHash(i + vec3(1.0,0.0,0.0));',
-            '  float n010 = kageHash(i + vec3(0.0,1.0,0.0));',
-            '  float n110 = kageHash(i + vec3(1.0,1.0,0.0));',
-            '  float n001 = kageHash(i + vec3(0.0,0.0,1.0));',
-            '  float n101 = kageHash(i + vec3(1.0,0.0,1.0));',
-            '  float n011 = kageHash(i + vec3(0.0,1.0,1.0));',
-            '  float n111 = kageHash(i + vec3(1.0,1.0,1.0));',
-            '  return mix(',
-            '    mix(mix(n000, n100, f.x), mix(n010, n110, f.x), f.y),',
-            '    mix(mix(n001, n101, f.x), mix(n011, n111, f.x), f.y),',
-            '    f.z',
-            '  );',
-            '}',
-          ].join('\n')
-        );
-        shader.fragmentShader = shader.fragmentShader.replace(
-          '#include <roughnessmap_fragment>',
-          [
-            '#include <roughnessmap_fragment>',
-            'float kageSurfaceNoise = kageNoise(vKagePosition * ' + (mobile ? '1.35' : '1.7') + ');',
-            'roughnessFactor = clamp(roughnessFactor + (kageSurfaceNoise - 0.5) * ' + strength.toFixed(4) + ', 0.05, 0.99);',
-          ].join('\n')
-        );
-      };
-      material.customProgramCacheKey = () => 'kage-pbr-' + strength.toFixed(4);
-      material.needsUpdate = true;
-    });
-  });
-}
-
 function themeMaterial(material: any, night: number, day: number, themeParts: ThemePart[]) { themeParts.push({ material, night, day }); material.color.setHex(night); return material; }
 function createTorii(THREE: any, color: number, themeParts: ThemePart[]) { const root = new THREE.Group(); const material = themeMaterial(new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.05 }), color, color, themeParts); material.userData.kageSurface = 'wood'; const box = (x: number, y: number, sx: number, sy: number, sz: number) => { const mesh = new THREE.Mesh(createBeveledBoxGeometry(THREE, sx, sy, sz, false), material); mesh.position.set(x, y, 0); root.add(mesh); }; box(-2.05, 1.65, 0.32, 3.3, 0.34); box(2.05, 1.65, 0.32, 3.3, 0.34); box(0, 3.05, 4.8, 0.3, 0.42); box(0, 2.7, 4.25, 0.16, 0.32); box(0, 3.35, 5.15, 0.18, 0.5); return root; }
 function createLantern(THREE: any, withLight: boolean, themeParts: ThemePart[]) { const root = new THREE.Group(); const dark = new THREE.MeshStandardMaterial({ color: 0x17110c, roughness: 1 }); const warm = themeMaterial(new THREE.MeshStandardMaterial({ color: 0xffad45, emissive: 0xd86b17, emissiveIntensity: 1.5 }), 0xffad45, 0xffc45b, themeParts); const body = new THREE.Mesh(createBeveledBoxGeometry(THREE, 0.38, 0.55, 0.38, false), warm); body.position.y = 1.65; root.add(body); const top = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.2, 4), dark); top.position.y = 2.03; top.rotation.y = Math.PI / 4; root.add(top); const base = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.12, 6), dark); base.position.y = 1.32; root.add(base); if (withLight) { const light = new THREE.PointLight(0xffa640, 1.8, 5, 2); light.position.y = 1.65; root.add(light); } return root; }
@@ -995,7 +824,7 @@ function createSkyTexture(THREE: any, day: boolean, mobile: boolean) { const siz
 function disposeObject(object: any) { object.traverse((child: any) => { child.geometry?.dispose?.(); const materials = Array.isArray(child.material) ? child.material : [child.material]; materials.forEach((material: any) => { material?.map?.dispose?.(); material?.bumpMap?.dispose?.(); material?.emissiveMap?.dispose?.(); material?.dispose?.(); }); }); }
 
 function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, stateRef: { current: ThreeState | null }) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: false, powerPreference: 'high-performance' }); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.5)); renderer.setClearColor(0x030508, 1); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.98; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: false, powerPreference: 'high-performance' }); renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.15 : 1.5)); renderer.setClearColor(0x030508, 1); renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.96; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2(0x080a0d, mobile ? 0.038 : 0.03); const camera = new THREE.PerspectiveCamera(54, 1, 0.1, 150); camera.position.set(0, 2.15, 8.5); const group = new THREE.Group(); scene.add(group); const hemisphere = new THREE.HemisphereLight(0x9eabc5, 0x080604, 0.78); scene.add(hemisphere); const themeParts: ThemePart[] = [];
   let skyTexture = createSkyTexture(THREE, false, mobile); if (skyTexture) scene.background = skyTexture; const moonPosition = new THREE.Vector3(7.0, 20.8, -44); const moonTexture = createMoonTexture(THREE, mobile); const moonMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, map: moonTexture || undefined, bumpMap: moonTexture || undefined, bumpScale: 0.075, roughness: 0.98, metalness: 0, emissive: 0xfff3d6, emissiveMap: moonTexture || undefined, emissiveIntensity: 0.72 }); const moon = new THREE.Mesh(new THREE.SphereGeometry(2.65, mobile ? 32 : 56, mobile ? 32 : 56), moonMaterial); moon.position.copy(moonPosition); moon.rotation.y = -0.55; scene.add(moon); const glowTexture = createMoonGlowTexture(THREE); const glowMaterial = new THREE.SpriteMaterial({ map: glowTexture || undefined, color: 0xfff1ce, transparent: true, opacity: mobile ? 0.62 : 0.72, depthWrite: false, blending: THREE.AdditiveBlending }); const glow = new THREE.Sprite(glowMaterial); glow.position.copy(moonPosition); glow.scale.set(15, 15, 1); scene.add(glow); const glow2Material = new THREE.SpriteMaterial({ map: glowTexture || undefined, color: 0xdde9ff, transparent: true, opacity: mobile ? 0.28 : 0.34, depthWrite: false, blending: THREE.AdditiveBlending }); const glow2 = new THREE.Sprite(glow2Material); glow2.position.copy(moonPosition); glow2.scale.set(25, 25, 1); scene.add(glow2); const moonLight = new THREE.DirectionalLight(0xdce8ff, mobile ? 1.25 : 1.65); moonLight.position.copy(moonPosition); moonLight.target.position.set(0, 0, -45); moonLight.castShadow = true; moonLight.shadow.mapSize.set(mobile ? 1024 : 2048, mobile ? 1024 : 2048); moonLight.shadow.camera.left = -18; moonLight.shadow.camera.right = 18; moonLight.shadow.camera.top = 16; moonLight.shadow.camera.bottom = -8; moonLight.shadow.camera.near = 8; moonLight.shadow.camera.far = 95; moonLight.shadow.bias = -0.00018; scene.add(moonLight); scene.add(moonLight.target); const moonPoint = new THREE.PointLight(0xfff2d0, mobile ? 0.45 : 0.65, 42, 2); moonPoint.position.copy(moonPosition); scene.add(moonPoint);
   const depth = mobile ? 104 : 122; const ground = new THREE.Mesh(new THREE.PlaneGeometry(34, depth, 1, 12), themeMaterial(new THREE.MeshStandardMaterial({ color: 0x11100f, roughness: 1 }), 0x11100f, 0x4e633d, themeParts)); ground.rotation.x = -Math.PI / 2; ground.position.z = -depth / 2 + 10; group.add(ground);
@@ -1009,15 +838,13 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
   // Realistic PBR + image-based lighting pass. The room environment is converted
   // through PMREM so rough metal, glazed ceramic, glass and wood pick up natural highlights.
   let environmentTarget: any = null;
-  if (THREE.RoomEnvironment) {
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const roomEnvironment = new THREE.RoomEnvironment();
-    environmentTarget = pmrem.fromScene(roomEnvironment, 0.035);
-    scene.environment = environmentTarget.texture;
-    if ('environmentIntensity' in scene) scene.environmentIntensity = 0.72;
-    disposeObject(roomEnvironment);
-    pmrem.dispose();
-  }
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const roomEnvironment = new RoomEnvironment();
+  environmentTarget = pmrem.fromScene(roomEnvironment, 0.035);
+  scene.environment = environmentTarget.texture;
+  if ('environmentIntensity' in scene) scene.environmentIntensity = 0.72;
+  roomEnvironment.dispose?.();
+  pmrem.dispose();
   scene.traverse((object: any) => {
     if (!object.isMesh) return;
     object.castShadow = !mobile;
@@ -1031,6 +858,6 @@ function createScene(THREE: any, canvas: HTMLCanvasElement, mobile: boolean, sta
 
 export default function KageCameraExperience() {
   const canvasRef = useRef<HTMLCanvasElement>(null); const stateRef = useRef<ThreeState | null>(null); const progressRef = useRef(0); const pointerRef = useRef({ x: 0, y: 0 }); const [chapter, setChapter] = useState(0); const [ready, setReady] = useState(false);
-  useEffect(() => { const canvas = canvasRef.current, section = document.getElementById('kage-experience'); if (!canvas || !section) return; let disposed = false, cleanup: (() => void) | undefined, raf = 0, visible = true; const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches, mobile = window.matchMedia('(max-width: 767px)').matches; const isDay = () => !document.documentElement.classList.contains('dark'); let dayTheme = isDay(); const updateProgress = () => { const rect = section.getBoundingClientRect(), travel = Math.max(section.offsetHeight - window.innerHeight, 1); progressRef.current = Math.min(1, Math.max(0, -rect.top / travel)); const next = Math.min(chapters.length - 1, Math.floor(progressRef.current * chapters.length)); setChapter((current) => current === next ? current : next); }; let scrollRaf = 0; const onScroll = () => { if (scrollRaf) return; scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; updateProgress(); }); }; updateProgress(); const pointerMove = (event: PointerEvent) => { pointerRef.current.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5; pointerRef.current.y = event.clientY / Math.max(window.innerHeight, 1) - 0.5; }; const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.01 }); visibilityObserver.observe(section); const themeObserver = new MutationObserver(() => { const next = isDay(); if (next !== dayTheme) { dayTheme = next; stateRef.current?.applyTheme(dayTheme); } }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] }); const init = async () => { try { const THREE = await loadThree(); if (disposed) return; await loadRoomEnvironment(THREE); if (disposed) return; cleanup = createScene(THREE, canvas, mobile, stateRef); stateRef.current?.applyTheme(dayTheme); setReady(true); const clock = new THREE.Clock(), dummy = new THREE.Object3D(); const animate = () => { if (disposed) return; const state = stateRef.current; if (state && visible) { const elapsed = clock.getElapsedTime(), p = progressRef.current; state.teaSteam.forEach((steam: any, index: number) => { const phase = steam.userData.phase || 0; const rise = (Math.sin(elapsed * 0.9 + phase) + 1) * 0.5; steam.position.x = steam.userData.baseX + Math.sin(elapsed * 0.75 + phase) * 0.035; steam.position.y = steam.userData.baseY + rise * 0.34; steam.material.opacity = (0.20 + index * 0.035) * (1 - rise); steam.scale.x = 0.055 + rise * 0.018; steam.scale.y = 0.14 + rise * 0.10; }); const approachT = Math.min(1, Math.max(0, (p - 0.66) / 0.34)); const approach = approachT * approachT * (3 - 2 * approachT); const cruiseZ = 8.5 - p * (mobile ? 72 : 90); const stairStartZ = mobile ? -65.8 : -65.5; const stairEndZ = mobile ? -69.15 : -69.35; const stairBlend = Math.min(1, Math.max(0, approach / 0.22)); const stairBlendSmooth = stairBlend * stairBlend * (3 - 2 * stairBlend); const stairT = Math.min(1, Math.max(0, (approach - 0.22) / 0.78)); const stairProgress = stairT * stairT * (3 - 2 * stairT); const stairZ = stairStartZ + (stairEndZ - stairStartZ) * stairProgress; const targetZ = cruiseZ + (stairZ - cruiseZ) * stairBlendSmooth; const stairRise = mobile ? 1.18 : 1.34; const targetY = 1.70 + Math.sin(p * Math.PI) * 0.10 + stairRise * stairProgress * stairBlendSmooth; const targetX = pointerRef.current.x * (mobile ? 0.16 : 0.36); const stairPitch = mobile ? 0.28 : 0.32; const targetPitch = -0.045 - stairPitch * stairProgress * stairBlendSmooth + pointerRef.current.y * -0.006; const doorT = Math.min(1, Math.max(0, (p - 0.84) / 0.16)); const doorOpen = doorT * doorT * (3 - 2 * doorT); state.camera.position.x += (targetX - state.camera.position.x) * 0.055; state.camera.position.y += (targetY - state.camera.position.y) * 0.05; state.camera.position.z += (targetZ - state.camera.position.z) * 0.08; state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035; state.camera.rotation.x += (targetPitch - state.camera.rotation.x) * 0.035; state.doorLeaves.forEach((leaf: any) => { const side = leaf.userData.side || 1; leaf.position.x = side * (0.72 + doorOpen * 1.58); }); if (state.doorLight) state.doorLight.intensity = 0.18 + doorOpen * 2.0; if (!reduced) { state.clouds.forEach((cloud) => { cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5; cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035; }); state.leafData.forEach((leaf, index) => { const wind = elapsed * leaf.speed + leaf.phase, x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed, y = leaf.y + Math.sin(wind * 1.35) * 0.28, z = leaf.z + Math.cos(wind * 0.7) * 0.55; dummy.position.set(x > 8 ? x - 16 : x, y, z); dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7); dummy.scale.set(leaf.size, leaf.size, leaf.size); dummy.updateMatrix(); state.leaves.setMatrixAt(index, dummy.matrix); }); state.leaves.instanceMatrix.needsUpdate = true; } state.renderer.render(state.scene, state.camera); } raf = requestAnimationFrame(animate); }; raf = requestAnimationFrame(animate); } catch { if (!disposed) setReady(false); } }; window.addEventListener('scroll', onScroll, { passive: true }); if (!mobile) window.addEventListener('pointermove', pointerMove, { passive: true }); init(); return () => { disposed = true; cancelAnimationFrame(raf); cancelAnimationFrame(scrollRaf); window.removeEventListener('scroll', onScroll); if (!mobile) window.removeEventListener('pointermove', pointerMove); visibilityObserver.disconnect(); themeObserver.disconnect(); cleanup?.(); }; }, []);
+  useEffect(() => { const canvas = canvasRef.current, section = document.getElementById('kage-experience'); if (!canvas || !section) return; let disposed = false, cleanup: (() => void) | undefined, raf = 0, visible = true; const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches, mobile = window.matchMedia('(max-width: 767px)').matches; const isDay = () => !document.documentElement.classList.contains('dark'); let dayTheme = isDay(); const updateProgress = () => { const rect = section.getBoundingClientRect(), travel = Math.max(section.offsetHeight - window.innerHeight, 1); progressRef.current = Math.min(1, Math.max(0, -rect.top / travel)); const next = Math.min(chapters.length - 1, Math.floor(progressRef.current * chapters.length)); setChapter((current) => current === next ? current : next); }; let scrollRaf = 0; const onScroll = () => { if (scrollRaf) return; scrollRaf = requestAnimationFrame(() => { scrollRaf = 0; updateProgress(); }); }; updateProgress(); const pointerMove = (event: PointerEvent) => { pointerRef.current.x = event.clientX / Math.max(window.innerWidth, 1) - 0.5; pointerRef.current.y = event.clientY / Math.max(window.innerHeight, 1) - 0.5; }; const visibilityObserver = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { threshold: 0.01 }); visibilityObserver.observe(section); const themeObserver = new MutationObserver(() => { const next = isDay(); if (next !== dayTheme) { dayTheme = next; stateRef.current?.applyTheme(dayTheme); } }); themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme'] }); const init = async () => { try { const THREE = THREE_NAMESPACE as any; if (disposed) return; cleanup = createScene(THREE, canvas, mobile, stateRef); stateRef.current?.applyTheme(dayTheme); setReady(true); const clock = new THREE.Clock(), dummy = new THREE.Object3D(); const animate = () => { if (disposed) return; const state = stateRef.current; if (state && visible) { const elapsed = clock.getElapsedTime(), p = progressRef.current; state.teaSteam.forEach((steam: any, index: number) => { const phase = steam.userData.phase || 0; const rise = (Math.sin(elapsed * 0.9 + phase) + 1) * 0.5; steam.position.x = steam.userData.baseX + Math.sin(elapsed * 0.75 + phase) * 0.035; steam.position.y = steam.userData.baseY + rise * 0.34; steam.material.opacity = (0.20 + index * 0.035) * (1 - rise); steam.scale.x = 0.055 + rise * 0.018; steam.scale.y = 0.14 + rise * 0.10; }); const approachT = Math.min(1, Math.max(0, (p - 0.66) / 0.34)); const approach = approachT * approachT * (3 - 2 * approachT); const cruiseZ = 8.5 - p * (mobile ? 72 : 90); const stairStartZ = mobile ? -65.8 : -65.5; const stairEndZ = mobile ? -69.15 : -69.35; const stairBlend = Math.min(1, Math.max(0, approach / 0.22)); const stairBlendSmooth = stairBlend * stairBlend * (3 - 2 * stairBlend); const stairT = Math.min(1, Math.max(0, (approach - 0.22) / 0.78)); const stairProgress = stairT * stairT * (3 - 2 * stairT); const stairZ = stairStartZ + (stairEndZ - stairStartZ) * stairProgress; const targetZ = cruiseZ + (stairZ - cruiseZ) * stairBlendSmooth; const stairRise = mobile ? 1.18 : 1.34; const targetY = 1.70 + Math.sin(p * Math.PI) * 0.10 + stairRise * stairProgress * stairBlendSmooth; const targetX = pointerRef.current.x * (mobile ? 0.16 : 0.36); const stairPitch = mobile ? 0.28 : 0.32; const targetPitch = -0.045 - stairPitch * stairProgress * stairBlendSmooth + pointerRef.current.y * -0.006; const doorT = Math.min(1, Math.max(0, (p - 0.84) / 0.16)); const doorOpen = doorT * doorT * (3 - 2 * doorT); state.camera.position.x += (targetX - state.camera.position.x) * 0.055; state.camera.position.y += (targetY - state.camera.position.y) * 0.05; state.camera.position.z += (targetZ - state.camera.position.z) * 0.08; state.camera.rotation.y += (pointerRef.current.x * 0.018 - state.camera.rotation.y) * 0.035; state.camera.rotation.x += (targetPitch - state.camera.rotation.x) * 0.035; state.doorLeaves.forEach((leaf: any) => { const side = leaf.userData.side || 1; leaf.position.x = side * (0.72 + doorOpen * 1.58); }); if (state.doorLight) state.doorLight.intensity = 0.18 + doorOpen * 2.0; if (!reduced) { state.clouds.forEach((cloud) => { cloud.group.position.x = cloud.baseX + Math.sin(elapsed * cloud.speed * 0.08 + cloud.phase) * 2.5; cloud.group.position.y = cloud.baseY + Math.sin(elapsed * 0.12 + cloud.phase) * 0.035; }); state.leafData.forEach((leaf, index) => { const wind = elapsed * leaf.speed + leaf.phase, x = leaf.x + Math.sin(wind) * leaf.drift + elapsed * 0.18 * leaf.speed, y = leaf.y + Math.sin(wind * 1.35) * 0.28, z = leaf.z + Math.cos(wind * 0.7) * 0.55; dummy.position.set(x > 8 ? x - 16 : x, y, z); dummy.rotation.set(Math.sin(wind) * 0.9, Math.cos(wind * 0.8) * 1.3, leaf.rotation + wind * 1.7); dummy.scale.set(leaf.size, leaf.size, leaf.size); dummy.updateMatrix(); state.leaves.setMatrixAt(index, dummy.matrix); }); state.leaves.instanceMatrix.needsUpdate = true; } state.renderer.render(state.scene, state.camera); } raf = requestAnimationFrame(animate); }; raf = requestAnimationFrame(animate); } catch { if (!disposed) setReady(false); } }; window.addEventListener('scroll', onScroll, { passive: true }); if (!mobile) window.addEventListener('pointermove', pointerMove, { passive: true }); init(); return () => { disposed = true; cancelAnimationFrame(raf); cancelAnimationFrame(scrollRaf); window.removeEventListener('scroll', onScroll); if (!mobile) window.removeEventListener('pointermove', pointerMove); visibilityObserver.disconnect(); themeObserver.disconnect(); cleanup?.(); }; }, []);
   const current = chapters[chapter]; return (<section id="kage-experience" className="relative z-0 isolate h-[360vh] bg-[#040608] text-white"><div className="sticky top-0 h-[100svh] min-h-[620px] w-full overflow-hidden"><canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 h-full w-full" /><div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(38,104,168,0.02),rgba(255,219,170,0.12)_72%,rgba(255,237,208,0.22))] dark:bg-[radial-gradient(circle_at_50%_45%,transparent_0%,rgba(3,5,8,0.08)_45%,rgba(3,5,8,0.68)_100%)]" /><div className="relative z-10 flex h-full items-end px-5 pb-20 sm:px-8 sm:pb-24 lg:px-16 lg:pb-28"><div className="w-full max-w-3xl"><div className="mb-5 flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.38em] text-amber-200/75 sm:text-xs"><span className="h-px w-12 bg-amber-200/60" /><span>{current.kicker}</span></div><h2 className="max-w-3xl whitespace-pre-line font-black uppercase leading-[0.82] tracking-[-0.075em] text-[clamp(3.05rem,12.5vw,8.2rem)] text-white drop-shadow-2xl sm:text-[clamp(4.8rem,10vw,8.5rem)]">{current.title}</h2><p className="mt-7 max-w-2xl text-base leading-7 text-white/80 sm:text-lg sm:leading-8 lg:text-xl">{current.body}</p></div></div><div className="absolute bottom-5 right-5 z-20 flex items-center gap-3 sm:bottom-8 sm:right-8"><div className="h-1 w-20 overflow-hidden rounded-full bg-white/15 sm:w-28"><div className="h-full rounded-full bg-amber-200/80 transition-[width] duration-150" style={{ width: `${((chapter + 1) / chapters.length) * 100}%` }} /></div><span className="text-[10px] tracking-[0.3em] text-white/55">SCROLL</span></div>{!ready && <div className="pointer-events-none absolute inset-0 z-30 bg-[#040608]" />}</div></section>);
 }
