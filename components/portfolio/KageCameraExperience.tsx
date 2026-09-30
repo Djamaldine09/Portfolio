@@ -107,8 +107,8 @@ function createKageRoughnessTexture(THREE: any, mobile: boolean, scale: number, 
 }
 
 function createKageTerrainGeometry(THREE: any, width: number, depth: number, pathWidth: number, mobile: boolean) {
-  const segmentsX = mobile ? 18 : 28;
-  const segmentsZ = mobile ? 58 : 88;
+  const segmentsX = mobile ? 22 : 34;
+  const segmentsZ = mobile ? 72 : 108;
   const geometry = new THREE.PlaneGeometry(width, depth, segmentsX, segmentsZ);
   const position = geometry.attributes.position;
 
@@ -116,20 +116,32 @@ function createKageTerrainGeometry(THREE: any, width: number, depth: number, pat
     const x = position.getX(i);
     const z = position.getY(i);
     const distanceFromPath = Math.abs(x);
-    const shoulderStart = pathWidth * 0.62;
+    const pathHalf = pathWidth * 0.5;
+    const shoulderStart = pathHalf + 0.35;
     const shoulderRange = Math.max(width * 0.5 - shoulderStart, 0.01);
     const shoulderT = Math.min(1, Math.max(0, (distanceFromPath - shoulderStart) / shoulderRange));
     const shoulder = shoulderT * shoulderT * (3 - 2 * shoulderT);
 
-    const broadRelief =
-      Math.sin(z * 0.095 + x * 0.07) * 0.012 +
-      Math.sin(z * 0.21 - x * 0.05) * 0.008;
-    const naturalVariation =
-      (Math.sin(z * 0.17 + x * 0.09) + Math.sin(z * 0.42 - x * 0.18) * 0.35) * 0.012;
-    const bank = shoulder * 0.065;
+    // Keep the ground under the stone path slightly lower so the paving
+    // remains visually grounded instead of intersecting the terrain.
+    const pathBlend = Math.min(1, Math.max(0, (distanceFromPath - pathHalf) / 0.65));
+    const smoothPathBlend = pathBlend * pathBlend * (3 - 2 * pathBlend);
 
-    const y = Math.max(-0.07, Math.min(0.065, -0.045 + bank + broadRelief + naturalVariation));
-    position.setZ(i, y);
+    // Large, low-frequency undulations create real landscape relief.
+    // Smaller waves only break the computer-perfect surface.
+    const broadRelief =
+      Math.sin(z * 0.075 + x * 0.11) * 0.055 +
+      Math.sin(z * 0.16 - x * 0.085) * 0.032;
+    const naturalVariation =
+      (Math.sin(z * 0.38 + x * 0.27) + Math.sin(z * 0.62 - x * 0.31) * 0.45) * 0.012;
+
+    // Raised banks beside the path. The center stays close to ground level.
+    const bank = shoulder * (0.13 + 0.035 * Math.sin(z * 0.11 + x * 0.07));
+    const base = -0.055 + broadRelief + naturalVariation;
+    const terrainY = base + bank;
+    const finalY = -0.035 + (terrainY + 0.035) * smoothPathBlend;
+
+    position.setZ(i, Math.max(-0.11, Math.min(0.18, finalY)));
   }
 
   position.needsUpdate = true;
