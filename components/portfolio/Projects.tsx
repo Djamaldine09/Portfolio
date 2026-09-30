@@ -11,13 +11,13 @@ const GAP = 32;
 
 const projects = [
   {
-    title: 'E-Commerce Platform',
-    description: 'Plateforme e-commerce complète avec paiement intégré et gestion des stocks',
-    image: 'https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=800',
-    tags: ['Next.js', 'TypeScript', 'Stripe', 'Supabase'],
-    color: 'from-blue-600 to-cyan-600',
-    github: '#',
-    demo: '#',
+    title: 'Exam Mada — Gestion des examens nationaux',
+    description: 'Plateforme complète pour organiser les examens nationaux, gérer les candidats, les résultats, les paiements et les centres.',
+    image: 'https://raw.githubusercontent.com/Djamaldine09/frontend/main/public/logo/logo-app.png',
+    tags: ['Next.js 15', 'TypeScript', 'Tailwind CSS', 'JWT'],
+    color: 'from-cyan-600 to-teal-600',
+    github: 'https://github.com/Djamaldine09/frontend',
+    demo: 'https://frontend-six-rho-57.vercel.app',
   },
   {
     title: 'Task Management App',
