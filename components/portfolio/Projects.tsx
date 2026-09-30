@@ -23,6 +23,7 @@ const projects = [
     title: 'Exam Mada — Application mobile candidat',
     description: 'Application Flutter dédiée aux candidats pour consulter les examens, résultats, paiements et documents de leur parcours.',
     image: '/projects/Application-ExamMada.png',
+    imagePosition: 'center 25%',
     tags: ['Flutter', 'Dart', 'Firebase', 'Provider'],
     color: 'from-indigo-600 to-cyan-600',
     github: 'https://github.com/Djamaldine09/Exam-Mada',
@@ -127,6 +128,7 @@ export default function Projects() {
                     src={project.image}
                     alt={project.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    style={{ objectPosition: project.imagePosition ?? 'center' }}
                   />
                   <div
                     className={`absolute inset-0 bg-gradient-to-t ${project.color} opacity-0 group-hover:opacity-40 mix-blend-multiply transition-opacity duration-300`}
