@@ -22,7 +22,7 @@ const projects = [
   {
     title: 'Exam Mada — Application mobile candidat',
     description: 'Application Flutter dédiée aux candidats pour consulter les examens, résultats, paiements et documents de leur parcours.',
-    image: '/projects/exam-mada-app.jpg',
+    image: '/projects/Application-ExamMada.png',
     tags: ['Flutter', 'Dart', 'Firebase', 'Provider'],
     color: 'from-indigo-600 to-cyan-600',
     github: 'https://github.com/Djamaldine09/Exam-Mada',
