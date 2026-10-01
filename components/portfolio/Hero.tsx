@@ -10,6 +10,7 @@ import {
   useMotionTemplate,
 } from 'framer-motion';
 import { ArrowDown, ArrowUpRight, Github, Linkedin } from 'lucide-react';
+import SlipText from './SlipText';
 
 const MASK_SIZE = 270;
 const HERO_BACKGROUND = '/1719.png';
@@ -18,58 +19,6 @@ const PORTRAIT = '/portrait.png';
 
 const HERO_DESCRIPTION =
   "Je conçois des applications web et mobiles modernes, robustes et interactives avec une attention particulière portée au design, à l'expérience utilisateur et aux performances.";
-
-function HeroTextMotion() {
-  const reducedMotion = useReducedMotion();
-
-  const words = HERO_DESCRIPTION.split(' ');
-  const totalWords = words.length;
-
-  return (
-    <motion.p
-      aria-label={HERO_DESCRIPTION}
-      initial={reducedMotion ? false : 'hidden'}
-      animate="visible"
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: 0.035,
-            delayChildren: 0.12,
-          },
-        },
-      }}
-      className="w-full max-w-2xl whitespace-normal break-words font-[family-name:var(--font-manrope)] text-[1.05rem] font-medium leading-7 tracking-[-0.01em] text-white/65 sm:text-xl sm:leading-8"
-    >
-      {words.map((word, index) => (
-        <motion.span
-          key={`${word}-${index}`}
-          aria-hidden="true"
-          variants={{
-            hidden: {
-              opacity: 0,
-              y: 18,
-              filter: 'blur(7px)',
-            },
-            visible: {
-              opacity: 1,
-              y: 0,
-              filter: 'blur(0px)',
-              transition: {
-                duration: reducedMotion ? 0 : 0.55,
-                ease: [0.22, 1, 0.36, 1],
-              },
-            },
-          }}
-          className="inline-block will-change-transform"
-        >
-          {word}
-          {index < totalWords - 1 ? '\u00a0' : ''}
-        </motion.span>
-      ))}
-    </motion.p>
-  );
-}
 
 export default function Hero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -189,7 +138,12 @@ export default function Hero() {
             />
 
             <div className="mt-8 grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-[1.3fr_.7fr] md:items-end">
-              <HeroTextMotion />
+              <SlipText
+                text={HERO_DESCRIPTION}
+                delay={0.12}
+                stagger={0.035}
+                className="w-full max-w-2xl whitespace-normal break-words font-[family-name:var(--font-manrope)] text-[1.05rem] font-medium leading-7 tracking-[-0.01em] text-white/65 sm:text-xl sm:leading-8"
+              />
               <div className="flex flex-wrap gap-3 md:justify-end">
                 <motion.a
                   whileHover={{ y: -3, scale: 1.02 }}
