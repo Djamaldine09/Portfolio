@@ -15,7 +15,6 @@ const techLogos: Record<string, string> = {
   TypeScript: '/tech/logo-typescript.webp',
   Flutter: '/tech/flutter-logo.png',
   React: '/tech/React.png',
-  'Vue.js': '/tech/vue.png',
   'Node.js': '/tech/logo-node-js.png',
   Express: '/tech/logo-expressjs.png',
   Laravel: '/tech/laravel.png',
