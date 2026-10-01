@@ -62,7 +62,7 @@ const projects = [
     tags: ['React', 'TypeScript', 'Spring Boot', 'Java', 'MySQL', 'JWT', 'Tailwind CSS', 'WebSocket'],
     color: 'from-violet-600 to-indigo-600',
     github: 'https://github.com/Djamaldine09/e-ticket',
-    demo: '#',
+    demo: 'https://e-ticket-murex.vercel.app',
   },
   {
     title: 'Analytics Dashboard',
