@@ -26,6 +26,8 @@ const techLogos: Record<string, string> = {
   Angular: '/tech/angular.png',
   '.NET': '/tech/dotnet.png',
   JavaScript: '/tech/javascript-js.png',
+  'Tailwind CSS': '/tech/tailwindcss.svg',
+  TailwindCSS: '/tech/tailwindcss.svg',
 };
 
 const projects = [
