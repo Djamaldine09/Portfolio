@@ -28,6 +28,7 @@ const techLogos: Record<string, string> = {
   JavaScript: '/tech/javascript-js.png',
   'Tailwind CSS': '/tech/tailwindcss.svg',
   TailwindCSS: '/tech/tailwindcss.svg',
+  MongoDB: '/tech/mongodb-icon-dark.svg',
 };
 
 const projects = [
@@ -35,7 +36,7 @@ const projects = [
     title: 'Exam Mada — Gestion des examens nationaux',
     description: 'Plateforme complète pour organiser les examens nationaux, gérer les candidats, les résultats, les paiements et les centres.',
     image: 'https://raw.githubusercontent.com/Djamaldine09/frontend/main/public/logo/logo-app.png',
-    tags: ['Next.js 15', 'TypeScript', 'React', 'Express.js', 'JWT'],
+    tags: ['Next.js 15', 'TypeScript', 'React', 'Express.js', 'JWT', 'MongoDB'],
     color: 'from-cyan-600 to-teal-600',
     github: 'https://github.com/Djamaldine09/frontend',
     demo: 'https://exammada.site',
@@ -45,7 +46,7 @@ const projects = [
     description: 'Application Flutter dédiée aux candidats pour consulter les examens, résultats, paiements et documents de leur parcours.',
     image: '/projects/Application-ExamMada.png',
     imagePosition: 'center 25%',
-    tags: ['Flutter', 'Firebase', 'Express.js'],
+    tags: ['Flutter', 'Firebase', 'Express.js', 'MongoDB'],
     color: 'from-indigo-600 to-cyan-600',
     github: 'https://github.com/Djamaldine09/Exam-Mada',
     demo: 'https://exammada.site',
