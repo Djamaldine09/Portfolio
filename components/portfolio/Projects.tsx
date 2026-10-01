@@ -58,6 +58,7 @@ const projects = [
     title: 'Ticket Place — Gestion et réservation de tickets',
     description: 'Plateforme de gestion et réservation de tickets avec authentification sécurisée, QR codes et notifications en temps réel.',
     image: '/tech/E-ticket_logo.png',
+    imageFit: 'contain',
     tags: ['React', 'TypeScript', 'Spring Boot', 'Java', 'MySQL', 'JWT', 'Tailwind CSS', 'WebSocket'],
     color: 'from-violet-600 to-indigo-600',
     github: 'https://github.com/Djamaldine09/e-ticket',
@@ -152,7 +153,7 @@ export default function Projects() {
                   <img
                     src={project.image}
                     alt={project.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className={`w-full h-full ${project.imageFit === 'contain' ? 'object-contain p-4' : 'object-cover'} group-hover:scale-110 transition-transform duration-500`}
                     style={{ objectPosition: project.imagePosition ?? 'center' }}
                   />
                   <div
