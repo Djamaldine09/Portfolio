@@ -149,7 +149,7 @@ export default function Projects() {
                 className="group shrink-0 rounded-2xl overflow-hidden border-2 border-transparent hover:border-blue-200 dark:hover:border-cyan-500/50 bg-white dark:bg-slate-800 shadow-lg hover:shadow-2xl transition-all duration-500"
                 style={{ width: `${ITEM_WIDTH}px` }}
               >
-                <div className="relative h-48 overflow-hidden">
+                <div className={`relative h-48 overflow-hidden ${project.imageFit === 'contain' ? 'bg-black' : ''}`}>
                   <img
                     src={project.image}
                     alt={project.title}
