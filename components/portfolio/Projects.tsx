@@ -52,12 +52,12 @@ const projects = [
     demo: 'https://exammada.site',
   },
   {
-    title: 'Portfolio CMS',
-    description: 'Système de gestion de contenu pour portfolios créatifs',
-    image: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=800',
-    tags: ['Next.js', 'Prisma', 'PostgreSQL', 'TailwindCSS'],
-    color: 'from-emerald-600 to-teal-600',
-    github: '#',
+    title: 'Ticket Place — Gestion et réservation de tickets',
+    description: 'Plateforme de gestion et réservation de tickets avec authentification sécurisée, QR codes et notifications en temps réel.',
+    image: 'https://raw.githubusercontent.com/Djamaldine09/e-ticket/main/uploads/0beeb1eb-a633-419f-b01c-0fa03087eddc.png',
+    tags: ['Next.js 16', 'TypeScript', 'Spring Boot', 'Java', 'MySQL', 'JWT', 'Tailwind CSS', 'WebSocket'],
+    color: 'from-violet-600 to-indigo-600',
+    github: 'https://github.com/Djamaldine09/e-ticket',
     demo: '#',
   },
   {
