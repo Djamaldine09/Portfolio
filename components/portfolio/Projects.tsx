@@ -40,7 +40,7 @@ const projects = [
     description: 'Application Flutter dédiée aux candidats pour consulter les examens, résultats, paiements et documents de leur parcours.',
     image: '/projects/Application-ExamMada.png',
     imagePosition: 'center 25%',
-    tags: ['Flutter', 'Dart', 'Firebase', 'Provider'],
+    tags: ['Flutter', 'Firebase'],
     color: 'from-indigo-600 to-cyan-600',
     github: 'https://github.com/Djamaldine09/Exam-Mada',
     demo: 'https://exammada.site',
