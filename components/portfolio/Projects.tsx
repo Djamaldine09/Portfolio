@@ -14,6 +14,7 @@ const techLogos: Record<string, string> = {
   'Next.js': '/tech/next_js_logo.png',
   TypeScript: '/tech/logo-typescript.webp',
   Flutter: '/tech/flutter-logo.png',
+  Firebase: '/tech/firebase.svg',
   React: '/tech/React.png',
   'Node.js': '/tech/logo-node-js.png',
   Express: '/tech/expressjs.svg',
