@@ -58,7 +58,7 @@ const projects = [
     title: 'Ticket Place — Gestion et réservation de tickets',
     description: 'Plateforme de gestion et réservation de tickets avec authentification sécurisée, QR codes et notifications en temps réel.',
     image: '/tech/E-ticket_logo.png',
-    tags: ['Next.js 16', 'TypeScript', 'Spring Boot', 'Java', 'MySQL', 'JWT', 'Tailwind CSS', 'WebSocket'],
+    tags: ['React', 'TypeScript', 'Spring Boot', 'Java', 'MySQL', 'JWT', 'Tailwind CSS', 'WebSocket'],
     color: 'from-violet-600 to-indigo-600',
     github: 'https://github.com/Djamaldine09/e-ticket',
     demo: '#',
