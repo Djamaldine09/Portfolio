@@ -9,6 +9,23 @@ import { Button } from '@/components/ui/button';
 const ITEM_WIDTH = 380;
 const GAP = 32;
 
+const techLogos: Record<string, string> = {
+  'Next.js 15': '/tech/next_js_logo.png',
+  'Next.js': '/tech/next_js_logo.png',
+  TypeScript: '/tech/logo-typescript.webp',
+  Flutter: '/tech/flutter-logo.png',
+  React: '/tech/React.png',
+  'Vue.js': '/tech/vue.png',
+  'Node.js': '/tech/logo-node-js.png',
+  Express: '/tech/logo-expressjs.png',
+  Laravel: '/tech/laravel.png',
+  Java: '/tech/java.png',
+  Python: '/tech/python.png',
+  Angular: '/tech/angular.png',
+  '.NET': '/tech/dotnet.png',
+  JavaScript: '/tech/javascript-js.png',
+};
+
 const projects = [
   {
     title: 'Exam Mada — Gestion des examens nationaux',
@@ -146,16 +163,31 @@ export default function Projects() {
                     {project.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.map((tag, tagIndex) => (
-                      <Badge
-                        key={tagIndex}
-                        variant="secondary"
-                        className="bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
+                  <div className="mb-4">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2">
+                      Technologies utilisées
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags.map((tag, tagIndex) => {
+                        const logo = techLogos[tag];
+                        return (
+                          <Badge
+                            key={tagIndex}
+                            variant="secondary"
+                            className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs px-2.5 py-1"
+                          >
+                            {logo ? (
+                              <img
+                                src={logo}
+                                alt=""
+                                className="w-4 h-4 object-contain"
+                              />
+                            ) : null}
+                            <span>{tag}</span>
+                          </Badge>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   <div className="flex gap-2">
