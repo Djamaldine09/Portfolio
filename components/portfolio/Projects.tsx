@@ -36,7 +36,7 @@ const projects = [
     title: 'Exam Mada — Gestion des examens nationaux',
     description: 'Plateforme complète pour organiser les examens nationaux, gérer les candidats, les résultats, les paiements et les centres.',
     image: 'https://raw.githubusercontent.com/Djamaldine09/frontend/main/public/logo/logo-app.png',
-    tags: ['Next.js 15', 'TypeScript', 'React', 'Express.js', 'JWT', 'MongoDB'],
+    tags: ['Next.js 15', 'TypeScript', 'React', 'Express.js', 'JWT', 'Tailwind CSS', 'MongoDB'],
     color: 'from-cyan-600 to-teal-600',
     github: 'https://github.com/Djamaldine09/frontend',
     demo: 'https://exammada.site',
