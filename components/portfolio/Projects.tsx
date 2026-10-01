@@ -29,6 +29,9 @@ const techLogos: Record<string, string> = {
   'Tailwind CSS': '/tech/tailwindcss.svg',
   TailwindCSS: '/tech/tailwindcss.svg',
   MongoDB: '/tech/mongodb-icon-dark.svg',
+  MySQL: '/tech/mysql-wordmark-light.svg',
+  'Spring Boot': '/tech/spring.svg',
+  'Spring': '/tech/spring.svg',
 };
 
 const projects = [
@@ -54,7 +57,7 @@ const projects = [
   {
     title: 'Ticket Place — Gestion et réservation de tickets',
     description: 'Plateforme de gestion et réservation de tickets avec authentification sécurisée, QR codes et notifications en temps réel.',
-    image: 'https://raw.githubusercontent.com/Djamaldine09/e-ticket/main/uploads/0beeb1eb-a633-419f-b01c-0fa03087eddc.png',
+    image: '/tech/E-ticket_logo.png',
     tags: ['Next.js 16', 'TypeScript', 'Spring Boot', 'Java', 'MySQL', 'JWT', 'Tailwind CSS', 'WebSocket'],
     color: 'from-violet-600 to-indigo-600',
     github: 'https://github.com/Djamaldine09/e-ticket',
